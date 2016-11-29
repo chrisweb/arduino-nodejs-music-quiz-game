@@ -1,0 +1,17 @@
+{
+  "name": "quizz-game",
+  "version": "0.0.1",
+  "description": "quizz game using 4 big arcade buttons connected to an arduino board that sends the data to nodejs",
+  "main": "build/server.js",
+  "repository": "https://github.com/chrisweb/nodejs-arduino-game",
+  "author": "chrisweb <chris963@gmail.com> (https://chris.lu)",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^0.0.1",
+    "express": "^4.14.0",
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.1.3",
+    "tslint": "^4.0.2",
+    "typescript": "^2.0.10"
+  }
+}
