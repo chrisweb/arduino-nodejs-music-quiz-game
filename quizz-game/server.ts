@@ -1,13 +1,8 @@
-﻿/// <reference path="node_modules/@types/node/index.d.ts" />
-/// <reference path="node_modules/@types/express/index.d.ts" />
+﻿
+'use strict';
 
-var express = require('express')
-var app = express()
+import Bootstrap from './server/bootstrap';
 
-app.get('/', function (request, response) {
-    response.send('Hello World!');
-})
+const bootstrap = new Bootstrap();
 
-app.listen(35000, function () {
-    console.log('Example app listening on port 35000!');
-})
+bootstrap.run();

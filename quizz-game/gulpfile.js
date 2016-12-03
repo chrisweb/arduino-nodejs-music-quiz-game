@@ -1,4 +1,3 @@
-
 'use strict';
 
 const gulp = require('gulp');
@@ -14,7 +13,8 @@ gulp.task('lint', () => {
   const tslintConfig = require('./tslint.json');
   return gulp
       .src([
-        'source/**/*.ts'
+          'server.ts',
+          'server/**/*.ts'
       ])
       .pipe(tslint({
         tslint: require('tslint').default,
