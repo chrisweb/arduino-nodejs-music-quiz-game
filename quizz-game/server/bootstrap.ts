@@ -9,16 +9,19 @@ import Router from './../library/router';
 
 export default class Bootsrtrap {
 
-    private app: express.Application;
+    private application: express.Application;
 
     constructor() {
 
         // create a new expressjs application
-        this.app = express();
+        this.application = express();
 
     }
 
     public run() {
+
+        // disable x-powered-by express
+        this.application.disable('x-powered-by');
 
         this.setupRoutes();
 
@@ -28,7 +31,7 @@ export default class Bootsrtrap {
 
     private setupRoutes() {
 
-        const router = new Router(this.app);
+        const router = new Router(this.application);
 
         router.setupRoutes();
 
@@ -36,7 +39,7 @@ export default class Bootsrtrap {
 
     private startServer() {
 
-        this.app.listen(35000, function () {
+        this.application.listen(35000, function () {
             console.log('app listening on port 35000...');
         });
 

@@ -6,15 +6,18 @@
     "emitDecoratorMetadata": true,
     "module": "umd",
     "moduleResolution": "node",
+    "rootDir": ".",
     "outDir": "./build",
+    "mapRoot": "./build/sourcemaps",
+    "inlineSourceMap": false,
+    "sourceMaps": true,
+    "declarationDir": "./build/definitions",
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
 
     },
-    "rootDir": ".",
-    "inlineSourceMap": true,
-    "lib": ["es5"],
+    "lib": [ "es5" ],
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "target": "es5"
