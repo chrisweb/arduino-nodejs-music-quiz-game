@@ -17,7 +17,7 @@
     "paths": {
 
     },
-    "lib": [ "es5" ],
+    "lib": [ "es5", "es2015" ],
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "target": "es5"

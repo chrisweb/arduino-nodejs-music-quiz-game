@@ -100,3 +100,11 @@ to build the project (create js files from ts source files, copies files, ...), 
 ```
 gulp build
 ```  
+
+### start development
+
+while developing I recommend you enable gulp watch to ensure typescript files get compiled on each save
+
+```
+gulp watch
+```

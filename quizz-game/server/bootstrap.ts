@@ -6,6 +6,7 @@ import * as express from 'express';
 
 // library
 import Router from './../library/router';
+import SocketIoLibrary from './../library/socketio';
 
 export default class Bootsrtrap {
 
@@ -25,6 +26,8 @@ export default class Bootsrtrap {
 
         this.setupRoutes();
 
+        this.setupSocketIo();
+
         this.startServer();
 
     }
@@ -34,6 +37,14 @@ export default class Bootsrtrap {
         const router = new Router(this.application);
 
         router.setupRoutes();
+
+    }
+
+    private setupSocketIo() {
+
+        const socketIoLibrary = new SocketIoLibrary(this.application);
+
+        socketIoLibrary.setupSocketIo();
 
     }
 
