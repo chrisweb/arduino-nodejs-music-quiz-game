@@ -23,7 +23,7 @@ cd /PROJECT_DIRECTORY_PATH
 now clone the project into that directory  
 
 ```
-git clone git@github.com:chrisweb/freeMusic.zone.git
+git@github.com:chrisweb/nodejs-arduino-game.git
 ```  
 
 if you are on windows you can also use the github desktop (https://desktop.github.com/) or if your use visual studio as IDE you can use the github for visual studio extension (https://visualstudio.github.com/)  
@@ -83,11 +83,15 @@ https://github.com/yarnpkg/yarn/issues/656
 
 ### install the development dependencies using npm
 
-use npm to fetch all the dependencies and put them into the node_modules directory  
+use npm to fetch all the dependencies  
 
 ```
 npm install
 ```  
+
+This will fetch all the dependencies from https://www.npmjs.org/ that are listed in the project package.json and put them into a directory called node_modules  
+
+!!! If you want to install the dependencies from within a Virtual Machine with a Linux operating system, but your shared folder is in windows then user "npm install --no-bin-link" (as windows does not support symlinks)  
 
 ### build the project  
 
