@@ -1,10 +1,10 @@
 # game idea
 
-(GS) Screen / client 1 (Game Screen)
-(GM) Screen / client 2 (Game Master Screen)
-(NJS) Server (Nodejs)
-(ARD) Arduino (Board / Buttons)
-(A) Actions (non development)
+(GS) Screen / client 1 (Game Screen)  
+(GM) Screen / client 2 (Game Master Screen)  
+(NJS) Server (Nodejs)  
+(ARD) Arduino (Board / Buttons)  
+(A) Actions (non development)  
 
 
 * (GM) choose predefined playlist from a list of playlists
