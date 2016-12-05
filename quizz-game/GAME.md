@@ -1,4 +1,4 @@
-# game idea
+# Game MVP
 
 (GS) Screen / client 1 (Game Screen)  
 (GM) Screen / client 2 (Game Master Screen)  
