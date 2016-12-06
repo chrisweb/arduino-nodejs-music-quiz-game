@@ -10,7 +10,7 @@
     "outDir": "./build",
     "mapRoot": "./build/sourcemaps",
     "inlineSourceMap": false,
-    "sourceMaps": true,
+    "sourceMap": true,
     "declarationDir": "./build/definitions",
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,

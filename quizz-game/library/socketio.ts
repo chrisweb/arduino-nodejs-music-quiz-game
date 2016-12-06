@@ -1,38 +1,35 @@
-﻿/// <reference path="../node_modules/@types/express/index.d.ts" />
-/// <reference path="../node_modules/@types/node/index.d.ts" />
-/// <reference path="../node_modules/@types/socket.io/index.d.ts" />
-
-'use strict';
+﻿'use strict';
 
 // node
 import * as http from 'http';
 
 // vendor
 import * as express from 'express';
-import * as SocketioModule from 'socket.io';
+// import * as SocketioModule from 'socket.io';
+import SocketIo = require('socket.io');
 
 export default class SocketIoLibrary {
 
-    private io: SocketioModule.Server;
+    private io: SocketIO.Server;
 
     public constructor(application: express.Application) {
 
         let server: http.Server = http.createServer(application);
 
-        this.io = new SocketioModule(server);
+        this.io = SocketIo(server);
 
     }
 
     public setupSocketIo() {
 
-        this.io.on('connection', function (socket: SocketIO.Socket) {
+        return new Promise((resolve) => {
+            this.io.on('connection', function (socket: SocketIO.Socket) {
 
-            console.log('a user connected');
+                console.log('a user connected');
 
+                resolve();
+            });
         });
-
-
-
     }
 
 }
