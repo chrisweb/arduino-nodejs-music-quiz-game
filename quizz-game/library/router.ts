@@ -17,37 +17,42 @@ export default class Router {
 
     public setupRoutes() {
 
-        let root = __dirname + '/..';
-        let assetsRoot = path.join(root, 'assets');
-        let clientRoot = path.join(root, 'client');
+        return new Promise((resolve) => {
 
-        // static files
-        // documentation: https://expressjs.com/en/starter/static-files.html
-        this.application.use('/static', express.static(assetsRoot));
-        this.application.use('/static/js', express.static(clientRoot));
+            let root = __dirname + '/..';
+            let assetsRoot = path.join(root, 'assets');
+            let clientRoot = path.join(root, 'client');
 
-        // main page
-        this.application.get('/', function (request: express.Request, response: express.Response) {
+            // static files
+            // documentation: https://expressjs.com/en/starter/static-files.html
+            this.application.use('/static', express.static(assetsRoot));
+            this.application.use('/static/js', express.static(clientRoot));
 
-            // options list: http://expressjs.com/en/api.html#res.sendFile
-            let mainPageSendfileOptions = {
-                root: path.join(assetsRoot, '/html'),
-                dotfiles: 'deny',
-                headers: {
-                    'x-timestamp': Date.now(),
-                    'x-sent': true
-                }
-            };
+            // main page
+            this.application.get('/', function (request: express.Request, response: express.Response) {
 
-            response.sendFile('main.html', mainPageSendfileOptions);
+                // options list: http://expressjs.com/en/api.html#res.sendFile
+                let mainPageSendfileOptions = {
+                    root: path.join(assetsRoot, '/html'),
+                    dotfiles: 'deny',
+                    headers: {
+                        'x-timestamp': Date.now(),
+                        'x-sent': true
+                    }
+                };
 
-        });
+                response.sendFile('main.html', mainPageSendfileOptions);
 
-        // 404
-        this.application.use(function (request: express.Request, response: express.Response) {
+            });
 
-            response.sendStatus(404);
+            // 404
+            this.application.use(function (request: express.Request, response: express.Response) {
 
+                response.sendStatus(404);
+
+            });
+
+            resolve();
         });
 
     }

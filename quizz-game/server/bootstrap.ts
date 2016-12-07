@@ -24,19 +24,26 @@ export default class Bootsrtrap {
         // disable x-powered-by express
         this.application.disable('x-powered-by');
 
-        this.setupRoutes();
+        new Promise((resolve, reject) => {
 
-        this.setupSocketIo();
+            Promise.resolve([
+                this.setupRoutes(),
 
-        this.startServer();
+                this.setupSocketIo()
+            ]).then(() => {
+                return this.startServer();
+            }).then(() => {
+                resolve();
+            }).catch(reject);
 
+        });
     }
 
     private setupRoutes() {
 
         const router = new Router(this.application);
 
-        router.setupRoutes();
+        return router.setupRoutes();
 
     }
 
@@ -44,16 +51,18 @@ export default class Bootsrtrap {
 
         const socketIoLibrary = new SocketIoLibrary(this.application);
 
-        socketIoLibrary.setupSocketIo();
+        return socketIoLibrary.setupSocketIo();
 
     }
 
     private startServer() {
 
-        this.application.listen(35000, function () {
-            console.log('app listening on port 35000...');
+        return new Promise((resolve) => {
+            this.application.listen(35000, function () {
+                console.log('app listening on port 35000...');
+                resolve();
+            });
         });
-
     }
 
 }
