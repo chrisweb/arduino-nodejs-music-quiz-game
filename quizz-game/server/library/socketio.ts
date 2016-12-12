@@ -23,12 +23,30 @@ export default class SocketIoLibrary {
     public setupSocketIo() {
 
         return new Promise((resolve) => {
+
             this.io.on('connection', function (socket: SocketIO.Socket) {
 
                 console.log('a user connected');
+                console.log(socket);
 
-                resolve();
+                socket.on('eventFoo', function (message: string) {
+
+                    console.log('message: ' + message);
+
+                    this.io.emit('eventBar', 'cest toi le hello world');
+
+                });
+                
             });
+            
+            this.io.on('disconnect', function () {
+
+                console.log('user disconnected');
+
+            });
+
+            resolve();
+
         });
     }
 

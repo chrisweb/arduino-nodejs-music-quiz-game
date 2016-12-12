@@ -36,7 +36,7 @@ gulp.task('lint', () => {
 });
 
 // gulp typescript build
-gulp.task('build', ['copy:assets', 'copy:jquery'], () => {
+gulp.task('build', ['copy:assets', 'copy:jquery', 'copy:socketio'], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject());
@@ -62,6 +62,13 @@ gulp.task('copy:jquery', () => {
     return gulp
         .src('node_modules/jquery/dist/jquery.js')
         .pipe(gulp.dest('build/assets/javascripts/vendor/jquery/'));
+});
+
+// copy socket.io-client node modules package into the assets build directory
+gulp.task('copy:socketio', () => {
+    return gulp
+        .src('node_modules/socket.io-client/dist/socket.io.js')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/socket.io/'));
 });
 
 gulp.task('watch', ['build'], function () {
