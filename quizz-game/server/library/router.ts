@@ -19,14 +19,8 @@ export default class Router {
 
         return new Promise((resolve) => {
 
-            let root = __dirname + '/..';
+            let root = __dirname + '/../..';
             let assetsRoot = path.join(root, 'assets');
-            let clientRoot = path.join(root, 'client');
-
-            // static files
-            // documentation: https://expressjs.com/en/starter/static-files.html
-            this.application.use('/static', express.static(assetsRoot));
-            this.application.use('/static/js', express.static(clientRoot));
 
             // main page
             this.application.get('/', function (request: express.Request, response: express.Response) {
@@ -53,6 +47,7 @@ export default class Router {
             });
 
             resolve();
+
         });
 
     }
