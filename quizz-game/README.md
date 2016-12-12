@@ -93,6 +93,12 @@ This will fetch all the dependencies from https://www.npmjs.org/ that are listed
 
 !!! If you want to install the dependencies from within a Virtual Machine with a Linux operating system, but your shared folder is in windows then user "npm install --no-bin-link" (as windows does not support symlinks)  
 
+### install gulp-cli globally
+
+```
+npm install gulp-cli -g
+```
+
 ### build the project  
 
 to build the project (create js files from ts source files, copies files, ...), type  
@@ -107,6 +113,30 @@ while developing I recommend you enable gulp watch to ensure typescript files ge
 
 ```
 gulp watch
+```
+
+### add new dependencies (node_modules)
+
+first to check the available package versions use  
+
+```
+npm view <package_name> versions
+```
+
+choose the latest version (it's a prototype) and install it  
+
+if it's a dependency needed by the project to work, we use save so that it also gets added to the dependencies property of our package.json  
+
+use the @ after the package name, to define the version you want to install  
+
+```
+npm install <package_name>@<version> --save
+```
+
+if it's a dependency only used during development use "--save-dev" so that it gets added to the devDependencies property of our package.json  
+
+```
+npm install <package_name>@<version> --save-dev
 ```
 
 ### start the server
