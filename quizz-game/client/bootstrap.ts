@@ -4,13 +4,17 @@ import * as io from 'socket.io-client';
 
 $(function () {
 
-    let socket = io();
+    let socket = io.connect('http://127.0.0.1:35001');
 
-    socket.emit('eventFoo', 'hello world');
+    let message = 'hello world';
 
-    socket.on('eventBar', function (message: string) {
+    console.log('sending message: ' + message);
 
-        console.log(message);
+    socket.emit('eventFoo', message);
+
+    socket.on('eventBar', function (responseMessage: string) {
+
+        console.log('response message recieved: ' + responseMessage);
 
     });
 

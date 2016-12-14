@@ -40,6 +40,8 @@ export default class Bootsrtrap {
                 resolve();
             }).catch(reject);
 
+        }).catch((error) => {
+            console.log(error);
         });
     }
 

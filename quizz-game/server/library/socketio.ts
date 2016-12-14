@@ -16,7 +16,9 @@ export default class SocketIoLibrary {
 
         let server: http.Server = http.createServer(application);
 
-        this.io = SocketIo(server);
+        this.io = SocketIo.listen(server);
+
+        server.listen(35001);
 
     }
 
@@ -24,16 +26,20 @@ export default class SocketIoLibrary {
 
         return new Promise((resolve) => {
 
-            this.io.on('connection', function (socket: SocketIO.Socket) {
+            this.io.on('connection', (socket: SocketIO.Socket) => {
 
                 console.log('a user connected');
                 console.log(socket);
 
-                socket.on('eventFoo', function (message: string) {
+                socket.on('eventFoo', (message: string) => {
 
-                    console.log('message: ' + message);
+                    console.log('message recieved: ' + message);
 
-                    this.io.emit('eventBar', 'cest toi le hello world');
+                    let responseMessage = 'cest toi le hello world';
+
+                    console.log('sending response message: ' + responseMessage);
+
+                    this.io.emit('eventBar', responseMessage);
 
                 });
                 
