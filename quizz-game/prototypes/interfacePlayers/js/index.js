@@ -41,7 +41,7 @@ function displayPageGame(playersNames, playersScores) {
         }
     }
 
-    // on server send event 'playerPressButton the lead
+    // on server send event 'playerPressButton' the lead
     var onPlayerPressButton = function onPlayerPressButtonFunction(event) {
         // display lock effect
         allPlayers.removeClass('active').addClass('lock');
