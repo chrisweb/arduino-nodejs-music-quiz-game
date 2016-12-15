@@ -18,6 +18,10 @@ function displayPageStart() {
     });
 }
 
+function displayPageWait() {
+    $pageWait = activePage('page_wait');
+}
+
 function displayPageSetGame() {
     $pageSetGame = activePage('page_set_game');
 
@@ -27,9 +31,9 @@ function displayPageSetGame() {
 
         // TODO get form info and send it to server
 
-        // TODO wait server start game
+        // TODO on server send event 'newSongStart'
         displayPageGame();
-        //----------------------------
+        //----------------------------------------
     }); 
 }
 
@@ -40,16 +44,65 @@ function displayPageGame(trackTitle, artistName) {
     $pageGame.find('.js-current-track-title').text(trackTitle);
     $pageGame.find('.js-current-track-artist').text(artistName);
 
-    var displayValidateBtn = function displayValidateBtnFunction(display) {
-        if (display === true) {
-            $pageGame.find('.js-current-track-title').removeClass('hidden');
-        } else {
-            $pageGame.find('.js-current-track-title').addClass('hidden');
-        }
-    };
+    $pageGame.on('click', '.js-next-track', function onClickBtnNextTrackFunction(event) {
+        event.preventDefault();
 
-    // on server send event 'playerPressButton'
+        // TODO send to server event 'nextTrack'
+
+        displayValidateBtn(false);
+        displayPageWait();
+    });
+
+    $pageGame.on('click', '.js-end-game', function onClickBtnEndGameFunction(event) {
+        event.preventDefault();
+
+        if (confirm('End the game (go to score screen)?')) {
+        
+            // TODO send to server event 'endGame'
+
+            displayValidateBtn(false);
+            displayPageStart();
+        }
+    
+    });
+
+
+
+    // TODO on server send event 'newSongStart'
+    //displayValidateBtn(false);
+    //displayPageGame(event.trackTitle, event.artistName);
+
+    // TODO on server send event 'playlistFinished'
+    //displayValidateBtn(false);
+    //displayPageStart();
+
+    // TODO on server send event 'playerPressButton'
     displayValidateBtn(true);
+}
+
+function displayValidateBtn(display) {
+    var $btnContainer = $pageGame.find('.js-valide-answer');
+
+    if (display === true) {
+        $btnContainer.removeClass('hidden');
+        $btnContainer.on('click', '.js-good', function onClickGoodBtnFunction(event) {
+            event.preventDefault();
+
+            // TODO send to server event 'answerIsValide'
+        });
+
+        $btnContainer.on('click', '.js-bad', function onClickBadBtnFunction(event) {
+            event.preventDefault();
+
+            // TODO send to server event 'answerIsUnvalide'
+        });
+    } else {
+        $btnContainer.addClass('hidden');
+
+        $btnContainer.off('click', '.js-good');
+
+        $btnContainer.off('click', '.js-bad');
+    }
 }
 
 $container = $('#container');
