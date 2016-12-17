@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+		<link rel="stylesheet" type="text/css" href="css/playersUI.css" />
+	</head>
+	<body>
+		
+			<div id="container">
+				
+                <div id="page_start" class="page js-page">
+
+                    <button class="js-start-btn">Start new game</button>
+
+                </div>
+
+                <div id="page_wait" class="page js-page hidden">
+
+                    <h1>PLEASE WAIT</h1>
+
+                </div>
+
+                <div id="page_set_game" class="page js-page hidden">
+
+                    <form id="set_team_and_playlist">
+                        <h1>Set teams names</h1>
+
+                        <label for="teamName1">team 1</label>
+                        <input type="text" id="teamName1">
+
+                        <label for="teamScore1">score 1</label>
+                        <input type="text" id="teamScore1" value="0">
+
+                        <br><br>
+
+                        <label for="teamName2">team 2</label>
+                        <input type="text" id="teamName2">
+
+                        <label for="teamScore2">score 2</label>
+                        <input type="text" id="teamScore2" value="0">
+
+                        <br><br>
+
+                        <label for="teamName3">team 3</label>
+                        <input type="text" id="teamName3">
+
+                        <label for="teamScore3">score 3</label>
+                        <input type="text" id="teamScore3" value="0">
+
+                        <br><br>
+
+                        <label for="teamName4">team 4</label>
+                        <input type="text" id="teamName4">
+
+                        <label for="teamScore4">score 4</label>
+                        <input type="text" id="teamScore4" value="0">
+
+                        <br><br>
+
+                        <select id="playlistId">
+                            <option value="rock">rock</option>
+                            <option value="dance">dance</option>
+                        </select>
+
+                        <input type="submit">
+
+                    </form>
+
+                </div>
+
+                <div id="page_game" class="page js-page hidden">
+
+                    Current track:
+                    <span class="js-current-track-title"></span>
+                    <span class="js-current-track-artist"></span>
+
+                    <div class="js-valide-answer hidden">
+                        <button class="js-good">Correct</button>
+                        <button class="js-bad">Uncorrect</button>
+                    </div>
+
+                    <br><br>
+
+                    <button class="js-next-track">Next Track</button>
+
+                    <br><br>
+
+                    <button class="js-end-game">End the game</button>
+                </div>
+
+			</div>
+		
+		<script src="js/jquery.js"></script>
+        <script src="js/index.js"></script>
+	</body>
+</html>

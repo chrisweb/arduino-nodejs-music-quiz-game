@@ -1,12 +1,16 @@
 ﻿
 'use strict';
 
-// vendor
+// node
+import * as path from 'path';
+
+// vendor (node_modules)
 import * as express from 'express';
+import * as bodyParser from 'body-parser';
 
 // library
-import Router from './../library/router';
-import SocketIoLibrary from './../library/socketio';
+import Router from './library/router';
+import SocketIoLibrary from './library/socketio';
 
 export default class Bootsrtrap {
 
@@ -27,8 +31,8 @@ export default class Bootsrtrap {
         new Promise((resolve, reject) => {
 
             Promise.resolve([
+                this.setupApplication(),
                 this.setupRoutes(),
-
                 this.setupSocketIo()
             ]).then(() => {
                 return this.startServer();
@@ -36,7 +40,30 @@ export default class Bootsrtrap {
                 resolve();
             }).catch(reject);
 
+        }).catch((error) => {
+            console.log(error);
         });
+    }
+
+    private setupApplication() {
+
+        // disable x-powered-by express
+        this.application.disable('x-powered-by');
+
+        // assets: static files
+        let root = __dirname + '/../..';
+        let assetsRoot = path.join(root, 'build/assets');
+        let clientRoot = path.join(root, 'build/client');
+
+        // static files
+        // documentation: https://expressjs.com/en/starter/static-files.html
+        this.application.use('/static', express.static(assetsRoot));
+        this.application.use('/static/javascripts/client', express.static(clientRoot));
+
+        // request body parser setup
+        this.application.use(bodyParser.json());
+        this.application.use(bodyParser.urlencoded({ extended: true }));
+
     }
 
     private setupRoutes() {
@@ -57,12 +84,15 @@ export default class Bootsrtrap {
 
     private startServer() {
 
+        let port = process.env.PORT || 35000;
+
         return new Promise((resolve) => {
-            this.application.listen(35000, function () {
-                console.log('app listening on port 35000...');
+            this.application.listen(port, function () {
+                console.log('app listening on port ' + port + '...');
                 resolve();
             });
         });
+
     }
 
 }

@@ -17,7 +17,9 @@ gulp.task('lint', () => {
     return gulp
         .src([
             'server.ts',
-            'server/**/*.ts'
+            'server/**/*.ts',
+            'client/**/*.ts',
+            'isomorphic/**/*.ts'
         ])
         .pipe(
             tslint({
@@ -34,7 +36,7 @@ gulp.task('lint', () => {
 });
 
 // gulp typescript build
-gulp.task('build', ['copy'], () => {
+gulp.task('build', ['copy:assets', 'copy:jquery', 'copy:socketio', 'copy:systemjs'], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject());
@@ -49,12 +51,38 @@ gulp.task('build', ['copy'], () => {
 });
 
 // copy assets into the build directory
-gulp.task('copy', () => {
+gulp.task('copy:assets', () => {
     return gulp
         .src('assets/**/*')
         .pipe(gulp.dest('build/assets'));
 });
 
+// copy jquery node modules package into the assets build directory
+gulp.task('copy:jquery', () => {
+    return gulp
+        .src('node_modules/jquery/dist/jquery.js')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/jquery/'));
+});
+
+// copy socket.io-client node modules package into the assets build directory
+gulp.task('copy:socketio', () => {
+    return gulp
+        .src('node_modules/socket.io-client/dist/socket.io.js')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/socket.io/'));
+});
+
+// copy socket.io-client node modules package into the assets build directory
+gulp.task('copy:systemjs', () => {
+    return gulp
+        .src('node_modules/systemjs/dist/system.js')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/systemjs/'));
+});
+
 gulp.task('watch', ['build'], function () {
-    gulp.watch(['server.ts', 'server/**/*.ts', 'client/**/*.ts', 'library/**/*.ts'], ['build']);
+    gulp.watch([
+        'server.ts',
+        'server/**/*.ts',
+        'client/**/*.ts',
+        'isomorphic/**/*.ts'
+    ], ['build']);
 });
