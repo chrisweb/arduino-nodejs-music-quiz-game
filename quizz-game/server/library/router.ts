@@ -46,6 +46,27 @@ export default class Router {
 
             });
 
+            // 500
+            // TODO: error route
+            // detect if the error happend during a request of a html page or a json response
+            this.application.use(function (error: Error, request: express.Request, response: express.Response, next: express.NextFunction) {
+
+                if (request.xhr) {
+
+                    //console.error(error.stack);
+
+                    response.status(500).json({ error: 'error!' });
+
+                } else {
+
+                    //let htmlErrorPage = '';
+
+                    //response.html(htmlErrorPage);
+
+                }
+
+            });
+
             resolve();
 
         });
