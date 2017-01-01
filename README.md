@@ -1,6 +1,6 @@
-# Arduino NodeJS Quiz Game
+# Arduino NodeJS Music Quiz Game
 
-A game using an arduino that sends button input to a nodejs game server  
+A music quiz game using an arduino to record buttons input and nodejs as gameserver
 
 ## start development
 
