@@ -1,12 +1,14 @@
 ﻿
+'use strict';
+
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 
-export default class GameMasterScreenController {
+export default class PlayerScreenController {
 
     public constructor() {
 
-
+        
 
     }
 
@@ -16,7 +18,7 @@ export default class GameMasterScreenController {
 
         $body.empty();
 
-        $body.append('Hello Game Master');
+        $body.append('Hello Player');
 
     }
 

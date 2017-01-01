@@ -54,11 +54,13 @@ export default class Bootsrtrap {
         let root = __dirname + '/../..';
         let assetsRoot = path.join(root, 'build/assets');
         let clientRoot = path.join(root, 'build/client');
+        let isomorphicRoot = path.join(root, 'build/isomorphic');
 
         // static files
         // documentation: https://expressjs.com/en/starter/static-files.html
         this.application.use('/static', express.static(assetsRoot));
         this.application.use('/static/javascripts/client', express.static(clientRoot));
+        this.application.use('/static/javascripts/isomorphic', express.static(isomorphicRoot));
 
         // request body parser setup
         this.application.use(bodyParser.json());

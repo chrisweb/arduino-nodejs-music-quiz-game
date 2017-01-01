@@ -9,6 +9,11 @@
     <script>
         SystemJS.config({
             baseURL: '/static/javascripts',
+            packages: {
+                '.': {
+                    defaultJSExtensions: 'js'
+                }
+            },
             map: {
                 'jquery': 'vendor/jquery/jquery.js',
                 'socket.io-client': 'vendor/socket.io/socket.io.js'

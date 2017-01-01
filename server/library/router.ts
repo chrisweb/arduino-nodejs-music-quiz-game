@@ -23,7 +23,7 @@ export default class Router {
             let assetsRoot = path.join(root, 'assets');
 
             // main page
-            this.application.get('/', function (request: express.Request, response: express.Response, next: express.NextFunction) {
+            this.application.get('/*', function (request: express.Request, response: express.Response, next: express.NextFunction) {
 
                 // options list: http://expressjs.com/en/api.html#res.sendFile
                 let mainPageSendfileOptions = {

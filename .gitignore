@@ -25,3 +25,10 @@ jspm_packages
 .vs
 *.njsproj
 *.sln
+
+# build
+build
+
+# (original) configuration files
+configuration.ts
+configuration.js
