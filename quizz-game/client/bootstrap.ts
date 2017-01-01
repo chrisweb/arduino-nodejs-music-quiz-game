@@ -1,6 +1,11 @@
 ﻿
+// vendor modules
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
+
+// library
+import PlayerScreen from './library/controllers/playerScreen';
+import GameMasterScreen './library/controllers/gameMasterScreen';
 
 $(function () {
 
@@ -18,4 +23,29 @@ $(function () {
 
     });
 
+    // window.addEventListener('popstate', onpopstate, false);
+    document.addEventListener(onClickEvent, onclick, false);
+
+    // check the url and decide which controller to execute
+    if (window.location.href === '/player') {
+
+        let playerScreen = new PlayerScreen();
+
+        playerScreen.run();
+
+    } else if (window.location.href === '/gamemaster') {
+
+        let gameMasterScreen = new GameMasterScreen();
+
+        gameMasterScreen.run();
+
+    }
+
 });
+
+let onClickEvent = function onClickEventFunction(event: any) {
+
+    
+
+}
+

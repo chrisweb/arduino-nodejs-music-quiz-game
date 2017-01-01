@@ -1,9 +1,10 @@
-﻿'use strict';
+﻿
+'use strict';
 
 // node
 import * as http from 'http';
 
-// vendor
+// vendor (node_modules)
 import * as express from 'express';
 // import * as SocketioModule from 'socket.io';
 import SocketIo = require('socket.io');

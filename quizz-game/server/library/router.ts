@@ -1,7 +1,7 @@
 ﻿
 'use strict';
 
-// vendor
+// vendor (node_modules)
 import * as express from 'express';
 import * as path from 'path';
 
