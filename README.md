@@ -1,4 +1,4 @@
-# Arduino NodeJS Quizz Game
+# Arduino NodeJS Quiz Game
 
 A game using an arduino that sends button input to a nodejs game server  
 
