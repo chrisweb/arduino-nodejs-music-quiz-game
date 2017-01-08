@@ -4,9 +4,7 @@
 // vendor modules
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
-
-// library
-import { Router } from './../isomorphic/library/router';
+import * as Router from 'isomorphix-router';
 
 // isomorphic
 import { Routes, IRoute } from './../isomorphic/configuration/routes';
@@ -19,7 +17,7 @@ $(function () {
     router.run();
 
     // socket.io
-    let socket = io.connect('http://127.0.0.1:35001');
+    /*let socket = io.connect('http://127.0.0.1:35001');
 
     let message = 'hello world';
 
@@ -31,7 +29,7 @@ $(function () {
 
         console.log('response message recieved: ' + responseMessage);
 
-    });
+    });*/
 
 });
 
