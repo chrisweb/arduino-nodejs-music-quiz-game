@@ -36,7 +36,7 @@ gulp.task('lint', () => {
 });
 
 // gulp typescript build
-gulp.task('build', ['copy:assets', 'copy:jquery', 'copy:socketio', 'copy:systemjs'], () => {
+gulp.task('build', ['copy:assets', 'copy:jquery', 'copy:socketio', 'copy:isomorphix-router', 'copy:systemjs'], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject());
@@ -55,6 +55,13 @@ gulp.task('copy:assets', () => {
     return gulp
         .src('assets/**/*')
         .pipe(gulp.dest('build/assets'));
+});
+
+// copy isomorphix-router node modules package into the assets build directory
+gulp.task('copy:isomorphix-router', () => {
+    return gulp
+        .src('node_modules/isomorphix-router/build/**/*')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/isomorphix-router/'));
 });
 
 // copy jquery node modules package into the assets build directory

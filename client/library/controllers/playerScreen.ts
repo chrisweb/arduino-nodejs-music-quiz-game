@@ -4,7 +4,7 @@
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 
-export default class PlayerScreenController {
+export class PlayerScreenController {
 
     public constructor() {
 
