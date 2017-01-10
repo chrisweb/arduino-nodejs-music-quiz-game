@@ -36,7 +36,13 @@ gulp.task('lint', () => {
 });
 
 // gulp typescript build
-gulp.task('build', ['copy:assets', 'copy:jquery', 'copy:socketio', 'copy:isomorphix-router', 'copy:systemjs'], () => {
+gulp.task('build', [
+    'copy:assets',
+    'copy:jquery',
+    'copy:socketio-client',
+    'copy:isomorphix-router',
+    'copy:systemjs'
+], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject());
@@ -58,10 +64,17 @@ gulp.task('copy:assets', () => {
 });
 
 // copy isomorphix-router node modules package into the assets build directory
-gulp.task('copy:isomorphix-router', () => {
+gulp.task('copy:isomorphix-router', ['copy:path-to-regexp'], () => {
     return gulp
         .src('node_modules/isomorphix-router/build/**/*')
         .pipe(gulp.dest('build/assets/javascripts/vendor/isomorphix-router/'));
+});
+
+// copy isomorphix-router path-to-regex dependency into the assets build directory
+gulp.task('copy:path-to-regexp', () => {
+    return gulp
+        .src('node_modules/path-to-regexp/index.js')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/path-to-regexp/'));
 });
 
 // copy jquery node modules package into the assets build directory
@@ -72,7 +85,7 @@ gulp.task('copy:jquery', () => {
 });
 
 // copy socket.io-client node modules package into the assets build directory
-gulp.task('copy:socketio', () => {
+gulp.task('copy:socketio-client', () => {
     return gulp
         .src('node_modules/socket.io-client/dist/socket.io.js')
         .pipe(gulp.dest('build/assets/javascripts/vendor/socket.io/'));
