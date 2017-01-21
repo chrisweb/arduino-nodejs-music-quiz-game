@@ -5,6 +5,7 @@ const ts = require('gulp-typescript');
 const tsProject = ts.createProject('tsconfig.json');
 const merge = require('merge2');
 const sourcemaps = require('gulp-sourcemaps');
+const sass = require('gulp-sass');
 
 // documentation: https://github.com/gulpjs/gulp/blob/master/docs/API.md
 
@@ -36,7 +37,7 @@ gulp.task('lint', () => {
 });
 
 // gulp typescript build
-gulp.task('build', [
+gulp.task('build-js', [
     'copy:assets',
     'copy:jquery',
     'copy:socketio-client',
@@ -54,6 +55,15 @@ gulp.task('build', [
             .pipe(sourcemaps.write('sourcemaps'))
             .pipe(gulp.dest('build'))
     ]);
+});
+
+// gulp SASS build
+gulp.task('build-css', function () {
+    return gulp.src('assets/stylesheets/**/*.scss')
+        .pipe(sourcemaps.init())  // Process the original sources
+        .pipe(sass({ includePaths: ['./node_modules'] })) // added include path for material design components
+        .pipe(sourcemaps.write()) // Add the map to modified source.
+        .pipe(gulp.dest('build/assets/stylesheets'));
 });
 
 // copy assets into the build directory
@@ -104,5 +114,11 @@ gulp.task('watch', ['build'], function () {
         'server/**/*.ts',
         'client/**/*.ts',
         'isomorphic/**/*.ts'
-    ], ['build']);
+    ], ['build-js']);
+    gulp.watch([
+        'source/scss/**/*.scss'
+    ], ['build-css']);
 });
+
+gulp.task('default', ['watch']);
+gulp.task('build', ['build-js', 'build-css']);
