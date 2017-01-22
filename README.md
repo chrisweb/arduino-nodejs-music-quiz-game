@@ -107,15 +107,15 @@ to build the project (create js files from ts source files, copies files, ...), 
 gulp build
 ```  
 
-### development
+## rebuild in realtime  
 
-while developing I recommend you enable gulp watch to ensure typescript files get compiled on each save
+while developing I recommend you enable gulp watch to ensure typescript and sass files get re-compiled on each time you save  
 
 ```
 gulp watch
 ```
 
-### add new dependencies (node_modules)
+## add new dependencies (node_modules)
 
 first to check the available package versions use  
 
@@ -123,7 +123,7 @@ first to check the available package versions use
 npm view <package_name> versions
 ```
 
-choose the latest version (it's a prototype) and install it  
+choose the latest version (this is for a prototype latest is ok) and install it  
 
 if it's a dependency needed by the project to work, we use save so that it also gets added to the dependencies property of our package.json  
 
@@ -139,7 +139,7 @@ if it's a dependency only used during development use "--save-dev" so that it ge
 npm install <package_name>@<version> --save-dev
 ```
 
-### start the server
+## start the server
 
 ```
 node ./build/server
