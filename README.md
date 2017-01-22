@@ -98,6 +98,22 @@ This will fetch all the dependencies from https://www.npmjs.org/ that are listed
 ```
 npm install gulp-cli -g
 ```
+### install sass and ruby
+
+download and install ruby:  
+http://rubyinstaller.org/downloads/  
+
+now install sass:
+
+```
+gem install sass
+```
+
+and / or to check if sass is installed, type:
+
+```
+sass -v
+```
 
 ### build the project  
 

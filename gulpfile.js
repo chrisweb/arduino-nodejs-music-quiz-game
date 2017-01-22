@@ -5,6 +5,7 @@ const ts = require('gulp-typescript');
 const tsProject = ts.createProject('tsconfig.json');
 const merge = require('merge2');
 const sourcemaps = require('gulp-sourcemaps');
+const sass = require('gulp-sass');
 
 // documentation: https://github.com/gulpjs/gulp/blob/master/docs/API.md
 
@@ -36,7 +37,13 @@ gulp.task('lint', () => {
 });
 
 // gulp typescript build
-gulp.task('build', ['copy:assets', 'copy:jquery', 'copy:socketio', 'copy:systemjs'], () => {
+gulp.task('build-js', [
+    'copy:assets',
+    'copy:jquery',
+    'copy:socketio-client',
+    'copy:isomorphix-router',
+    'copy:systemjs'
+], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject());
@@ -50,11 +57,34 @@ gulp.task('build', ['copy:assets', 'copy:jquery', 'copy:socketio', 'copy:systemj
     ]);
 });
 
+// gulp SASS build
+gulp.task('build-css', function () {
+    return gulp.src('assets/stylesheets/**/*.scss')
+        .pipe(sourcemaps.init())  // Process the original sources
+        .pipe(sass({ includePaths: ['./node_modules'] })) // added include path for material design components
+        .pipe(sourcemaps.write()) // Add the map to modified source.
+        .pipe(gulp.dest('build/assets/stylesheets'));
+});
+
 // copy assets into the build directory
 gulp.task('copy:assets', () => {
     return gulp
         .src('assets/**/*')
         .pipe(gulp.dest('build/assets'));
+});
+
+// copy isomorphix-router node modules package into the assets build directory
+gulp.task('copy:isomorphix-router', ['copy:path-to-regexp'], () => {
+    return gulp
+        .src('node_modules/isomorphix-router/build/**/*')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/isomorphix-router/'));
+});
+
+// copy isomorphix-router path-to-regex dependency into the assets build directory
+gulp.task('copy:path-to-regexp', () => {
+    return gulp
+        .src('node_modules/path-to-regexp/index.js')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/path-to-regexp/'));
 });
 
 // copy jquery node modules package into the assets build directory
@@ -65,7 +95,7 @@ gulp.task('copy:jquery', () => {
 });
 
 // copy socket.io-client node modules package into the assets build directory
-gulp.task('copy:socketio', () => {
+gulp.task('copy:socketio-client', () => {
     return gulp
         .src('node_modules/socket.io-client/dist/socket.io.js')
         .pipe(gulp.dest('build/assets/javascripts/vendor/socket.io/'));
@@ -84,5 +114,11 @@ gulp.task('watch', ['build'], function () {
         'server/**/*.ts',
         'client/**/*.ts',
         'isomorphic/**/*.ts'
-    ], ['build']);
+    ], ['build-js']);
+    gulp.watch([
+        'source/scss/**/*.scss'
+    ], ['build-css']);
 });
+
+gulp.task('default', ['watch']);
+gulp.task('build', ['build-js', 'build-css']);
