@@ -54,11 +54,13 @@ npm -v
 
 what the latest npm version is can be seen in their package.json https://github.com/npm/npm/blob/latest/package.json  
 
-~~### install yarn~~  
+### ~~install yarn~~  
 
-get yarn https://yarnpkg.com/  
+~~get yarn https://yarnpkg.com/~~  
 
-or check if it the latest version is already installed  
+~~or check if it the latest version is already installed~~  
+
+!!! we postponed using yarn, because there is a bug when checking out @types packages: https://github.com/yarnpkg/yarn/issues/825  
 
 ```
 yarn --version
