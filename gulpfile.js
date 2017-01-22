@@ -42,7 +42,8 @@ gulp.task('build-js', [
     'copy:jquery',
     'copy:socketio-client',
     'copy:isomorphix-router',
-    'copy:systemjs'
+    'copy:systemjs',
+    'copy:material-design-web-components'
 ], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
@@ -108,6 +109,13 @@ gulp.task('copy:systemjs', () => {
     return gulp
         .src('node_modules/systemjs/dist/system.js')
         .pipe(gulp.dest('build/assets/javascripts/vendor/systemjs/'));
+});
+
+// copy material design web components
+gulp.task('copy:material-design-web-components', () => {
+    return gulp
+        .src('node_modules/@material/**/*')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/material-design-web-components/'));
 });
 
 // copy material design icons
