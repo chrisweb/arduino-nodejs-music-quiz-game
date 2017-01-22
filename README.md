@@ -60,7 +60,10 @@ what the latest npm version is can be seen in their package.json https://github.
 
 ~~or check if it the latest version is already installed~~  
 
-!!! we postponed using yarn, because there is a bug when checking out @types packages: https://github.com/yarnpkg/yarn/issues/825  
+!!! we postponed using yarn (use npm instead, see below), because there is a bug when checking out @types packages:  
+
+https://github.com/yarnpkg/yarn/issues/825  
+https://github.com/yarnpkg/yarn/issues/656  
 
 ```
 yarn --version
@@ -74,15 +77,15 @@ go into the project directoy if you haven't already and then into the quizz-game
 cd /PROJECT_DIRECTORY_PATH/quizz-game
 ```  
 
-~~### install the development dependencies using yarn~~  
+### ~~install the development dependencies using yarn~~  
 
-use yarn to fetch all the dependencies and put them into the node_modules directory  
+~~use yarn to fetch all the dependencies and put them into the node_modules directory~~  
 
 ```
 yarn install
 ```  
 
-!!! don't use yarn, it has problems dealing with the typescript type definition files  
+!!! we postponed using yarn (use npm instead, see below), because there is a bug when checking out @types packages:  
 
 https://github.com/yarnpkg/yarn/issues/825  
 https://github.com/yarnpkg/yarn/issues/656  
