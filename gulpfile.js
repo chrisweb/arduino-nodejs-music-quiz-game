@@ -58,7 +58,9 @@ gulp.task('build-js', [
 });
 
 // gulp SASS build
-gulp.task('build-css', function () {
+gulp.task('build-css', [
+    'copy:material-design-icons'
+], function () {
     return gulp.src('assets/stylesheets/**/*.scss')
         .pipe(sourcemaps.init())  // Process the original sources
         .pipe(sass({ includePaths: ['./node_modules'] })) // added include path for material design components
@@ -106,6 +108,13 @@ gulp.task('copy:systemjs', () => {
     return gulp
         .src('node_modules/systemjs/dist/system.js')
         .pipe(gulp.dest('build/assets/javascripts/vendor/systemjs/'));
+});
+
+// copy material design icons
+gulp.task('copy:material-design-icons', () => {
+    return gulp
+        .src('node_modules/material-design-icons/iconfont/*')
+        .pipe(gulp.dest('build/assets/fonts/vendor/material-design-icons/'));
 });
 
 gulp.task('watch', ['build'], function () {

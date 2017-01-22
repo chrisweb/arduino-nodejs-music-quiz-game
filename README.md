@@ -2,6 +2,10 @@
 
 A music quiz game using an arduino to record buttons input and nodejs as gameserver
 
+## Arduino buttons breadboard design
+
+![Arduino buttons breadboard design](./arduino/arduino_board.png)
+
 ## start development
 
 ### install git  
