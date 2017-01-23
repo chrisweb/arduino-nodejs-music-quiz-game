@@ -46,6 +46,11 @@ export class PlayerScreenController {
         $body.append('<button class="mdc-button mdc-button--raised">Raised button</button>');
         $body.append('<button class="mdc-button mdc-button--raised" disabled>Raised disabled button</button>');
 
+        let $container = $('<div class="bar">').addClass('foo');
+        let $span = $('<span>');
+        $container.append($span);
+        $body.append($container);
+
         this._intializeMaterialDesignComponents();
 
     }

@@ -23,7 +23,7 @@ export class GameMasterScreenController {
 
 
         // socket.io
-        /*let socket = io.connect('http://127.0.0.1:35001');
+        let socket = io.connect('http://127.0.0.1:35001');
 
         let message = 'hello world';
 
@@ -35,7 +35,7 @@ export class GameMasterScreenController {
 
             console.log('response message recieved: ' + responseMessage);
 
-        });*/
+        });
 
     }
 

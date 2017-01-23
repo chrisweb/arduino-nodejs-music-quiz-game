@@ -112,6 +112,8 @@ npm install gulp-cli -g
 download and install ruby:  
 http://rubyinstaller.org/downloads/  
 
+!!! if on windows: while installing ruby, check the box "add ruby to the windows path"
+
 now install sass:
 
 ```
