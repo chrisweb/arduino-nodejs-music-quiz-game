@@ -7,7 +7,7 @@ import * as io from 'socket.io-client';
 
 export class GameMasterScreenController {
 
-    protected _socket: any;
+    protected _socket: SocketIOClient.Socket;
 
     public constructor() {
 
@@ -35,6 +35,7 @@ export class GameMasterScreenController {
 
         // socket.io
         this._socket = io.connect('http://127.0.0.1:35001');
+        this._socket.emit('identifyGameMaster');
 
         /*let message = 'hello world';
 
@@ -49,21 +50,33 @@ export class GameMasterScreenController {
         });*/
 
         // on server send event 'newSongStart'
-        this._socket.on('newSongStart', function onNewSongStart(event: any) {
+        this._socket.on('newSongStart', function onNewSongStart(event: JQueryEventObject) {
             this._displayValidateBtn(false);
-            this._displayPageGame(event.trackTitle, event.artistName);
+            this._displayPageGame(event.data.trackTitle, event.data.artistName);
         });
 
         // on server send event 'playlistFinished'
-        this._socket.on('playlistFinished', function onPlaylistFinished(event: any) {
+        this._socket.on('playlistFinished', function onPlaylistFinished(event: JQueryEventObject) {
             this._displayValidateBtn(false);
             this._displayPageStart();
         });
 
         // on server send event 'playerPressButton'
-        this._socket.on('playerPressButton', function onPlayerPressButton(event: any) {
+        this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
             this._displayValidateBtn(true);
         });
+
+        
+        // on server send event playerViewReady
+        this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
+            // send event 'newSongStart'
+            this.socket.emit('newSongStart');
+
+            this._displayPageGame();
+        });
+        
+
+        this._displayPageStart();
 
     }
 
@@ -80,7 +93,7 @@ export class GameMasterScreenController {
 
 
         // init button start game
-        $pageStart.on('click', '.js-start-btn', function onClickStartBtnFunction(event) {
+        $pageStart.on('click', '.js-start-btn', (event: JQueryEventObject) => {
             event.preventDefault();
 
             this._displayPageSetGame();
@@ -111,9 +124,9 @@ export class GameMasterScreenController {
 
         for (let i: number = 0; i < 4; ++i) {
             $form.append($('<label for="teamName' + i + '">').text('team ' + i));
-            $form.append($('<input type="text" id="teamName' + i + '">'));
+            $form.append($('<input type="text" id="teamName' + i + '" name="teamName' + i + '">'));
             $form.append($('<label for="teamScore' + i + '">').text('team 1'));
-            $form.append($('<input type="text" id="teamScore' + i + '">')).val(0);
+            $form.append($('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '">')).val(0);
             $form.append($('<br><br>'));
         }
 
@@ -128,16 +141,11 @@ export class GameMasterScreenController {
         $container.append($pageSetGame);
 
         
-        $form.on('submit', function onSubmitSetTeamAndPlaylist(event) {
+        $form.on('submit', (event: JQueryEventObject) => {
             event.preventDefault();
 
-            // TODO get form info and send it to server
-
-            // on server send event 'newSongStart'
-            this.socket.emit('newSongStart');
-
-            this._displayPageGame();
-            //----------------------------------------
+            // get form info and send it to server
+            this._socket.emit('initPlayerView', $(event.currentTarget).serializeArray());
         }); 
     }
 

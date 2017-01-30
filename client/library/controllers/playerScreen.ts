@@ -22,7 +22,7 @@ export class PlayerScreenController {
 
     protected _timerInterval: number;
     protected _timerDuration: number = 15;
-    protected _socket: any;
+    protected _socket: SocketIOClient.Socket;
 
     public constructor() {
 
@@ -64,9 +64,10 @@ export class PlayerScreenController {
 
         // socket.io
         this._socket = io.connect('http://127.0.0.1:35001');
+        this._socket.emit('identifyPlayer');
 
         // on server send event 'playerPressButton' the lead
-        this._socket.on('playerPressButton', function onPlayerPressButton(event: any) {
+        this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
             let $pageGame = $('#page_game');
             let allPlayers = $pageGame.find('.js-player-container');
 
@@ -91,7 +92,7 @@ export class PlayerScreenController {
                     clearInterval(this._timerInterval);
 
                     // send event 'playerTimerFinish' to server
-                    socket.emit('playerTimerFinish');
+                    this._socket.emit('playerTimerFinish');
 
                     $timer.addClass('hidden');
 
@@ -103,6 +104,9 @@ export class PlayerScreenController {
             }, 1000);
 
         });
+
+
+        this._displayPageStart();
 
     }
 
