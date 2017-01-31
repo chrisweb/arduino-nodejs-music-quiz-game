@@ -26,16 +26,16 @@ export interface IPlayersData {
 };
 
 export interface IClientIds {
-    playerId: string;
-    gameMasterId: string;
+    playerId: string | null;
+    gameMasterId: string | null;
 }
 
 export default class SocketIoLibrary {
 
     private io: SocketIO.Server;
     protected _clientIds: IClientIds = {
-        playerId: '',
-        gameMasterId: ''
+        playerId: null,
+        gameMasterId: null
     };
 
     public constructor(application: express.Application) {
@@ -55,8 +55,8 @@ export default class SocketIoLibrary {
             this.io.on('connection', (socket: SocketIO.Socket) => {
 
                 console.log('a user connected');
-                console.log(socket);
-                console.log(socket.id);
+                //console.log(socket);
+                //console.log(socket.id);
 
                 /*socket.on('eventFoo', (message: string) => {
 
@@ -71,19 +71,23 @@ export default class SocketIoLibrary {
                 });*/
 
                 socket.on('identifyPlayer', () => {
-                    console.log('identifyPlayer socketId= ' + socket.id);
+                    console.log('identifyPlayer');
+                    console.log(socket.id);
                     this._clientIds.playerId = socket.id;
                 });
 
                 socket.on('identifyGameMaster', () => {
-                    console.log('identifyGameMaster socketId= ' + socket.id);
+                    console.log('identifyGameMaster');
+                    console.log(socket.id);
                     this._clientIds.gameMasterId = socket.id;
                 });
 
                 socket.on('initPlayerView', (playersData: IPlayersData) => {
-                    console.log('initPlayerView' + playersData);
-                    console.log(this._clientIds.playerId);
-                    this.io.sockets.connected[this._clientIds.playerId].emit('initPlayerView', playersData);
+                    console.log('initPlayerView' + this._clientIds.playerId);
+
+                    if (this._clientIds.playerId !== null) {
+                        this.io.sockets.connected[this._clientIds.playerId].emit('initPlayerView', playersData);
+                    }
 
                 });
                 

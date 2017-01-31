@@ -18,6 +18,22 @@ import * as menu from '@material/menu/dist/mdc.menu';
 import * as select from '@material/select/dist/mdc.select';
 import autoInit from '@material/auto-init/dist/mdc.autoInit';
 
+export interface IPlayersData {
+    teamName0: string;
+    teamScore0: number;
+
+    teamName1: string;
+    teamScore1: number;
+
+    teamName2: string;
+    teamScore2: number;
+
+    teamName3: string;
+    teamScore3: number;
+
+    playlistId: number;
+};
+
 export class PlayerScreenController {
 
     protected _timerInterval: number;
@@ -105,6 +121,10 @@ export class PlayerScreenController {
 
         });
 
+        this._socket.on('initPlayerView', function onInitPlayerView(playersData: IPlayersData) {
+
+            this._displayPageGame(playersData);
+        });
 
         this._displayPageStart();
 
@@ -148,15 +168,16 @@ export class PlayerScreenController {
         $container.append($page);
     }
 
-    protected _displayPageGame(playersNames: string[], playersScores: number[]) {
+    protected _displayPageGame(playersData: IPlayersData) {
         let $container = $('#container');
 
         $container.empty();
 
         let $pageGame = $('<div id="page_game">');
-        for (let i: number = 0; i < playersNames.length; ++i) {
+        for (let i: number = 0; i < 4; ++i) {
             let $playerDiv = $('<div class="player_container player_' + i + ' js-player-container hidden">').data('playerId', i);
-            let $playerName = $('<h1 class="js-player-name">').append(playersNames[i]);
+            let indexName = 'teamName' + i.toString();
+            let $playerName = $('<h1 class="js-player-name">').append(playersData[indexName]);
             let $playerScore = $('<span class="player_score js-player-score">10</span>').append(playersNames[i]);
             $playerDiv.append($playerName);
             $playerDiv.append($playerScore);
@@ -191,7 +212,7 @@ export class PlayerScreenController {
 
     }
 
-    protected _displayPageScore(playersScores: Array<{name: string, score: number}>) {
+    protected _displayPageScore(playersScores: Array<{name: string, score: number, playerId: number}>) {
         let $container = $('#container');
 
         $container.empty();
