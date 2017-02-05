@@ -19,6 +19,10 @@ import * as select from '@material/select/dist/mdc.select';
 import autoInit from '@material/auto-init/dist/mdc.autoInit';
 
 export interface IPlayersData {
+    [index: string]: string | number
+}
+
+export interface IPlayersDataSource extends IPlayersData {
     teamName0: string;
     teamScore0: number;
 
@@ -84,6 +88,7 @@ export class PlayerScreenController {
 
         // on server send event 'playerPressButton' the lead
         this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
+
             let $pageGame = $('#page_game');
             let allPlayers = $pageGame.find('.js-player-container');
 
@@ -146,6 +151,7 @@ export class PlayerScreenController {
     }
 
     protected _displayPageStart() {
+
         let $container = $('#container');
 
         $container.empty();
@@ -158,6 +164,7 @@ export class PlayerScreenController {
     }
 
     protected _displayPageWait() {
+
         let $container = $('#container');
 
         $container.empty();
@@ -166,40 +173,63 @@ export class PlayerScreenController {
         $page.append($('<h1>PLEASE WAIT</h1>'));
 
         $container.append($page);
+
     }
 
     protected _displayPageGame(playersData: IPlayersData) {
+
         let $container = $('#container');
 
         $container.empty();
 
         let $pageGame = $('<div id="page_game">');
-        for (let i: number = 0; i < 4; ++i) {
+        let i: number;
+
+        for (i = 0; i < 4; i++) {
+
             let $playerDiv = $('<div class="player_container player_' + i + ' js-player-container hidden">').data('playerId', i);
-            let indexName = 'teamName' + i.toString();
-            let $playerName = $('<h1 class="js-player-name">').append(playersData[indexName]);
-            let $playerScore = $('<span class="player_score js-player-score">10</span>').append(playersNames[i]);
+
+            let nameIndexName = 'teamName' + i.toString();
+            let scoreIndexName = 'teamScore' + i.toString();
+
+            let $playerName = $('<h1 class="js-player-name">');
+            let $playerScore = $('<span class="player_score js-player-score">10</span>');
+
+            let playerName = playersData[nameIndexName];
+            let playerScore = playersData[scoreIndexName];
+
+            $playerName.text(playerName);
+            $playerScore.text(playerScore);
+
             $playerDiv.append($playerName);
             $playerDiv.append($playerScore);
+
             $pageGame.append($playerDiv);
+
         }
 
         $container.append($pageGame);
-
-
+        
         // get all player column
         let allPlayers = $pageGame.find('.js-player-container');
         
         // reset class 
         allPlayers.addClass('hidden').removeClass('active').removeClass('lock');
+
         let $timer = $pageGame.find('.js-timer');
+
         $timer.addClass('hidden');
-        // reste timer
+
+        // reset timer
         clearInterval(this._timerInterval);
 
         // init player name and Score
-        for (let i = 0; i < allPlayers.length; ++i) {
+        /*let y: number;
+
+        for (y = 0; i < allPlayers.length; i++) {
+
             let $currentPlayer = $(allPlayers[i]);
+
             $currentPlayer.find('.js-player-name').text(playersNames[i]);
             $currentPlayer.removeClass('hidden');
 
@@ -208,11 +238,13 @@ export class PlayerScreenController {
             } else {
                 $currentPlayer.find('.js-player-score').text(0);
             }
-        }
+
+        }*/
 
     }
 
-    protected _displayPageScore(playersScores: Array<{name: string, score: number, playerId: number}>) {
+    protected _displayPageScore(playersScores: Array<{ name: string, score: number, playerId: number }>) {
+
         let $container = $('#container');
 
         $container.empty();
@@ -237,5 +269,6 @@ export class PlayerScreenController {
             $place.find('.js-player-score').text(playersScores[i].score);
             $place.css('background-color',  $container.find('#page_game [data-player-id="' + playersScores[i].playerId + '"]').css('background-color'));
         }
+
     }
 }
