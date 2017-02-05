@@ -8,10 +8,12 @@ import * as io from 'socket.io-client';
 export class GameMasterScreenController {
 
     protected _socket: SocketIOClient.Socket;
+    protected _$container: JQuery;
 
     public constructor() {
 
-
+        // INFO: material design components: http://material-components-web.appspot.com/
+        // checkout the packages READMEs for usage details: https://github.com/material-components/material-components-web/tree/master/packages
 
     }
 
@@ -21,20 +23,22 @@ export class GameMasterScreenController {
 
         $body.empty();
 
-        let $container = $('<div id="container">');
+        this._$container = $('<div id="container">');
 
-        $body.append($container);
+        $body.append(this._$container);
 
         // init heigth of container
-        $container.height($(window).height());
+        //$container.height($(window).height());
 
         // dynamic resize
-        $(window).resize(function () {
+        /*$(window).resize(function () {
             $('#container').height($(window).height());
-        });
+        });*/
         
-        // socket.io
+        // open socket.io connection
         this._socket = io.connect('http://127.0.0.1:35001');
+
+        // identify as game master
         this._socket.emit('identifyGameMaster');
 
         /*let message = 'hello world';
@@ -50,59 +54,128 @@ export class GameMasterScreenController {
         });*/
 
         // on server send event 'newSongStart'
-        this._socket.on('newSongStart', function onNewSongStart(event: JQueryEventObject) {
+        /*this._socket.on('newSongStart', function onNewSongStart(event: JQueryEventObject) {
             this._displayValidateButton(false);
             this._displayPageGame(event.data.trackTitle, event.data.artistName);
-        });
+        });*/
 
         // on server send event 'playlistFinished'
-        this._socket.on('playlistFinished', function onPlaylistFinished(event: JQueryEventObject) {
+        /*this._socket.on('playlistFinished', function onPlaylistFinished(event: JQueryEventObject) {
             this._displayValidateButton(false);
             this._displayPageStart();
-        });
+        });*/
 
         // on server send event 'playerPressButton'
-        this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
+        /*this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
             this._displayValidateButton(true);
-        });
+        });*/
         
         // on server send event playerViewReady
-        this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
+        /*this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
             // send event 'newSongStart'
             this.socket.emit('newSongStart');
 
             this._displayPageGame();
-        });
-        
-        this._displayPageStart();
+        });*/
+
+        this._showStartScreen();
 
     }
 
-    protected _displayPageStart() {
+    protected _showStartScreen() {
 
-        let $container = $('#container');
+        this._$container.empty();
 
-        $container.empty();
+        let $startScreenContainer = $('<div id="startScreenContainer">');
 
-        let $pageStart = $('<div id="page_start">');
-        let btnStart = $('<button class="js-start-btn">').text('Start new game');
+        this._$container.append($startScreenContainer);
 
-        $pageStart.append(btnStart);
+        let $startButton = $('<button class="js-start-btn">')
 
-        $container.append($pageStart);
+        $startButton.text('Start new game');
 
+        $startScreenContainer.append($startButton);
 
-        // init button start game
-        $pageStart.on('click', '.js-start-btn', (event: JQueryEventObject) => {
+        // listen for start game button click
+        $startButton.one('click', (event: JQueryEventObject) => {
 
             event.preventDefault();
 
-            this._displayPageSetGame();
+            this._showGameCreationScreen();
 
         });
+
     }
 
-    protected _displayPageWait() {
+    protected _showGameCreationScreen() {
+
+        this._$container.empty();
+
+        let $gameCreationScreen = $('<div id="gameCreationScreen">');
+        let $gameCreationForm = $('<form id="gameCreationForm">');
+        let $gameCreationScreenTitle = $('<h1>');
+
+        $gameCreationScreenTitle.text('Setup teams: ');
+
+        $gameCreationScreen.append($gameCreationScreenTitle);
+
+        for (let i: number = 0; i < 4; ++i) {
+
+            let $nameInputField = $('<input type="text" id="teamName' + i + '" name="teamName' + i + '">');
+
+            $nameInputField.prop('placeholder', 'player name ' + i.toString());
+
+            $gameCreationForm.append($nameInputField);
+
+            let $scoreInputField = $('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '">');
+
+            $scoreInputField.prop('placeholder', 'player score ' + i.toString());
+
+            $gameCreationForm.append($scoreInputField);
+
+        }
+
+        let $playlistSelect = $('<select id="playlistId" name="playlistId">');
+
+        let $rockPlaylistOption = $('<option value="rock">');
+        $rockPlaylistOption.text('rock');
+
+        $playlistSelect.append($rockPlaylistOption);
+
+        let $dancePlaylistOption = $('<option value="dance">');
+        $dancePlaylistOption.text('dance');
+
+        $playlistSelect.append($dancePlaylistOption);
+
+        $gameCreationForm.append($playlistSelect);
+
+        let $gameCreationFormSubmitButton = $('<input type="submit">');
+
+        $gameCreationForm.append($gameCreationFormSubmitButton);
+
+        $gameCreationScreen.append($gameCreationForm);
+
+        this._$container.append($gameCreationScreen);
+
+        $gameCreationForm.on('submit', (event: JQueryEventObject) => {
+
+            event.preventDefault();
+
+            let formSerialize: Array<{ name: string, value: string }> = $(event.currentTarget).serializeArray();
+            let formData: { [teamName: string]: string } = {};
+
+            for (let i: number = 0; i < formSerialize.length; ++i) {
+                formData[formSerialize[i].name] = formSerialize[i].value;
+            }
+
+            // get form info and send it to server
+            this._socket.emit('startNewGame', formData);
+
+        });
+
+    }
+
+    /*protected _displayPageWait() {
 
         let $container = $('#container');
 
@@ -114,60 +187,9 @@ export class GameMasterScreenController {
 
         $container.append($page);
 
-    }
+    }*/
 
-    protected _displayPageSetGame() {
-
-        let $container = $('#container');
-
-        $container.empty();
-
-        let $pageSetGame = $('<div id="page_set_game">');
-        let $form = $('<form id="set_team_and_playlist">');
-
-        $form.append($('<h1>').text('Set teams names'));
-
-        for (let i: number = 0; i < 4; ++i) {
-
-            $form.append($('<label for="teamName' + i + '">').text('team ' + i));
-            $form.append($('<input type="text" id="teamName' + i + '" name="teamName' + i + '">'));
-            $form.append($('<label for="teamScore' + i + '">').text('team 1'));
-            $form.append($('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '">')).val(0);
-            $form.append($('<br><br>'));
-
-        }
-
-        let $selectPlaylistInput = $('<select id="playlistId" name="playlistId">');
-
-        $selectPlaylistInput.append($('<option value="rock">').text('rock'));
-        $selectPlaylistInput.append($('<option value="dance">').text('dance'));
-
-        $form.append($selectPlaylistInput);
-        $form.append($('<input type="submit">'));
-
-        $pageSetGame.append($form);
-        $container.append($pageSetGame);
-
-
-        $form.on('submit', (event: JQueryEventObject) => {
-
-            event.preventDefault();
-
-            let formSerialize: Array<{name: string, value: string}> = $(event.currentTarget).serializeArray();
-            let formData: { [teamName: string]: string } = {};
-
-            for (let i: number = 0; i < formSerialize.length; ++i) {
-                formData[formSerialize[i].name] = formSerialize[i].value;
-            }
-
-            // get form info and send it to server
-            this._socket.emit('initPlayerView', formData);
-
-        });
-
-    }
-
-    protected _displayPageGame(trackTitle: string, artistName: string) {
+    /*protected _displayPageGame(trackTitle: string, artistName: string) {
 
         let $container = $('#container');
 
@@ -225,9 +247,9 @@ export class GameMasterScreenController {
 
         });
 
-    }
+    }*/
 
-    protected _displayValidateButton(display: boolean) {
+    /*protected _displayValidateButton(display: boolean) {
 
         let $btnContainer = $('#page_game .js-valide-answer');
 
@@ -258,5 +280,5 @@ export class GameMasterScreenController {
             $btnContainer.off('click', '.js-bad');
 
         }
-    }
+    }*/
 }

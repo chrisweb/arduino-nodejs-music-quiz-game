@@ -5,19 +5,6 @@
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 
-// vendor (material design components)
-import * as base from '@material/base/dist/mdc.base';
-import * as checkbox from '@material/checkbox/dist/mdc.checkbox';
-import * as iconToggle from '@material/icon-toggle/dist/mdc.iconToggle';
-import * as radio from '@material/radio/dist/mdc.radio';
-import * as ripple from '@material/ripple/dist/mdc.ripple';
-import * as drawer from '@material/drawer/dist/mdc.drawer';
-import * as textfield from '@material/textfield/dist/mdc.textfield';
-import * as snackbar from '@material/snackbar/dist/mdc.snackbar';
-import * as menu from '@material/menu/dist/mdc.menu';
-import * as select from '@material/select/dist/mdc.select';
-import autoInit from '@material/auto-init/dist/mdc.autoInit';
-
 export interface IPlayersData {
     [index: string]: string | number
 }
@@ -43,10 +30,12 @@ export class PlayerScreenController {
     protected _timerInterval: number;
     protected _timerDuration: number = 15;
     protected _socket: SocketIOClient.Socket;
+    protected _$container: JQuery;
 
     public constructor() {
 
-        
+        // INFO: material design components: http://material-components-web.appspot.com/
+        // checkout the packages READMEs for usage details: https://github.com/material-components/material-components-web/tree/master/packages
 
     }
 
@@ -70,21 +59,29 @@ export class PlayerScreenController {
         $body.append('<button class="mdc-button mdc-button--raised">Raised button</button>');
         $body.append('<button class="mdc-button mdc-button--raised" disabled>Raised disabled button</button>');
 */
-        let $container = $('<div id="container">');
-        $body.append($container);
+        this._$container = $('<div id="container">');
+
+        $body.append(this._$container);
 
         // init heigth of container
-        $container.height($(window).height());
+        //$container.height($(window).height());
+
         // dynamic resize
-        $(window).resize(function() {
+        /*$(window).resize(function() {
             $('#container').height($(window).height());
-        });
+        });*/
 
-        this._intializeMaterialDesignComponents();
-
-        // socket.io
+        // open socket.io connection
         this._socket = io.connect('http://127.0.0.1:35001');
+
+        // identify as player
         this._socket.emit('identifyPlayer');
+
+        this._socket.on('initializePlayerScreen', function onInitPlayerView(playersData: IPlayersData) {
+
+            this._showGameScreen(playersData);
+
+        });
 
         // on server send event 'playerPressButton' the lead
         this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
@@ -126,61 +123,35 @@ export class PlayerScreenController {
 
         });
 
-        this._socket.on('initPlayerView', function onInitPlayerView(playersData: IPlayersData) {
-
-            this._displayPageGame(playersData);
-        });
-
-        this._displayPageStart();
+        this._showStartScreen();
 
     }
 
-    protected _intializeMaterialDesignComponents() {
+    protected _showStartScreen() {
 
-        // register all material design components
-        autoInit.register('MDCCheckbox', checkbox.MDCCheckbox);
-        autoInit.register('MDCTemporaryDrawer', drawer.MDCTemporaryDrawer);
-        autoInit.register('MDCRipple', ripple.MDCRipple);
-        autoInit.register('MDCIconToggle', iconToggle.MDCIconToggle);
-        autoInit.register('MDCRadio', radio.MDCRadio);
-        autoInit.register('MDCSnackbar', snackbar.MDCSnackbar);
-        autoInit.register('MDCTextfield', textfield.MDCTextfield);
-        autoInit.register('MDCSimpleMenu', menu.MDCSimpleMenu);
-        autoInit.register('MDCSelect', select.MDCSelect);
-
-    }
-
-    protected _displayPageStart() {
-
-        let $container = $('#container');
-
-        $container.empty();
+        this._$container.empty();
 
         let $page = $('<div id="page_start">');
         $page.append($('<h1>QUIZZ GAME !!!</h1>'));
 
-        $container.append($page);
+        this._$container.append($page);
 
     }
 
-    protected _displayPageWait() {
+    /*protected _showWaitPage() {
 
-        let $container = $('#container');
-
-        $container.empty();
+        this._$container.empty();
 
         let $page = $('<div id="page_wait">');
         $page.append($('<h1>PLEASE WAIT</h1>'));
 
-        $container.append($page);
+        this._$container.append($page);
 
-    }
+    }*/
 
-    protected _displayPageGame(playersData: IPlayersData) {
+    /*protected _showGameScreen(playersData: IPlayersData) {
 
-        let $container = $('#container');
-
-        $container.empty();
+        this._$container.empty();
 
         let $pageGame = $('<div id="page_game">');
         let i: number;
@@ -208,7 +179,7 @@ export class PlayerScreenController {
 
         }
 
-        $container.append($pageGame);
+        this._$container.append($pageGame);
         
         // get all player column
         let allPlayers = $pageGame.find('.js-player-container');
@@ -221,7 +192,7 @@ export class PlayerScreenController {
         $timer.addClass('hidden');
 
         // reset timer
-        clearInterval(this._timerInterval);
+        clearInterval(this._timerInterval);*/
 
         // init player name and Score
         /*let y: number;
@@ -241,34 +212,37 @@ export class PlayerScreenController {
 
         }*/
 
-    }
+    //}
 
-    protected _displayPageScore(playersScores: Array<{ name: string, score: number, playerId: number }>) {
+    /*protected _showScoreScreen(playersScores: Array<{ name: string, score: number, playerId: number }>) {
 
-        let $container = $('#container');
-
-        $container.empty();
+        this._$container.empty();
 
         let $pageScore = $('<div id="page_score">');
 
         for (let i: number = 0; i < playersScores.length; ++i) {
+
             let $placeDiv = $('<div class="place place_' + i + ' js-place-' + i + '">');
             let $playerName = $('<h1 class="js-player-name">');
             let $playerScore = $('<h1 class="js-player-score">');
             $placeDiv.append($playerName);
             $placeDiv.append($playerScore);
             $pageScore.append($placeDiv);
+
         }
 
-        $container.append($pageScore);
+        this._$container.append($pageScore);
 
 
         for (let i = 0; i < playersScores.length; ++i) {
+
             let $place = $pageScore.find('.js-place-' + (i + 1));
             $place.find('.js-player-name').text(playersScores[i].name);
             $place.find('.js-player-score').text(playersScores[i].score);
-            $place.css('background-color',  $container.find('#page_game [data-player-id="' + playersScores[i].playerId + '"]').css('background-color'));
+            $place.css('background-color', this._$container.find('#page_game [data-player-id="' + playersScores[i].playerId + '"]').css('background-color'));
+
         }
 
-    }
+    }*/
+
 }

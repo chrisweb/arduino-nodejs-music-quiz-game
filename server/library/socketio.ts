@@ -71,22 +71,28 @@ export default class SocketIoLibrary {
                 });*/
 
                 socket.on('identifyPlayer', () => {
-                    console.log('identifyPlayer');
-                    console.log(socket.id);
+
+                    console.log('identifyPlayer: ', socket.id);
+
                     this._clientIds.playerId = socket.id;
+
                 });
 
                 socket.on('identifyGameMaster', () => {
-                    console.log('identifyGameMaster');
-                    console.log(socket.id);
+
+                    console.log('identifyGameMaster: ', socket.id);
+
                     this._clientIds.gameMasterId = socket.id;
+
                 });
 
-                socket.on('initPlayerView', (playersData: IPlayersData) => {
-                    console.log('initPlayerView' + this._clientIds.playerId);
+                socket.on('startNewGame', (playersData: IPlayersData) => {
+
+                    console.log('startNewGame: ', this._clientIds.playerId);
+                    console.log('startNewGame: ', this._clientIds.playerId);
 
                     if (this._clientIds.playerId !== null) {
-                        this.io.sockets.connected[this._clientIds.playerId].emit('initPlayerView', playersData);
+                        this.io.sockets.connected[this._clientIds.playerId].emit('initializePlayerScreen', playersData);
                     }
 
                 });
