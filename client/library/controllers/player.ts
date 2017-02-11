@@ -59,7 +59,7 @@ export class PlayerController {
         // identify as player
         this._socket.emit('identifyPlayer');
 
-        this._socket.on('initializePlayerScreen', function onInitPlayerView(playersData: IPlayersData) {
+        this._socket.on('initializePlayerScreen', (playersData: IPlayersData) => {
 
             this._showGameScreen(playersData);
 
@@ -113,29 +113,18 @@ export class PlayerController {
 
         this._$container.empty();
 
-        let $page = $('<div id="page_start">');
-        $page.append($('<h1>QUIZZ GAME !!!</h1>'));
+        let $playerStartScreen = $('<div id="playerStartScreen">');
+        $playerStartScreen.append($('<h1>QUIZZ GAME !!!</h1>'));
 
-        this._$container.append($page);
+        this._$container.append($playerStartScreen);
 
     }
 
-    /*protected _showWaitPage() {
+    protected _showGameScreen(playersData: IPlayersData) {
 
         this._$container.empty();
 
-        let $page = $('<div id="page_wait">');
-        $page.append($('<h1>PLEASE WAIT</h1>'));
-
-        this._$container.append($page);
-
-    }*/
-
-    /*protected _showGameScreen(playersData: IPlayersData) {
-
-        this._$container.empty();
-
-        let $pageGame = $('<div id="page_game">');
+        let $playerGameScreen = $('<div id="playerGameScreen">');
         let i: number;
 
         for (i = 0; i < 4; i++) {
@@ -157,19 +146,19 @@ export class PlayerController {
             $playerDiv.append($playerName);
             $playerDiv.append($playerScore);
 
-            $pageGame.append($playerDiv);
+            $playerGameScreen.append($playerDiv);
 
         }
 
-        this._$container.append($pageGame);
+        this._$container.append($playerGameScreen);
         
         // get all player column
-        let allPlayers = $pageGame.find('.js-player-container');
+        /*let allPlayers = $playerGameScreen.find('.js-player-container');
         
         // reset class 
         allPlayers.addClass('hidden').removeClass('active').removeClass('lock');
 
-        let $timer = $pageGame.find('.js-timer');
+        let $timer = $playerGameScreen.find('.js-timer');
 
         $timer.addClass('hidden');
 
@@ -194,7 +183,18 @@ export class PlayerController {
 
         }*/
 
-    //}
+    }
+    
+    /*protected _showWaitPage() {
+
+        this._$container.empty();
+
+        let $page = $('<div id="page_wait">');
+        $page.append($('<h1>PLEASE WAIT</h1>'));
+
+        this._$container.append($page);
+
+    }*/
 
     /*protected _showScoreScreen(playersScores: Array<{ name: string, score: number, playerId: number }>) {
 

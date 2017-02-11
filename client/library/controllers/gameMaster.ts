@@ -101,7 +101,7 @@ export class GameMasterController {
 
         let $gameCreationScreen = $('<div id="gameCreationScreen">');
         let $gameCreationRow = $('<div class="row">');
-        let $gameCreationColumn = $('<div class="col">');
+        let $gameCreationColumn = $('<div class="col-3">');
 
         $gameCreationRow.append($gameCreationColumn);
         $gameCreationScreen.append($gameCreationRow);
@@ -115,59 +115,67 @@ export class GameMasterController {
 
         for (let i: number = 0; i < 4; ++i) {
 
+            let $nameInputFieldFormGroup = $('<div class="form-group">');
             let $nameInputField = $('<input type="text" id="teamName' + i + '" name="teamName' + i + '" class="form-control">');
 
             $nameInputField.prop('placeholder', 'player name ' + i.toString());
 
-            $gameCreationForm.append($nameInputField);
+            $nameInputFieldFormGroup.append($nameInputField);
+            $gameCreationForm.append($nameInputFieldFormGroup);
 
+            let $scoreInputFieldFormGroup = $('<div class="form-group">');
             let $scoreInputField = $('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '" class="form-control">');
 
             $scoreInputField.prop('placeholder', 'player score ' + i.toString());
 
-            $gameCreationForm.append($scoreInputField);
+            $scoreInputFieldFormGroup.append($scoreInputField);
+            $gameCreationForm.append($scoreInputFieldFormGroup);
 
         }
 
+        let $playlistSelectFormGroup = $('<div class="form-group">');
         let $playlistSelect = $('<select id="playlistId" name="playlistId" class="form-control">');
 
         let $rockPlaylistOption = $('<option value="rock">');
-        $rockPlaylistOption.text('rock');
-
-        $playlistSelect.append($rockPlaylistOption);
-
         let $dancePlaylistOption = $('<option value="dance">');
-        $dancePlaylistOption.text('dance');
 
+        $rockPlaylistOption.text('rock');
+        $dancePlaylistOption.text('dance');
+        
+        $playlistSelect.append($rockPlaylistOption);
         $playlistSelect.append($dancePlaylistOption);
 
-        $gameCreationForm.append($playlistSelect);
+        $playlistSelectFormGroup.append($playlistSelect);
+        $gameCreationForm.append($playlistSelectFormGroup);
 
-        let $gameCreationFormSubmitButton = $('<button type="submit" class="btn btn-primary">');
+        let $submitButton = $('<button type="submit" class="btn btn-primary">');
 
-        $gameCreationFormSubmitButton.text('submit');
+        $submitButton.text('submit');
 
-        $gameCreationForm.append($gameCreationFormSubmitButton);
+        $gameCreationForm.append($submitButton);
 
         $gameCreationColumn.append($gameCreationForm);
 
         this._$container.append($gameCreationScreen);
 
-        $gameCreationForm.on('submit', (event: JQueryEventObject) => {
+        $gameCreationForm.off('submit');
+        $gameCreationForm.on('submit', this._onGameCreationFormSubmit.bind(this));
 
-            event.preventDefault();
+    }
 
-            let formSerialize: Array<{ name: string, value: string }> = $(event.currentTarget).serializeArray();
-            let formData: { [teamName: string]: string } = {};
+    protected _onGameCreationFormSubmit(event: JQueryEventObject): void {
 
-            for (let i: number = 0; i < formSerialize.length; ++i) {
-                formData[formSerialize[i].name] = formSerialize[i].value;
-            }
+        event.preventDefault();
 
-            // get form info and send it to server
-            this._socket.emit('startNewGame', formData);
+        let formSerialize: Array<{ name: string, value: string }> = $(event.currentTarget).serializeArray();
+        let formData: { [teamName: string]: string } = {};
 
-        });
+        for (let i: number = 0; i < formSerialize.length; ++i) {
+            formData[formSerialize[i].name] = formSerialize[i].value;
+        }
+
+        // get form info and send it to server
+        this._socket.emit('startNewGame', formData);
 
     }
 

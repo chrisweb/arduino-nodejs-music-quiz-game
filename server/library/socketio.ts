@@ -88,8 +88,8 @@ export default class SocketIoLibrary {
 
                 socket.on('startNewGame', (playersData: IPlayersData) => {
 
-                    console.log('startNewGame: ', this._clientIds.playerId);
-                    console.log('startNewGame: ', this._clientIds.playerId);
+                    console.log('startNewGame, playerId: ', this._clientIds.playerId);
+                    console.log('startNewGame, gameMasterId: ', this._clientIds.gameMasterId);
 
                     if (this._clientIds.playerId !== null) {
                         this.io.sockets.connected[this._clientIds.playerId].emit('initializePlayerScreen', playersData);
