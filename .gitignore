@@ -26,6 +26,9 @@ jspm_packages
 *.njsproj
 *.sln
 
+# vscode
+.vscode
+
 # build
 build
 

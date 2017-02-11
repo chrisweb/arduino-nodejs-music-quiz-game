@@ -42,8 +42,7 @@ gulp.task('build-js', [
     'copy:jquery',
     'copy:socketio-client',
     'copy:isomorphix-router',
-    'copy:systemjs',
-    'copy:material-design-web-components'
+    'copy:systemjs'
 ], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
@@ -53,7 +52,8 @@ gulp.task('build-js', [
     return merge([ 
         tsResult.dts.pipe(gulp.dest('build/definitions')),
         tsResult.js
-            .pipe(sourcemaps.write('sourcemaps'))
+            // inline source maps or add directory as sting as first parameter of write
+            .pipe(sourcemaps.write())
             .pipe(gulp.dest('build'))
     ]);
 });
@@ -100,22 +100,15 @@ gulp.task('copy:jquery', () => {
 // copy socket.io-client node modules package into the assets build directory
 gulp.task('copy:socketio-client', () => {
     return gulp
-        .src('node_modules/socket.io-client/dist/socket.io.js')
+        .src(['node_modules/socket.io-client/dist/socket.io.js', 'node_modules/socket.io-client/dist/socket.io.js.map'])
         .pipe(gulp.dest('build/assets/javascripts/vendor/socket.io/'));
 });
 
 // copy socket.io-client node modules package into the assets build directory
 gulp.task('copy:systemjs', () => {
     return gulp
-        .src('node_modules/systemjs/dist/system.js')
+        .src(['node_modules/systemjs/dist/system.js', 'node_modules/systemjs/dist/system.js.map'])
         .pipe(gulp.dest('build/assets/javascripts/vendor/systemjs/'));
-});
-
-// copy material design web components
-gulp.task('copy:material-design-web-components', () => {
-    return gulp
-        .src('node_modules/@material/**/*')
-        .pipe(gulp.dest('build/assets/javascripts/vendor/material-design-web-components/'));
 });
 
 // copy material design icons

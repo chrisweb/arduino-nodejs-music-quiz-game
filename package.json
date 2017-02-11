@@ -8,8 +8,9 @@
     "socket.io-client": "^1.7.2",
     "systemjs": "^0.19.41",
     "isomorphix-router": "git://github.com/chrisweb/isomorphix-router.git#1.1.4",
-	  "web-audio-api-player": "git://github.com/chrisweb/web-audio-api-player.git#0.3.0",
-	  "material-design-icons": "^3.0.1"
+	"web-audio-api-player": "git://github.com/chrisweb/web-audio-api-player.git#0.3.0",
+	"material-design-icons": "^3.0.1",
+	"bootstrap": "4.0.0-alpha.6"
   },
   "description": "quizz game using 4 big arcade buttons connected to an arduino board that sends the data to nodejs",
   "devDependencies": {
@@ -36,6 +37,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "node build/server",
+	"startdev": "NODE_ENV=development node build/server",
     "build": "gulp build",
     "watch": "gulp watch"
   }

@@ -3,8 +3,8 @@
 
 // library
 import { IRequest, IRouteConfiguration, IRouteLoadHandler, IRouteUnLoadHandler } from 'isomorphix-router';
-import { GameMasterScreenController } from 'client/library/controllers/gameMasterScreen';
-import { PlayerScreenController } from 'client/library/controllers/playerScreen';
+import { GameMasterController } from 'client/library/controllers/gameMaster';
+import { PlayerController } from 'client/library/controllers/player';
 
 export class Routes {
 
@@ -16,9 +16,9 @@ export class Routes {
             path: '/gamemaster',
             routeLoadHandler: (request: IRequest) => {
 
-                let gameMasterScreenController = new GameMasterScreenController();
+                let gameMasterController = new GameMasterController();
 
-                gameMasterScreenController.run();
+                gameMasterController.run();
 
             },
             routeUnLoadHandler: () => { }
@@ -28,9 +28,9 @@ export class Routes {
             path: '/player',
             routeLoadHandler: (request: IRequest) => {
 
-                let playerScreenController = new PlayerScreenController();
+                let playerController = new PlayerController();
 
-                playerScreenController.run();
+                playerController.run();
 
             },
             routeUnLoadHandler: () => { }
