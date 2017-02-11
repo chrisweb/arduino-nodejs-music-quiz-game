@@ -5,15 +5,15 @@
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 
-export class GameMasterScreenController {
+export class GameMasterController {
 
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
 
     public constructor() {
 
-        // INFO: material design components: http://material-components-web.appspot.com/
-        // checkout the packages READMEs for usage details: https://github.com/material-components/material-components-web/tree/master/packages
+        // INFO: twitter bootstrap 4 components https://v4-alpha.getbootstrap.com/components/alerts/
+        // grid: https://v4-alpha.getbootstrap.com/layout/grid/
 
     }
 
@@ -21,20 +21,8 @@ export class GameMasterScreenController {
 
         let $body = $('body');
 
-        $body.empty();
+        this._$container = $body.find('.js-container');
 
-        this._$container = $('<div id="container">');
-
-        $body.append(this._$container);
-
-        // init heigth of container
-        //$container.height($(window).height());
-
-        // dynamic resize
-        /*$(window).resize(function () {
-            $('#container').height($(window).height());
-        });*/
-        
         // open socket.io connection
         this._socket = io.connect('http://127.0.0.1:35001');
 
@@ -90,7 +78,7 @@ export class GameMasterScreenController {
 
         this._$container.append($startScreenContainer);
 
-        let $startButton = $('<button class="js-start-btn">')
+        let $startButton = $('<button class="js-start-btn btn btn-primary">')
 
         $startButton.text('Start new game');
 
@@ -112,22 +100,28 @@ export class GameMasterScreenController {
         this._$container.empty();
 
         let $gameCreationScreen = $('<div id="gameCreationScreen">');
+        let $gameCreationRow = $('<div class="row">');
+        let $gameCreationColumn = $('<div class="col">');
+
+        $gameCreationRow.append($gameCreationColumn);
+        $gameCreationScreen.append($gameCreationRow);
+
         let $gameCreationForm = $('<form id="gameCreationForm">');
         let $gameCreationScreenTitle = $('<h1>');
 
         $gameCreationScreenTitle.text('Setup teams: ');
 
-        $gameCreationScreen.append($gameCreationScreenTitle);
+        $gameCreationColumn.append($gameCreationScreenTitle);
 
         for (let i: number = 0; i < 4; ++i) {
 
-            let $nameInputField = $('<input type="text" id="teamName' + i + '" name="teamName' + i + '">');
+            let $nameInputField = $('<input type="text" id="teamName' + i + '" name="teamName' + i + '" class="form-control">');
 
             $nameInputField.prop('placeholder', 'player name ' + i.toString());
 
             $gameCreationForm.append($nameInputField);
 
-            let $scoreInputField = $('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '">');
+            let $scoreInputField = $('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '" class="form-control">');
 
             $scoreInputField.prop('placeholder', 'player score ' + i.toString());
 
@@ -135,7 +129,7 @@ export class GameMasterScreenController {
 
         }
 
-        let $playlistSelect = $('<select id="playlistId" name="playlistId">');
+        let $playlistSelect = $('<select id="playlistId" name="playlistId" class="form-control">');
 
         let $rockPlaylistOption = $('<option value="rock">');
         $rockPlaylistOption.text('rock');
@@ -149,11 +143,13 @@ export class GameMasterScreenController {
 
         $gameCreationForm.append($playlistSelect);
 
-        let $gameCreationFormSubmitButton = $('<input type="submit">');
+        let $gameCreationFormSubmitButton = $('<button type="submit" class="btn btn-primary">');
+
+        $gameCreationFormSubmitButton.text('submit');
 
         $gameCreationForm.append($gameCreationFormSubmitButton);
 
-        $gameCreationScreen.append($gameCreationForm);
+        $gameCreationColumn.append($gameCreationForm);
 
         this._$container.append($gameCreationScreen);
 

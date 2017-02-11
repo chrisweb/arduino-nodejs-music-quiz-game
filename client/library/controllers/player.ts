@@ -25,7 +25,7 @@ export interface IPlayersDataSource extends IPlayersData {
     playlistId: number;
 };
 
-export class PlayerScreenController {
+export class PlayerController {
 
     protected _timerInterval: number;
     protected _timerDuration: number = 15;
@@ -34,8 +34,8 @@ export class PlayerScreenController {
 
     public constructor() {
 
-        // INFO: material design components: http://material-components-web.appspot.com/
-        // checkout the packages READMEs for usage details: https://github.com/material-components/material-components-web/tree/master/packages
+        // INFO: twitter bootstrap 4 components https://v4-alpha.getbootstrap.com/components/alerts/
+        // grid: https://v4-alpha.getbootstrap.com/layout/grid/
 
     }
 
@@ -43,33 +43,15 @@ export class PlayerScreenController {
 
         let $body = $('body');
 
-        $body.empty();
-
-        /*$body.append('Hello Player');
-
+        /*
         // icons test
         $body.append('<i class="material-icons md-18">face</i>');
         $body.append('<i class="material-icons md-24">face</i>');
         $body.append('<i class="material-icons md-36">face</i>');
         $body.append('<i class="material-icons md-48">face</i>');
+        */
 
-        // buttons test
-        $body.append('<button class="mdc-button">Flat button</button>');
-        $body.append('<button class="mdc-button mdc-button--accent">Colored button</button>');
-        $body.append('<button class="mdc-button mdc-button--raised">Raised button</button>');
-        $body.append('<button class="mdc-button mdc-button--raised" disabled>Raised disabled button</button>');
-*/
-        this._$container = $('<div id="container">');
-
-        $body.append(this._$container);
-
-        // init heigth of container
-        //$container.height($(window).height());
-
-        // dynamic resize
-        /*$(window).resize(function() {
-            $('#container').height($(window).height());
-        });*/
+        this._$container = $body.find('.js-container');
 
         // open socket.io connection
         this._socket = io.connect('http://127.0.0.1:35001');
