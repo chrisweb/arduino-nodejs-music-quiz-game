@@ -18,6 +18,11 @@ export default class Bootsrtrap {
 
     constructor() {
 
+        // set a default if undefined
+        if (process.env.NODE_ENV === undefined) {
+            process.env.NODE_ENV = 'development';
+        }
+
         // create a new expressjs application
         this.application = express();
 
@@ -53,14 +58,25 @@ export default class Bootsrtrap {
         // assets: static files
         let root = __dirname + '/../..';
         let assetsRoot = path.join(root, 'build/assets');
-        let clientRoot = path.join(root, 'build/client');
-        let isomorphicRoot = path.join(root, 'build/isomorphic');
+        let clientBuildRoot = path.join(root, 'build/client');
+        let isomorphicBuildRoot = path.join(root, 'build/isomorphic');
 
         // static files
         // documentation: https://expressjs.com/en/starter/static-files.html
         this.application.use('/static', express.static(assetsRoot));
-        this.application.use('/static/javascripts/client', express.static(clientRoot));
-        this.application.use('/static/javascripts/isomorphic', express.static(isomorphicRoot));
+        this.application.use('/static/javascripts/client', express.static(clientBuildRoot));
+        this.application.use('/static/javascripts/isomorphic', express.static(isomorphicBuildRoot));
+
+        // ts files used by sourcemaps in development
+        if (process.env.NODE_ENV === 'development') {
+
+            let clientRoot = path.join(root, 'client');
+            let isomorphicRoot = path.join(root, 'isomorphic');
+
+            this.application.use('/client', express.static(clientRoot));
+            this.application.use('/isomorphic', express.static(isomorphicRoot));
+
+        }
 
         // request body parser setup
         this.application.use(bodyParser.json());
@@ -90,7 +106,7 @@ export default class Bootsrtrap {
 
         return new Promise((resolve) => {
             this.application.listen(port, function () {
-                console.log('app listening on port ' + port + '...');
+                console.log('app listening on port ' + port + ', NODE_ENV: ' + process.env.NODE_ENV + '...');
                 resolve();
             });
         });
