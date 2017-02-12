@@ -5,6 +5,11 @@
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 
+export interface IPlaylistsOption {
+    id: number;
+    title: string;
+}
+
 export class GameMasterController {
 
     protected _socket: SocketIOClient.Socket;
@@ -97,6 +102,33 @@ export class GameMasterController {
 
     protected _showGameCreationScreen() {
 
+        // fetch the playlists list
+        this._socket.emit('fetchPlaylistsList');
+
+        this._socket.on('playlistsList', (userPlaylists: any) => {
+
+            console.log(userPlaylists);
+
+            let playlistsOptions: IPlaylistsOption[] = [];
+
+            userPlaylists.forEach((playlist: any) => {
+
+                playlistsOptions.push({
+                    id: playlist.id,
+                    title: playlist.title
+                });
+
+            });
+
+            this._buildGameCreationScreen(playlistsOptions);
+
+        });
+
+    }
+
+    protected _buildGameCreationScreen(playlistsOptions: IPlaylistsOption[]) {
+
+        // build the screen
         this._$container.empty();
 
         let $gameCreationScreen = $('<div id="gameCreationScreen">');
@@ -136,14 +168,15 @@ export class GameMasterController {
         let $playlistSelectFormGroup = $('<div class="form-group">');
         let $playlistSelect = $('<select id="playlistId" name="playlistId" class="form-control">');
 
-        let $rockPlaylistOption = $('<option value="rock">');
-        let $dancePlaylistOption = $('<option value="dance">');
+        playlistsOptions.forEach((playlistOption: IPlaylistsOption) => {
 
-        $rockPlaylistOption.text('rock');
-        $dancePlaylistOption.text('dance');
-        
-        $playlistSelect.append($rockPlaylistOption);
-        $playlistSelect.append($dancePlaylistOption);
+            let $playlistOption = $('<option value="' + playlistOption.id + '">');
+
+            $playlistOption.text(playlistOption.title);
+
+            $playlistSelect.append($playlistOption);
+
+        });
 
         $playlistSelectFormGroup.append($playlistSelect);
         $gameCreationForm.append($playlistSelectFormGroup);

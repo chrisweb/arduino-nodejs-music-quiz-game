@@ -9,6 +9,12 @@ import * as express from 'express';
 // import * as SocketioModule from 'socket.io';
 import SocketIo = require('socket.io');
 
+// library
+import DeezerLibrary from './deezer';
+
+// configuration
+import { IConfiguration } from './../configuration';
+
 export interface IPlayersData {
     teamName0: string;
     teamScore0: number;
@@ -32,19 +38,29 @@ export interface IClientIds {
 
 export default class SocketIoLibrary {
 
-    private io: SocketIO.Server;
+    protected _io: SocketIO.Server;
+    protected _configuration: IConfiguration;
+    protected _deezerApi: DeezerLibrary;
+
     protected _clientIds: IClientIds = {
         playerId: null,
         gameMasterId: null
     };
 
-    public constructor(application: express.Application) {
+    public constructor(application: express.Application, configuration: IConfiguration) {
 
+        // socket io setup
         let server: http.Server = http.createServer(application);
 
-        this.io = SocketIo.listen(server);
+        this._io = SocketIo.listen(server);
 
         server.listen(35001);
+
+        // configuration
+        this._configuration = configuration;
+
+        // deezer api setup
+        this._deezerApi = new DeezerLibrary();
 
     }
 
@@ -52,7 +68,7 @@ export default class SocketIoLibrary {
 
         return new Promise((resolve) => {
 
-            this.io.on('connection', (socket: SocketIO.Socket) => {
+            this._io.on('connection', (socket: SocketIO.Socket) => {
 
                 console.log('a user connected');
                 //console.log(socket);
@@ -85,6 +101,20 @@ export default class SocketIoLibrary {
                     this._clientIds.gameMasterId = socket.id;
 
                 });
+                
+                socket.on('fetchPlaylistsList', () => {
+
+                    this._deezerApi.getUserPlaylists(this._configuration.deezerProfileId)
+                        .then((userPlaylists) => {
+                            
+                            if (this._clientIds.gameMasterId !== null) {
+                                this._io.sockets.connected[this._clientIds.gameMasterId].emit('playlistsList', userPlaylists);
+                            }
+
+                        })
+                        .catch((error) => { });
+
+                });
 
                 socket.on('startNewGame', (playersData: IPlayersData) => {
 
@@ -92,14 +122,14 @@ export default class SocketIoLibrary {
                     console.log('startNewGame, gameMasterId: ', this._clientIds.gameMasterId);
 
                     if (this._clientIds.playerId !== null) {
-                        this.io.sockets.connected[this._clientIds.playerId].emit('initializePlayerScreen', playersData);
+                        this._io.sockets.connected[this._clientIds.playerId].emit('initializePlayerScreen', playersData);
                     }
 
                 });
                 
             });
             
-            this.io.on('disconnect', function () {
+            this._io.on('disconnect', function () {
 
                 console.log('user disconnected');
 

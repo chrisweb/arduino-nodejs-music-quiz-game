@@ -12,9 +12,13 @@ import * as bodyParser from 'body-parser';
 import Router from './library/router';
 import SocketIoLibrary from './library/socketio';
 
+// configuration
+import { Configuration, IConfiguration } from './configuration';
+
 export default class Bootsrtrap {
 
-    private application: express.Application;
+    private _application: express.Application;
+    private _configuration: IConfiguration;
 
     constructor() {
 
@@ -23,15 +27,18 @@ export default class Bootsrtrap {
             process.env.NODE_ENV = 'development';
         }
 
+        // configuration
+        this._configuration = new Configuration();
+
         // create a new expressjs application
-        this.application = express();
+        this._application = express();
 
     }
 
     public run() {
 
         // disable x-powered-by express
-        this.application.disable('x-powered-by');
+        this._application.disable('x-powered-by');
 
         new Promise((resolve, reject) => {
 
@@ -53,7 +60,7 @@ export default class Bootsrtrap {
     private setupApplication() {
 
         // disable x-powered-by express
-        this.application.disable('x-powered-by');
+        this._application.disable('x-powered-by');
 
         // assets: static files
         let root = __dirname + '/../..';
@@ -63,9 +70,9 @@ export default class Bootsrtrap {
 
         // static files
         // documentation: https://expressjs.com/en/starter/static-files.html
-        this.application.use('/static', express.static(assetsRoot));
-        this.application.use('/static/javascripts/client', express.static(clientBuildRoot));
-        this.application.use('/static/javascripts/isomorphic', express.static(isomorphicBuildRoot));
+        this._application.use('/static', express.static(assetsRoot));
+        this._application.use('/static/javascripts/client', express.static(clientBuildRoot));
+        this._application.use('/static/javascripts/isomorphic', express.static(isomorphicBuildRoot));
 
         // ts files used by sourcemaps in development
         if (process.env.NODE_ENV === 'development') {
@@ -73,20 +80,20 @@ export default class Bootsrtrap {
             let clientRoot = path.join(root, 'client');
             let isomorphicRoot = path.join(root, 'isomorphic');
 
-            this.application.use('/client', express.static(clientRoot));
-            this.application.use('/isomorphic', express.static(isomorphicRoot));
+            this._application.use('/client', express.static(clientRoot));
+            this._application.use('/isomorphic', express.static(isomorphicRoot));
 
         }
 
         // request body parser setup
-        this.application.use(bodyParser.json());
-        this.application.use(bodyParser.urlencoded({ extended: true }));
+        this._application.use(bodyParser.json());
+        this._application.use(bodyParser.urlencoded({ extended: true }));
 
     }
 
     private setupRoutes() {
 
-        const router = new Router(this.application);
+        const router = new Router(this._application);
 
         return router.setupRoutes();
 
@@ -94,7 +101,7 @@ export default class Bootsrtrap {
 
     private setupSocketIo() {
 
-        const socketIoLibrary = new SocketIoLibrary(this.application);
+        const socketIoLibrary = new SocketIoLibrary(this._application, this._configuration);
 
         return socketIoLibrary.setupSocketIo();
 
@@ -105,7 +112,7 @@ export default class Bootsrtrap {
         let port = process.env.PORT || 35000;
 
         return new Promise((resolve) => {
-            this.application.listen(port, function () {
+            this._application.listen(port, function () {
                 console.log('app listening on port ' + port + ', NODE_ENV: ' + process.env.NODE_ENV + '...');
                 resolve();
             });
