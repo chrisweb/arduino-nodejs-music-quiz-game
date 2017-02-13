@@ -126,22 +126,6 @@ and / or to check if sass is installed, type:
 sass -v
 ```
 
-### build the project  
-
-to build the project (create js files from ts source files, copies files, ...), type  
-
-```
-gulp build
-```  
-
-## rebuild in realtime  
-
-while developing I recommend you enable gulp watch to ensure typescript and sass files get re-compiled on each time you save  
-
-```
-gulp watch
-```
-
 ## add new dependencies (node_modules)
 
 first to check the available package versions use  
@@ -164,6 +148,32 @@ if it's a dependency only used during development use "--save-dev" so that it ge
 
 ```
 npm install <package_name>@<version> --save-dev
+```
+
+## create a configuration file  
+
+open the server directory and copy the file configuration_example.ts, then rename it to configuration.ts  
+
+edit the configuration file and add your own values  
+
+the deezerProfileId is the id of the user profile you want the playlists to be fetched from by default (it can be any existing deezer account, it just needs to have some public playlists)  
+
+if you don't have a deezer account yet, create one and add some playlists (at least one), then puts it's ID in the configuration file  
+
+## build the project  
+
+to build the project (create js files from ts source files, copies files, ...), type  
+
+```
+gulp build
+```  
+
+## rebuild in realtime  
+
+while developing I recommend you enable gulp watch to ensure typescript and sass files get re-compiled on each time you save  
+
+```
+gulp watch
 ```
 
 ## start the server
