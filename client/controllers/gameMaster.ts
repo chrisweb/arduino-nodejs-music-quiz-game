@@ -150,7 +150,7 @@ export class GameMasterController {
             let $nameInputFieldFormGroup = $('<div class="form-group">');
             let $nameInputField = $('<input type="text" id="teamName' + i + '" name="teamName' + i + '" class="form-control">');
 
-            $nameInputField.prop('placeholder', 'player name ' + i.toString());
+            $nameInputField.prop('placeholder', 'player name ' + (i+1).toString());
 
             $nameInputFieldFormGroup.append($nameInputField);
             $gameCreationForm.append($nameInputFieldFormGroup);
@@ -158,7 +158,7 @@ export class GameMasterController {
             let $scoreInputFieldFormGroup = $('<div class="form-group">');
             let $scoreInputField = $('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '" class="form-control">');
 
-            $scoreInputField.prop('placeholder', 'player score ' + i.toString());
+            $scoreInputField.prop('placeholder', 'player score ' + (i + 1).toString());
 
             $scoreInputFieldFormGroup.append($scoreInputField);
             $gameCreationForm.append($scoreInputFieldFormGroup);

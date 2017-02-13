@@ -3,8 +3,8 @@
 
 // library
 import { IRequest, IRouteConfiguration, IRouteLoadHandler, IRouteUnLoadHandler } from 'isomorphix-router';
-import { GameMasterController } from 'client/library/controllers/gameMaster';
-import { PlayerController } from 'client/library/controllers/player';
+import { GameMasterController } from 'client/controllers/gameMaster';
+import { PlayerController } from 'client/controllers/player';
 
 export class Routes {
 

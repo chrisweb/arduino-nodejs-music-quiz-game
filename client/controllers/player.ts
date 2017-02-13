@@ -66,44 +66,7 @@ export class PlayerController {
         });
 
         // on server send event 'playerPressButton' the lead
-        this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
-
-            let $pageGame = $('#page_game');
-            let allPlayers = $pageGame.find('.js-player-container');
-
-            // display lock effect
-            allPlayers.removeClass('active').addClass('lock');
-
-            // display player press effet
-            let $activePlayer = $pageGame.find('[data-player-id="' + event.data.playerId + '"]');
-            $activePlayer.removeClass('lock').addClass('active');
-
-            // start timer
-            let $timer = $pageGame.find('.js-timer');            
-            $timer.removeClass('hidden');
-            $timer.find('.js-timer-count').text(this._timerDuration);
-
-            this._timerInterval = setInterval(function on_timerInterval(){
-                let currentValue: number = parseInt($timer.find('.js-timer-count').text());
-                $timer.find('.js-timer-count').text(currentValue - 1);
-
-                // hide timer and call server with event 'playerTimerFinish'
-                if (currentValue - 1 < 0) {
-                    clearInterval(this._timerInterval);
-
-                    // send event 'playerTimerFinish' to server
-                    this._socket.emit('playerTimerFinish');
-
-                    $timer.addClass('hidden');
-
-                    // reset other player and lock active current player because he doesn't answer
-                    allPlayers.removeClass('lock');
-                    $activePlayer.removeClass('active').addClass('lock');
-                }
-
-            }, 1000);
-
-        });
+        this._socket.on('playerPressButton', this._onPlayerPressButton);
 
         this._showStartScreen();
 
@@ -114,9 +77,56 @@ export class PlayerController {
         this._$container.empty();
 
         let $playerStartScreen = $('<div id="playerStartScreen">');
-        $playerStartScreen.append($('<h1>QUIZZ GAME !!!</h1>'));
+        let $waitingMessage = $('<p class="waitingMessage">');
+
+        $waitingMessage.text('Wait for the gamemaster to setup the game ...');
+
+        $playerStartScreen.append($waitingMessage);
 
         this._$container.append($playerStartScreen);
+
+    }
+
+    protected _onPlayerPressButton(event: JQueryEventObject) {
+
+        /*let $pageGame = $('#page_game');
+        let allPlayers = $pageGame.find('.js-player-container');
+
+        // display lock effect
+        allPlayers.removeClass('active').addClass('lock');
+
+        // display player press effet
+        let $activePlayer = $pageGame.find('[data-player-id="' + event.data.playerId + '"]');
+        $activePlayer.removeClass('lock').addClass('active');
+
+        // start timer
+        let $timer = $pageGame.find('.js-timer');
+        $timer.removeClass('hidden');
+        $timer.find('.js-timer-count').text(this._timerDuration);
+
+        this._timerInterval = setInterval(function on_timerInterval() {
+
+            let currentValue: number = parseInt($timer.find('.js-timer-count').text());
+
+            $timer.find('.js-timer-count').text(currentValue - 1);
+
+            // hide timer and call server with event 'playerTimerFinish'
+            if (currentValue - 1 < 0) {
+
+                clearInterval(this._timerInterval);
+
+                // send event 'playerTimerFinish' to server
+                this._socket.emit('playerTimerFinish');
+
+                $timer.addClass('hidden');
+
+                // reset other player and lock active current player because he doesn't answer
+                allPlayers.removeClass('lock');
+                $activePlayer.removeClass('active').addClass('lock');
+
+            }
+
+        }, 1000);*/
 
     }
 
@@ -124,29 +134,74 @@ export class PlayerController {
 
         this._$container.empty();
 
-        let $playerGameScreen = $('<div id="playerGameScreen">');
+        let $playerGameScreen = $('<div class="row" id="playerGameScreen">');
+        let playersCount: number = 0;
         let i: number;
 
+        // check how much players we have
         for (i = 0; i < 4; i++) {
 
-            let $playerDiv = $('<div class="player_container player_' + i + ' js-player-container hidden">').data('playerId', i);
+            let nameIndexName = 'teamName' + i.toString();
+            let playerName = playersData[nameIndexName];
+
+            if (playerName !== '') {
+                playersCount++;
+            }
+
+        }
+
+        let y: number;
+
+        // create the player columns
+        for (y = 0; y < playersCount; y++) {
+
+            let $playerColumn = $('<div class="playerColumn js-player-column">');
+
+            $playerColumn.data('playerId', i);
+
+            // 12 columns divided by player count
+            if (playersCount === 2) {
+                $playerColumn.addClass('col-6');
+            } else if (playersCount === 3) {
+                $playerColumn.addClass('col-4');
+            } else {
+                $playerColumn.addClass('col-3');
+            }
+
+            switch (y) {
+                case 0:
+                    $playerColumn.addClass('playerColumnRed');
+                    break;
+                case 1:
+                    $playerColumn.addClass('playerColumnBlue');
+                    break;
+                case 2:
+                    $playerColumn.addClass('playerColumnGreen');
+                    break;
+                case 3:
+                    $playerColumn.addClass('playerColumnYellow');
+                    break;
+            }
 
             let nameIndexName = 'teamName' + i.toString();
             let scoreIndexName = 'teamScore' + i.toString();
 
             let $playerName = $('<h1 class="js-player-name">');
-            let $playerScore = $('<span class="player_score js-player-score">10</span>');
+            let $playerScore = $('<span class="js-player-score">');
+            let $playerStatus = $('<span class="js-player-status">');
 
             let playerName = playersData[nameIndexName];
             let playerScore = playersData[scoreIndexName];
 
             $playerName.text(playerName);
             $playerScore.text(playerScore);
+            $playerStatus.text('press your button to start');
 
-            $playerDiv.append($playerName);
-            $playerDiv.append($playerScore);
+            $playerColumn.append($playerName);
+            $playerColumn.append($playerScore);
+            $playerColumn.append($playerStatus);
 
-            $playerGameScreen.append($playerDiv);
+            $playerGameScreen.append($playerColumn);
 
         }
 
