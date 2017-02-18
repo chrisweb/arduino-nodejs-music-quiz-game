@@ -61,12 +61,22 @@
 
 /* custom */
 body {
-    
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.screen {
+    height: 100%;
+    width: 100%;
+}
+
+.playersRow {
+    height: 100%;
 }
 
 .playerColumn {
     height: 100%;
-    // check this out: http://jsfiddle.net/avrahamcool/58mkp/1/
 }
 
 .playerColumnRed {

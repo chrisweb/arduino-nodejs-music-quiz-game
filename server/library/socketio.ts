@@ -11,6 +11,7 @@ import SocketIo = require('socket.io');
 
 // library
 import DeezerLibrary from './deezer';
+import { ArduinoLibrary } from './arduino';
 
 // configuration
 import { IConfiguration } from './../configuration';
@@ -68,7 +69,11 @@ export default class SocketIoLibrary {
 
         return new Promise((resolve) => {
 
+            const arduinoLibrary = new ArduinoLibrary();
+
             this._io.on('connection', (socket: SocketIO.Socket) => {
+
+                socket.join('quizRoom');
 
                 console.log('a user connected');
                 //console.log(socket);
@@ -112,7 +117,12 @@ export default class SocketIoLibrary {
                             }
 
                         })
-                        .catch((error) => { });
+                        .catch((error) => {
+
+                            // TODO: handle error
+                            console.log(error);
+
+                        });
 
                 });
 
@@ -124,6 +134,12 @@ export default class SocketIoLibrary {
                     if (this._clientIds.playerId !== null) {
                         this._io.sockets.connected[this._clientIds.playerId].emit('initializePlayerScreen', playersData);
                     }
+
+                });
+
+                arduinoLibrary.listener((error, data) => {
+
+                    this._io.to('quizRoom').emit('arduinoPressButton', data);
 
                 });
                 

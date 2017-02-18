@@ -12,9 +12,12 @@
 
 ## done:
 
-* do first arduino prototype to test the buttons input
-* order the buttons (adafruit big 100mm arcade buttons)
+* order and arduino board as well as the physical buttons (adafruit big 100mm arcade buttons)
+* do prototype for both the gamemaster and player screens
+* do nodejs - arduino serial ports reading prototype, to test the buttons input
+* add the arduino source code to the repository
 * create a design of our board using a tool like https://circuits.io/home/create
 * get access to songs through an API (deezer / spotify)
 * create player to play back the songs of a playlist
-* create the client routes for both screens an start building their content in two distinct controllers
+* create the router for client routes of both screens
+* write two controllers, one for the player and one for the game master

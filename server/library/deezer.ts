@@ -1,4 +1,5 @@
-﻿'use strict';
+﻿
+'use strict';
 
 // vendor
 import * as request from 'request';

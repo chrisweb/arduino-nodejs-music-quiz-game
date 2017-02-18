@@ -65,6 +65,12 @@ export class PlayerController {
 
         });
 
+        this._socket.on('arduinoPressButton', (arduinoData: any) => {
+
+            this._onPlayerPressButton(arduinoData);
+
+        });
+        
         // on server send event 'playerPressButton' the lead
         this._socket.on('playerPressButton', this._onPlayerPressButton);
 
@@ -76,18 +82,17 @@ export class PlayerController {
 
         this._$container.empty();
 
-        let $playerStartScreen = $('<div id="playerStartScreen">');
         let $waitingMessage = $('<p class="waitingMessage">');
 
         $waitingMessage.text('Wait for the gamemaster to setup the game ...');
 
-        $playerStartScreen.append($waitingMessage);
-
-        this._$container.append($playerStartScreen);
+        this._$container.append($waitingMessage);
 
     }
 
-    protected _onPlayerPressButton(event: JQueryEventObject) {
+    protected _onPlayerPressButton(arduinoData: any) {
+
+        console.log(arduinoData);
 
         /*let $pageGame = $('#page_game');
         let allPlayers = $pageGame.find('.js-player-container');
@@ -134,7 +139,12 @@ export class PlayerController {
 
         this._$container.empty();
 
-        let $playerGameScreen = $('<div class="row" id="playerGameScreen">');
+        this._$container.addClass('gameScreen');
+
+        let $playersRow = $('<div class="d-flex flex-row js-players-row playersRow">');
+
+        this._$container.append($playersRow);
+
         let playersCount: number = 0;
         let i: number;
 
@@ -157,7 +167,8 @@ export class PlayerController {
 
             let $playerColumn = $('<div class="playerColumn js-player-column">');
 
-            $playerColumn.data('playerId', i);
+            $playerColumn.addClass('d-flex flex-column align-items-stretch');
+            $playerColumn.data('playerId', y);
 
             // 12 columns divided by player count
             if (playersCount === 2) {
@@ -183,8 +194,8 @@ export class PlayerController {
                     break;
             }
 
-            let nameIndexName = 'teamName' + i.toString();
-            let scoreIndexName = 'teamScore' + i.toString();
+            let nameIndexName = 'teamName' + y.toString();
+            let scoreIndexName = 'teamScore' + y.toString();
 
             let $playerName = $('<h1 class="js-player-name">');
             let $playerScore = $('<span class="js-player-score">');
@@ -201,11 +212,9 @@ export class PlayerController {
             $playerColumn.append($playerScore);
             $playerColumn.append($playerStatus);
 
-            $playerGameScreen.append($playerColumn);
+            $playersRow.append($playerColumn);
 
         }
-
-        this._$container.append($playerGameScreen);
         
         // get all player column
         /*let allPlayers = $playerGameScreen.find('.js-player-container');

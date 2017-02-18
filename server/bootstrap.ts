@@ -100,9 +100,9 @@ export default class Bootsrtrap {
     }
 
     private setupSocketIo() {
-
+        
         const socketIoLibrary = new SocketIoLibrary(this._application, this._configuration);
-
+        
         return socketIoLibrary.setupSocketIo();
 
     }

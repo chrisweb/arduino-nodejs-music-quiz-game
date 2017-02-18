@@ -71,6 +71,12 @@ export class GameMasterController {
             this._displayPageGame();
         });*/
 
+        this._socket.on('arduinoPressButton', (arduinoData: any) => {
+
+            this._onPlayerPressButton(arduinoData);
+
+        });
+
         this._showStartScreen();
 
     }
@@ -79,15 +85,11 @@ export class GameMasterController {
 
         this._$container.empty();
 
-        let $startScreenContainer = $('<div id="startScreenContainer">');
-
-        this._$container.append($startScreenContainer);
-
         let $startButton = $('<button class="js-start-btn btn btn-primary">')
 
         $startButton.text('Start new game');
 
-        $startScreenContainer.append($startButton);
+        this._$container.append($startButton);
 
         // listen for start game button click
         $startButton.one('click', (event: JQueryEventObject) => {
@@ -131,12 +133,11 @@ export class GameMasterController {
         // build the screen
         this._$container.empty();
 
-        let $gameCreationScreen = $('<div id="gameCreationScreen">');
         let $gameCreationRow = $('<div class="row">');
         let $gameCreationColumn = $('<div class="col-3">');
 
         $gameCreationRow.append($gameCreationColumn);
-        $gameCreationScreen.append($gameCreationRow);
+        this._$container.append($gameCreationRow);
 
         let $gameCreationForm = $('<form id="gameCreationForm">');
         let $gameCreationScreenTitle = $('<h1>');
@@ -189,8 +190,6 @@ export class GameMasterController {
 
         $gameCreationColumn.append($gameCreationForm);
 
-        this._$container.append($gameCreationScreen);
-
         $gameCreationForm.off('submit');
         $gameCreationForm.on('submit', this._onGameCreationFormSubmit.bind(this));
 
@@ -209,6 +208,12 @@ export class GameMasterController {
 
         // get form info and send it to server
         this._socket.emit('startNewGame', formData);
+
+    }
+
+    protected _onPlayerPressButton(arduinoData: any) {
+
+        console.log(arduinoData);
 
     }
 
