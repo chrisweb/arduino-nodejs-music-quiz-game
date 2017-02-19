@@ -137,10 +137,38 @@ export default class SocketIoLibrary {
 
                 });
 
-                arduinoLibrary.listener((error, data) => {
+                socket.on('playerClickBuzzer', (userId: number) => {
 
-                    this._io.to('quizRoom').emit('arduinoPressButton', data);
+                    console.log('playerClickBuzzer, userId: ', userId);
 
+                    let index = (userId * 2) + 1;
+                    let data = '10101010';
+                    data = data.substr(0, index) + '1' + data.substr(index + 1);
+
+                    if (data.charAt(0) === '1' && data.charAt(1) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 0);
+                    } else if (data.charAt(2) === '1' && data.charAt(3) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 1);
+                    } else if (data.charAt(4) === '1' && data.charAt(5) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 2);
+                    } else if (data.charAt(6) === '1' && data.charAt(7) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 3);
+                    }
+
+                });
+
+                arduinoLibrary.listener((error, data: string) => {
+
+                    if (data.charAt(0) === '1' && data.charAt(1) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 0);
+                    } else if (data.charAt(2) === '1' && data.charAt(3) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 1);
+                    } else if (data.charAt(4) === '1' && data.charAt(5) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 2);
+                    } else if (data.charAt(6) === '1' && data.charAt(7) === '1') {
+                        this._io.to('quizRoom').emit('arduinoPressButton', 3);
+                    }
+                    
                 });
                 
             });

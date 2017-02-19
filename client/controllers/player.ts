@@ -27,7 +27,7 @@ export interface IPlayersDataSource extends IPlayersData {
 
 export class PlayerController {
 
-    protected _timerInterval: number;
+    protected _timerInterval: NodeJS.Timer;
     protected _timerDuration: number = 15;
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
@@ -65,14 +65,48 @@ export class PlayerController {
 
         });
 
-        this._socket.on('arduinoPressButton', (arduinoData: any) => {
+        this._socket.on('arduinoPressButton', (playerId: number) => {
 
-            this._onPlayerPressButton(arduinoData);
+            console.log('player playerPressButton userId = ' + playerId);
 
-        });
-        
-        // on server send event 'playerPressButton' the lead
-        this._socket.on('playerPressButton', this._onPlayerPressButton);
+            let $pageGame = $('.gameScreen');
+            let allPlayers = $pageGame.find('.js-player-container');
+
+            // display lock effect
+            allPlayers.removeClass('active').addClass('lock');
+
+            // display player press effet
+            let $activePlayer = $pageGame.find('[data-player-id="' + playerId + '"]');
+            $activePlayer.removeClass('lock').addClass('active');
+
+            // start timer
+            let $timer = $pageGame.find('.js-timer');
+            $timer.removeClass('hidden');
+            $timer.find('.js-timer-count').text(this._timerDuration);
+
+            this._timerInterval = setInterval(function on_timerInterval() {
+
+                let currentValue: number = parseInt($timer.find('.js-timer-count').text());
+
+                $timer.find('.js-timer-count').text(currentValue - 1);
+
+                // hide timer and call server with event 'playerTimerFinish'
+                if (currentValue - 1 < 0) {
+
+                    clearInterval(this._timerInterval);
+
+                    // send event 'playerTimerFinish' to server
+                    this._socket.emit('playerTimerFinish');
+
+                    $timer.addClass('hidden');
+
+                    // reset other player and lock active current player because he doesn't answer
+                    allPlayers.removeClass('lock');
+                    $activePlayer.removeClass('active').addClass('lock');
+
+                }
+
+            }, 1000)});
 
         this._showStartScreen();
 
@@ -87,51 +121,6 @@ export class PlayerController {
         $waitingMessage.text('Wait for the gamemaster to setup the game ...');
 
         this._$container.append($waitingMessage);
-
-    }
-
-    protected _onPlayerPressButton(arduinoData: any) {
-
-        console.log(arduinoData);
-
-        /*let $pageGame = $('#page_game');
-        let allPlayers = $pageGame.find('.js-player-container');
-
-        // display lock effect
-        allPlayers.removeClass('active').addClass('lock');
-
-        // display player press effet
-        let $activePlayer = $pageGame.find('[data-player-id="' + event.data.playerId + '"]');
-        $activePlayer.removeClass('lock').addClass('active');
-
-        // start timer
-        let $timer = $pageGame.find('.js-timer');
-        $timer.removeClass('hidden');
-        $timer.find('.js-timer-count').text(this._timerDuration);
-
-        this._timerInterval = setInterval(function on_timerInterval() {
-
-            let currentValue: number = parseInt($timer.find('.js-timer-count').text());
-
-            $timer.find('.js-timer-count').text(currentValue - 1);
-
-            // hide timer and call server with event 'playerTimerFinish'
-            if (currentValue - 1 < 0) {
-
-                clearInterval(this._timerInterval);
-
-                // send event 'playerTimerFinish' to server
-                this._socket.emit('playerTimerFinish');
-
-                $timer.addClass('hidden');
-
-                // reset other player and lock active current player because he doesn't answer
-                allPlayers.removeClass('lock');
-                $activePlayer.removeClass('active').addClass('lock');
-
-            }
-
-        }, 1000);*/
 
     }
 
@@ -165,10 +154,17 @@ export class PlayerController {
         // create the player columns
         for (y = 0; y < playersCount; y++) {
 
-            let $playerColumn = $('<div class="playerColumn js-player-column">');
+            let $playerColumn = $('<div class="playerColumn js-player-column" data-player-id="' + y + '">');
 
             $playerColumn.addClass('d-flex flex-column align-items-stretch');
-            $playerColumn.data('playerId', y);
+
+            // add on click event to play without physical button
+            $playerColumn.on('click', (event: JQueryEventObject) => {
+
+                let userId = $(event.currentTarget).data('playerId');
+                this._socket.emit('playerClickBuzzer', userId);
+
+            });
 
             // 12 columns divided by player count
             if (playersCount === 2) {
@@ -285,7 +281,7 @@ export class PlayerController {
             let $place = $pageScore.find('.js-place-' + (i + 1));
             $place.find('.js-player-name').text(playersScores[i].name);
             $place.find('.js-player-score').text(playersScores[i].score);
-            $place.css('background-color', this._$container.find('#page_game [data-player-id="' + playersScores[i].playerId + '"]').css('background-color'));
+            $place.css('background-color', this._$container.find('.gameScreen [data-player-id="' + playersScores[i].playerId + '"]').css('background-color'));
 
         }
 
