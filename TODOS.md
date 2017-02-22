@@ -24,18 +24,18 @@
 
 ## Xavier:
 * gamemaster: 
-*	- when click submit show game page
-*	- page game code button start game (send event startGame to server and server to player)
-* 	- display answer mode and code 'false' button ('true' button is for Chris)
+ * when click submit show game page
+ * page game code button start game (send event startGame to server and server to player)
+ * display answer mode and code 'false' button ('true' button is for Chris)
 * player: 
-*	- correct play game screen
-*	- show answer mode on game page when user press button
+ * correct play game screen
+ * show answer mode on game page when user press button
 
 ## Chris:
 * player:
-*	- when server send event gameStart start the song
+ * when server send event gameStart start the song
 * gamemaster:
-*	- on game page code next button (skipe current track or if user give the good answer)
+ * on game page code next button (skipe current track or if user give the good answer)
 * node:
-*	- fetch songs and send to player
+ * fetch songs and send to player
 
