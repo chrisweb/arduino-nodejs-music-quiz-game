@@ -30,12 +30,16 @@
 * player: 
  * correct play game screen
  * show answer mode on game page when user press button
+ * display score page
 
 ## Chris:
 * player:
  * when server send event gameStart start the song
 * gamemaster:
- * on game page code next button (skipe current track or if user give the good answer)
+ * on game page code next button (skipe current track)
+ * answer 'true' button, add score and next song
+ * check when playlist is finished
+ * start new game
 * node:
  * fetch songs and send to player
 
