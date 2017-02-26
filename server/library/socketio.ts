@@ -155,8 +155,21 @@ export default class SocketIoLibrary {
 
                 });
 
+                socket.on('playerViewReady', () => {
 
+                    if (this._clientIds.gameMasterId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterId].emit('playerViewReady');
+                    }
+
+                });
                 
+
+                const onSimulateEventNewSongStart = () => {
+                    if (this._clientIds.gameMasterId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterId].emit('newSongStart', 'titre ' + Math.random(),  'artist ' + Math.random());
+                    }
+                };
+                socket.on('simulateEventNewSongStart', onSimulateEventNewSongStart);
             });
             
             this._io.on('disconnect', function () {

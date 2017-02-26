@@ -210,6 +210,8 @@ export class PlayerController {
 
             $playersRow.append($playerColumn);
 
+            this._socket.emit('playerViewReady');
+
         }
         
         // get all player column

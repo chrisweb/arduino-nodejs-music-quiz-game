@@ -46,36 +46,36 @@ export class GameMasterController {
 
         });*/
 
+        const onNewSongStart = (trackTitle: string, artistName: string) => {
+            this._displayValidateButton(false);
+            this._updateGameScreen(trackTitle, artistName);
+        };
         // on server send event 'newSongStart'
-        /*this._socket.on('newSongStart', function onNewSongStart(event: JQueryEventObject) {
-            this._displayValidateButton(false);
-            this._displayPageGame(event.data.trackTitle, event.data.artistName);
-        });*/
+        this._socket.on('newSongStart', onNewSongStart);
 
+        const onPlaylistFinished = () => {
+            this._displayValidateButton(false);
+            this._showStartScreen();
+        };
         // on server send event 'playlistFinished'
-        /*this._socket.on('playlistFinished', function onPlaylistFinished(event: JQueryEventObject) {
-            this._displayValidateButton(false);
-            this._displayPageStart();
-        });*/
+        this._socket.on('playlistFinished', onPlaylistFinished);
 
-        // on server send event 'playerPressButton'
-        /*this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
-            this._displayValidateButton(true);
-        });*/
-        
-        // on server send event playerViewReady
-        /*this._socket.on('playerPressButton', function onPlayerPressButton(event: JQueryEventObject) {
+        const onPlayerViewReady = () => {
             // send event 'newSongStart'
-            this.socket.emit('newSongStart');
+            this._socket.emit('newSongStart');
 
-            this._displayPageGame();
-        });*/
+            this._buildGameScreen();
+        }
 
-        this._socket.on('arduinoPressButton', (arduinoData: any) => {
+        // on server send event playerViewReady
+        this._socket.on('playerViewReady', onPlayerViewReady);
 
+
+        const onArduinoPressButton = (arduinoData: any) => {
             this._onPlayerPressButton(arduinoData);
-
-        });
+        };
+        // on server send event 'arduinoPressButton'
+        this._socket.on('arduinoPressButton', onArduinoPressButton);
 
         this._showStartScreen();
 
@@ -213,11 +213,11 @@ export class GameMasterController {
 
     protected _onPlayerPressButton(arduinoData: any) {
 
-        console.log(arduinoData);
+        this._displayValidateButton(true);
 
     }
 
-    /*protected _displayPageWait() {
+    protected _buildWaitScreen() {
 
         let $container = $('#container');
 
@@ -229,13 +229,12 @@ export class GameMasterController {
 
         $container.append($page);
 
-    }*/
+    }
 
-    /*protected _displayPageGame(trackTitle: string, artistName: string) {
+    protected _buildGameScreen() {
 
-        let $container = $('#container');
-
-        $container.empty();
+        // build the screen
+        this._$container.empty();
 
         let $pageGame = $('<div id="page_game">');
 
@@ -255,43 +254,54 @@ export class GameMasterController {
         $pageGame.append($('<br><br>'));
         $pageGame.append($('<button class="js-end-game">').text('End the game'));
 
-        $container.append($pageGame);
+        this._$container.append($pageGame);
 
-
-        $pageGame.find('.js-current-track-title').text(trackTitle);
-        $pageGame.find('.js-current-track-artist').text(artistName);
-
-        $pageGame.on('click', '.js-next-track', function onClickBtnNextTrackFunction(event) {
-
+        const onClickBtnNextTrackFunction = (event: Event) => {
             event.preventDefault();
 
             // send to server event 'nextTrack'
-            this.socket.emit('nextTrack');
+            this._socket.emit('nextTrack');
 
             this._displayValidateButton(false);
-            this._displayPageWait();
+            this._buildWaitScreen();
+        };
 
-        });
+        $pageGame.on('click', '.js-next-track', onClickBtnNextTrackFunction);
 
-        $pageGame.on('click', '.js-end-game', function onClickBtnEndGameFunction(event) {
+        const onClickBtnEndGameFunction = (event: Event) => {
 
             event.preventDefault();
 
             if (confirm('End the game (go to score screen)?')) {
 
                 // send to server event 'endGame'
-                this.socket.emit('endGame');
+                this._socket.emit('endGame');
 
                 this._displayValidateButton(false);
-                this._displayPageStart();
+                this._showStartScreen();
 
             }
 
-        });
+        };
 
-    }*/
+        $pageGame.on('click', '.js-end-game', onClickBtnEndGameFunction);
 
-    /*protected _displayValidateButton(display: boolean) {
+
+        const simulateEventNewSongStart = () => {
+            this._socket.emit('simulateEventNewSongStart');
+        };
+        $pageGame.append($('<br><br>'));
+        $pageGame.append($('<button class="js-debug-new-track">').text('click here to simulate event newSongStart'));
+        $pageGame.on('click', '.js-debug-new-track', simulateEventNewSongStart);
+
+    }
+
+    protected _updateGameScreen(trackTitle: string, artistName: string) {
+        this._$container.find('.js-current-track-title').text(trackTitle);
+        this._$container.find('.js-current-track-artist').text(artistName);
+    }
+
+    protected _displayValidateButton(display: boolean) {
 
         let $btnContainer = $('#page_game .js-valide-answer');
 
@@ -299,19 +309,23 @@ export class GameMasterController {
 
             $btnContainer.removeClass('hidden');
 
-            $btnContainer.on('click', '.js-good', function onClickGoodBtnFunction(event) {
+            const onClickGoodBtnFunction = (event: Event) => {
                 event.preventDefault();
 
                 // send to server event 'answerIsValide'
-                this.socket.emit('answerIsValide');
-            });
+                this._socket.emit('answerIsValide');
+            };
 
-            $btnContainer.on('click', '.js-bad', function onClickBadBtnFunction(event) {
+            $btnContainer.on('click', '.js-good', onClickGoodBtnFunction);
+
+            const onClickBadBtnFunction = () => {
                 event.preventDefault();
 
                 // send to server event 'answerIsUnvalide'
-                this.socket.emit('answerIsUnvalide');
-            });
+                this._socket.emit('answerIsUnvalide');
+            };
+
+            $btnContainer.on('click', '.js-bad', onClickBadBtnFunction);
 
         } else {
 
@@ -322,5 +336,5 @@ export class GameMasterController {
             $btnContainer.off('click', '.js-bad');
 
         }
-    }*/
+    }
 }
