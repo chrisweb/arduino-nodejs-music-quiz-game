@@ -11,25 +11,25 @@
     "serialport": "^4.0.7",
     "socket.io": "^1.7.3",
     "socket.io-client": "^1.7.3",
-    "systemjs": "^0.19.46",
+    "systemjs": "^0.20.9",
     "web-audio-api-player": "git://github.com/chrisweb/web-audio-api-player.git#0.3.0"
   },
   "description": "quizz game using 4 big arcade buttons connected to an arduino board that sends the data to nodejs",
   "devDependencies": {
-    "@types/body-parser": "^0.0.33",
-    "@types/express": "^4.0.34",
+    "@types/body-parser": "^0.0.34",
+    "@types/express": "^4.0.35",
     "@types/jquery": "^2.0.40",
-    "@types/node": "^0.0.1",
+    "@types/node": "^7.0.5",
     "@types/socket.io": "^1.4.28",
     "@types/socket.io-client": "^1.4.29",
-    "@types/request": "^0.0.39",
-	"@types/serialport": "^4.0.7",
+    "@types/request": "^0.0.40",
+  	"@types/serialport": "^4.0.7",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.1.5",
     "gulp-sass": "^3.1.0",
-    "merge2": "^1.0.2",
+    "merge2": "^1.0.3",
     "tslint": "^4.4.2",
-    "typescript": "^2.0.10"
+    "typescript": "^2.1.5"
   },
   "engines": {
     "node": "> 7.0.0"
