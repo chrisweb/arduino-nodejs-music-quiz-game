@@ -59,13 +59,13 @@ export class PlayerController {
         // identify as player
         this._socket.emit('identifyPlayer');
 
-        this._socket.on('initializePlayerScreen', (playersData: IPlayersData) => {
+        this._socket.on('initializeScreens', (playersData: IPlayersData) => {
 
             this._showGameScreen(playersData);
 
         });
 
-        this._socket.on('arduinoPressButton', (playerId: number) => {
+        this._socket.on('playerPressedButton', (playerId: number) => {
 
             console.log('player playerPressButton userId = ' + playerId);
 
@@ -162,7 +162,8 @@ export class PlayerController {
             $playerColumn.on('click', (event: JQueryEventObject) => {
 
                 let userId = $(event.currentTarget).data('playerId');
-                this._socket.emit('playerClickBuzzer', userId);
+
+                this._socket.emit('playerClickColumn', userId);
 
             });
 

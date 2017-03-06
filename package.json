@@ -1,13 +1,13 @@
 {
   "author": "chrisweb <chris963@gmail.com> (https://chris.lu)",
   "dependencies": {
-    "body-parser": "^1.16.1",
+    "body-parser": "^1.17.1",
     "bootstrap": "^4.0.0-alpha.6",
-    "express": "^4.14.1",
+    "express": "^4.15.2",
     "isomorphix-router": "git://github.com/chrisweb/isomorphix-router.git#1.1.4",
     "jquery": "^3.1.1",
     "material-design-icons": "^3.0.1",
-    "request": "^2.79.0",
+    "request": "^2.80.0",
     "serialport": "^4.0.7",
     "socket.io": "^1.7.3",
     "socket.io-client": "^1.7.3",
@@ -28,7 +28,7 @@
     "gulp-typescript": "^3.1.5",
     "gulp-sass": "^3.1.0",
     "merge2": "^1.0.3",
-    "tslint": "^4.4.2",
+    "tslint": "^4.5.1",
     "typescript": "^2.1.5"
   },
   "engines": {

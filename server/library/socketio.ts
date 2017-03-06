@@ -33,8 +33,8 @@ export interface IPlayersData {
 };
 
 export interface IClientIds {
-    playerId: string | null;
-    gameMasterId: string | null;
+    playerScreenId: string | null;
+    gameMasterScreenId: string | null;
 }
 
 export default class SocketIoLibrary {
@@ -44,8 +44,8 @@ export default class SocketIoLibrary {
     protected _deezerApi: DeezerLibrary;
 
     protected _clientIds: IClientIds = {
-        playerId: null,
-        gameMasterId: null
+        playerScreenId: null,
+        gameMasterScreenId: null
     };
 
     public constructor(application: express.Application, configuration: IConfiguration) {
@@ -79,23 +79,11 @@ export default class SocketIoLibrary {
                 //console.log(socket);
                 //console.log(socket.id);
 
-                /*socket.on('eventFoo', (message: string) => {
-
-                    console.log('message recieved: ' + message);
-
-                    let responseMessage = 'cest toi le hello world';
-
-                    console.log('sending response message: ' + responseMessage);
-
-                    this.io.emit('eventBar', responseMessage);
-
-                });*/
-
                 socket.on('identifyPlayer', () => {
 
                     console.log('identifyPlayer: ', socket.id);
 
-                    this._clientIds.playerId = socket.id;
+                    this._clientIds.playerScreenId = socket.id;
 
                 });
 
@@ -103,7 +91,7 @@ export default class SocketIoLibrary {
 
                     console.log('identifyGameMaster: ', socket.id);
 
-                    this._clientIds.gameMasterId = socket.id;
+                    this._clientIds.gameMasterScreenId = socket.id;
 
                 });
                 
@@ -112,8 +100,8 @@ export default class SocketIoLibrary {
                     this._deezerApi.getUserPlaylists(this._configuration.deezerProfileId)
                         .then((userPlaylists) => {
                             
-                            if (this._clientIds.gameMasterId !== null) {
-                                this._io.sockets.connected[this._clientIds.gameMasterId].emit('playlistsList', userPlaylists);
+                            if (this._clientIds.gameMasterScreenId !== null) {
+                                this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('playlistsList', userPlaylists);
                             }
 
                         })
@@ -126,18 +114,23 @@ export default class SocketIoLibrary {
 
                 });
 
-                socket.on('startNewGame', (playersData: IPlayersData) => {
+                socket.on('initializeGame', (playersData: IPlayersData) => {
 
-                    console.log('startNewGame, playerId: ', this._clientIds.playerId);
-                    console.log('startNewGame, gameMasterId: ', this._clientIds.gameMasterId);
+                    console.log('initializeGame, playersData: ', playersData);
 
-                    if (this._clientIds.playerId !== null) {
-                        this._io.sockets.connected[this._clientIds.playerId].emit('initializePlayerScreen', playersData);
-                    }
+                    // inform the player screen that we can start initialization
+                    /*if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('initializePlayerScreen', playersData);
+                    }*/
+
+                    // inform both screens that the game can be initialized
+                    this._io.to('quizRoom').emit('initializeScreens', playersData);
+
+                    this._fetchPlaylistSongs(playersData.playlistId);
 
                 });
 
-                socket.on('playerClickBuzzer', (userId: number) => {
+                socket.on('playerClickColumn', (userId: number) => {
 
                     console.log('playerClickBuzzer, userId: ', userId);
 
@@ -157,18 +150,19 @@ export default class SocketIoLibrary {
 
                 socket.on('playerViewReady', () => {
 
-                    if (this._clientIds.gameMasterId !== null) {
-                        this._io.sockets.connected[this._clientIds.gameMasterId].emit('playerViewReady');
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('playerViewReady');
                     }
 
                 });
                 
 
                 const onSimulateEventNewSongStart = () => {
-                    if (this._clientIds.gameMasterId !== null) {
-                        this._io.sockets.connected[this._clientIds.gameMasterId].emit('newSongStart', 'titre ' + Math.random(),  'artist ' + Math.random());
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('newSongStart', 'titre ' + Math.random(),  'artist ' + Math.random());
                     }
                 };
+
                 socket.on('simulateEventNewSongStart', onSimulateEventNewSongStart);
             });
             
@@ -184,15 +178,23 @@ export default class SocketIoLibrary {
     }
 
     protected _parseArduinoData(data: string) {
+
         if (data.charAt(0) === '1' && data.charAt(1) === '1') {
-            this._io.to('quizRoom').emit('arduinoPressButton', 0);
+            this._io.to('quizRoom').emit('playerPressedButton', 0);
         } else if (data.charAt(2) === '1' && data.charAt(3) === '1') {
-            this._io.to('quizRoom').emit('arduinoPressButton', 1);
+            this._io.to('quizRoom').emit('playerPressedButton', 1);
         } else if (data.charAt(4) === '1' && data.charAt(5) === '1') {
-            this._io.to('quizRoom').emit('arduinoPressButton', 2);
+            this._io.to('quizRoom').emit('playerPressedButton', 2);
         } else if (data.charAt(6) === '1' && data.charAt(7) === '1') {
-            this._io.to('quizRoom').emit('arduinoPressButton', 3);
+            this._io.to('quizRoom').emit('playerPressedButton', 3);
         }
+
+    }
+
+    protected _fetchPlaylistSongs(playlistId: number, callback: Function) {
+
+        callback();
+
     }
 
 }

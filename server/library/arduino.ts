@@ -61,7 +61,7 @@ export class ArduinoLibrary {
 
                         // TODO: rate limit
 
-                        //callback(false, data);
+                        callback(false, data);
 
                     });
 

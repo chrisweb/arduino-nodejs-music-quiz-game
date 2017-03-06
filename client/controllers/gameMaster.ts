@@ -69,13 +69,19 @@ export class GameMasterController {
 
         // on server send event playerViewReady
         this._socket.on('playerViewReady', onPlayerViewReady);
-
-
-        const onArduinoPressButton = (arduinoData: any) => {
-            this._onPlayerPressButton(arduinoData);
+        
+        const onPlayerPressedButton = (playerId: number) => {
+            this._onPlayerPressedButton(playerId);
         };
+
         // on server send event 'arduinoPressButton'
-        this._socket.on('arduinoPressButton', onArduinoPressButton);
+        this._socket.on('playerPressedButton', onPlayerPressedButton);
+
+        const onInitializeScreens = (playersData) => {
+            this._onInitializeScreens(playersData);
+        };
+
+        this._socket.on('initializeScreens', onInitializeScreens);
 
         this._showStartScreen();
 
@@ -207,13 +213,24 @@ export class GameMasterController {
         }
 
         // get form info and send it to server
-        this._socket.emit('startNewGame', formData);
+        this._socket.emit('initializeGame', formData);
 
     }
 
-    protected _onPlayerPressButton(arduinoData: any) {
+    protected _onPlayerPressedButton(playerId: number) {
 
-        this._displayValidateButton(true);
+        // check if the game has started
+        //if () {
+
+            // TODO: check if we are in a "guessing step", else dismiss the click
+            this._displayValidateButton(true);
+
+        //} else {
+
+            // TODO: check if all players are ready
+            // TODO: display the startgame button
+
+        //}
 
     }
 
@@ -297,8 +314,10 @@ export class GameMasterController {
     }
 
     protected _updateGameScreen(trackTitle: string, artistName: string) {
+
         this._$container.find('.js-current-track-title').text(trackTitle);
         this._$container.find('.js-current-track-artist').text(artistName);
+
     }
 
     protected _displayValidateButton(display: boolean) {
@@ -310,15 +329,18 @@ export class GameMasterController {
             $btnContainer.removeClass('hidden');
 
             const onClickGoodBtnFunction = (event: Event) => {
+
                 event.preventDefault();
 
                 // send to server event 'answerIsValide'
                 this._socket.emit('answerIsValide');
+
             };
 
             $btnContainer.on('click', '.js-good', onClickGoodBtnFunction);
 
             const onClickBadBtnFunction = () => {
+
                 event.preventDefault();
 
                 // send to server event 'answerIsUnvalide'
