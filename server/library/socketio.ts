@@ -126,7 +126,7 @@ export default class SocketIoLibrary {
                     // inform both screens that the game can be initialized
                     this._io.to('quizRoom').emit('initializeScreens', playersData);
 
-                    this._fetchPlaylistSongs(playersData.playlistId);
+                    this._fetchPlaylistSongs(playersData.playlistId, function callbackFunctionTmp() {});
 
                 });
 

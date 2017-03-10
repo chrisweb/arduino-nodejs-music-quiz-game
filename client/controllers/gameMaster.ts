@@ -77,8 +77,9 @@ export class GameMasterController {
         // on server send event 'arduinoPressButton'
         this._socket.on('playerPressedButton', onPlayerPressedButton);
 
-        const onInitializeScreens = (playersData) => {
-            this._onInitializeScreens(playersData);
+        const onInitializeScreens = (playersData: IPlaylistsOption) => {
+            // TODO ?
+            //this._onInitializeScreens(playersData);
         };
 
         this._socket.on('initializeScreens', onInitializeScreens);

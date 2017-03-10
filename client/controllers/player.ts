@@ -199,7 +199,7 @@ export class PlayerController {
             let $playerStatus = $('<span class="js-player-status">');
 
             let playerName = playersData[nameIndexName];
-            let playerScore = playersData[scoreIndexName];
+            let playerScore = playersData[scoreIndexName] === '' ? 0 : playersData[scoreIndexName];
 
             $playerName.text(playerName);
             $playerScore.text(playerScore);
@@ -214,52 +214,17 @@ export class PlayerController {
             this._socket.emit('playerViewReady');
 
         }
-        
-        // get all player column
-        /*let allPlayers = $playerGameScreen.find('.js-player-container');
-        
-        // reset class 
-        allPlayers.addClass('hidden').removeClass('active').removeClass('lock');
 
-        let $timer = $playerGameScreen.find('.js-timer');
-
-        $timer.addClass('hidden');
+        let $timer = $('<div class="timer_container js-timer hidden">');
+        $timer.append('<h1 class="js-timer-count">');
+        this._$container.append($timer);
 
         // reset timer
-        clearInterval(this._timerInterval);*/
-
-        // init player name and Score
-        /*let y: number;
-
-        for (y = 0; i < allPlayers.length; i++) {
-
-            let $currentPlayer = $(allPlayers[i]);
-
-            $currentPlayer.find('.js-player-name').text(playersNames[i]);
-            $currentPlayer.removeClass('hidden');
-
-            if (i < playersScores.length) {
-                $currentPlayer.find('.js-player-score').text(playersScores[i]);
-            } else {
-                $currentPlayer.find('.js-player-score').text(0);
-            }
-
-        }*/
+        clearInterval(this._timerInterval);
 
     }
-    
-    /*protected _showWaitPage() {
 
-        this._$container.empty();
-
-        let $page = $('<div id="page_wait">');
-        $page.append($('<h1>PLEASE WAIT</h1>'));
-
-        this._$container.append($page);
-
-    }*/
-
-    /*protected _showScoreScreen(playersScores: Array<{ name: string, score: number, playerId: number }>) {
+    protected _showScoreScreen(playersScores: Array<{ name: string, score: number, playerId: number }>) {
 
         this._$container.empty();
 
@@ -288,6 +253,6 @@ export class PlayerController {
 
         }
 
-    }*/
+    }
 
 }
