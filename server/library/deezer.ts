@@ -4,6 +4,9 @@
 // vendor
 import * as request from 'request';
 
+// library
+
+
 const DEEZER_RESOURCE_URI_TRACK: string = '/track';
 const DEEZER_RESOURCE_URI_TRACKS: string = '/tracks';
 const DEEZER_RESOURCE_URI_USER: string = '/user';
@@ -33,7 +36,12 @@ export default class DeezerLibrary {
             }, (error, response, body) => {
 
                 if ('error' in body) {
-                    // TODO: error
+
+                    let reason = body.error;
+
+                    // error
+                    reject(new Error(reason));
+
                 }
 
                 // body:
@@ -66,7 +74,12 @@ export default class DeezerLibrary {
             }, (error, response, body) => {
 
                 if ('error' in body) {
-                    // TODO: error
+
+                    let reason = body.error;
+
+                    // error
+                    reject(new Error(reason));
+
                 }
 
                 let userPlaylists = body.data;
@@ -94,8 +107,10 @@ export default class DeezerLibrary {
 
                 if ('error' in body) {
 
+                    let reason = body.error;
+
                     // error
-                    reject();
+                    reject(new Error(reason));
 
                 }
 

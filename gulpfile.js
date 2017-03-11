@@ -42,6 +42,7 @@ gulp.task('build-js', [
     'copy:jquery',
     'copy:socketio-client',
     'copy:isomorphix-router',
+    'copy:web-audio-api-player',
     'copy:systemjs'
 ], () => {
     var tsResult = tsProject.src()
@@ -76,35 +77,42 @@ gulp.task('copy:assets', () => {
         .pipe(gulp.dest('build/assets'));
 });
 
-// copy isomorphix-router node modules package into the assets build directory
+// copy isomorphix-router from node modules package into the assets build directory
 gulp.task('copy:isomorphix-router', ['copy:path-to-regexp'], () => {
     return gulp
         .src('node_modules/isomorphix-router/build/**/*')
         .pipe(gulp.dest('build/assets/javascripts/vendor/isomorphix-router/'));
 });
 
-// copy isomorphix-router path-to-regex dependency into the assets build directory
+// copy path-to-regexp from node modules into the assets build directory
 gulp.task('copy:path-to-regexp', () => {
     return gulp
         .src('node_modules/path-to-regexp/index.js')
         .pipe(gulp.dest('build/assets/javascripts/vendor/path-to-regexp/'));
 });
 
-// copy jquery node modules package into the assets build directory
+// copy jquery from node modules into the assets build directory
 gulp.task('copy:jquery', () => {
     return gulp
         .src('node_modules/jquery/dist/jquery.js')
         .pipe(gulp.dest('build/assets/javascripts/vendor/jquery/'));
 });
 
-// copy socket.io-client node modules package into the assets build directory
+// copy socket.io-client from node modules into the assets build directory
 gulp.task('copy:socketio-client', () => {
     return gulp
         .src(['node_modules/socket.io-client/dist/socket.io.js', 'node_modules/socket.io-client/dist/socket.io.js.map'])
         .pipe(gulp.dest('build/assets/javascripts/vendor/socket.io/'));
 });
 
-// copy socket.io-client node modules package into the assets build directory
+// copy webaudioapiplayer from node modules into the assets build directory
+gulp.task('copy:web-audio-api-player', () => {
+    return gulp
+        .src(['node_modules/web-audio-api-player/build/**/*'])
+        .pipe(gulp.dest('build/assets/javascripts/vendor/web-audio-api-player/'));
+});
+
+// copy systemjs from node modules into the assets build directory
 gulp.task('copy:systemjs', () => {
     return gulp
         .src(['node_modules/systemjs/dist/system.js', 'node_modules/systemjs/dist/system.js.map'])

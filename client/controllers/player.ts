@@ -4,6 +4,7 @@
 // vendor
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
+import { PlayerCore, ICoreOptions, PlayerSound, ISoundAttributes } from 'web-audio-api-player';
 
 export interface IPlayersData {
     [index: string]: string | number
@@ -31,11 +32,16 @@ export class PlayerController {
     protected _timerDuration: number = 15;
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
+    protected _audioPlayer: PlayerCore;
 
     public constructor() {
 
         // INFO: twitter bootstrap 4 components https://v4-alpha.getbootstrap.com/components/alerts/
         // grid: https://v4-alpha.getbootstrap.com/layout/grid/
+
+        let options: ICoreOptions = {};
+
+        this._audioPlayer = new PlayerCore(options);
 
     }
 
@@ -59,9 +65,9 @@ export class PlayerController {
         // identify as player
         this._socket.emit('identifyPlayer');
 
-        this._socket.on('initializeScreens', (playersData: IPlayersData) => {
+        this._socket.on('initializeScreens', (playersData: IPlayersData, playlistTracks: any) => {
 
-            this._showGameScreen(playersData);
+            this._showGameScreen(playersData, playlistTracks);
 
         });
 
@@ -124,103 +130,162 @@ export class PlayerController {
 
     }
 
-    protected _showGameScreen(playersData: IPlayersData) {
+    protected _showGameScreen(playersData: IPlayersData, playlistTracks: any) {
 
-        this._$container.empty();
+        let buildGameScreenPromise = this._buildGameScreen(playersData);
 
-        this._$container.addClass('gameScreen');
+        let initializePlayerPromise = this._initializePlayer(playlistTracks);
 
-        let $playersRow = $('<div class="d-flex flex-row js-players-row playersRow">');
-
-        this._$container.append($playersRow);
-
-        let playersCount: number = 0;
-        let i: number;
-
-        // check how much players we have
-        for (i = 0; i < 4; i++) {
-
-            let nameIndexName = 'teamName' + i.toString();
-            let playerName = playersData[nameIndexName];
-
-            if (playerName !== '') {
-                playersCount++;
-            }
-
-        }
-
-        let y: number;
-
-        // create the player columns
-        for (y = 0; y < playersCount; y++) {
-
-            let $playerColumn = $('<div class="playerColumn js-player-column" data-player-id="' + y + '">');
-
-            $playerColumn.addClass('d-flex flex-column align-items-stretch');
-
-            // add on click event to play without physical button
-            $playerColumn.on('click', (event: JQueryEventObject) => {
-
-                let userId = $(event.currentTarget).data('playerId');
-
-                this._socket.emit('playerClickColumn', userId);
-
-            });
-
-            // 12 columns divided by player count
-            if (playersCount === 2) {
-                $playerColumn.addClass('col-6');
-            } else if (playersCount === 3) {
-                $playerColumn.addClass('col-4');
-            } else {
-                $playerColumn.addClass('col-3');
-            }
-
-            switch (y) {
-                case 0:
-                    $playerColumn.addClass('playerColumnRed');
-                    break;
-                case 1:
-                    $playerColumn.addClass('playerColumnBlue');
-                    break;
-                case 2:
-                    $playerColumn.addClass('playerColumnGreen');
-                    break;
-                case 3:
-                    $playerColumn.addClass('playerColumnYellow');
-                    break;
-            }
-
-            let nameIndexName = 'teamName' + y.toString();
-            let scoreIndexName = 'teamScore' + y.toString();
-
-            let $playerName = $('<h1 class="js-player-name">');
-            let $playerScore = $('<span class="js-player-score">');
-            let $playerStatus = $('<span class="js-player-status">');
-
-            let playerName = playersData[nameIndexName];
-            let playerScore = playersData[scoreIndexName] === '' ? 0 : playersData[scoreIndexName];
-
-            $playerName.text(playerName);
-            $playerScore.text(playerScore);
-            $playerStatus.text('press your button to start');
-
-            $playerColumn.append($playerName);
-            $playerColumn.append($playerScore);
-            $playerColumn.append($playerStatus);
-
-            $playersRow.append($playerColumn);
+        Promise.all([buildGameScreenPromise, initializePlayerPromise]).then(() => {
 
             this._socket.emit('playerViewReady');
 
-        }
+        });
 
-        let $timer = $('<div class="timer_container js-timer hidden">');
+        /*let $timer = $('<div class="timer_container js-timer hidden">');
         $timer.append('<h1 class="js-timer-count">');
         this._$container.append($timer);
 
         // reset timer
-        clearInterval(this._timerInterval);
+        clearInterval(this._timerInterval);*/
+
+    }
+
+    protected _buildGameScreen(playersData: IPlayersData) {
+
+        let buildGameScreenPromise = new Promise((resolve, reject) => {
+
+            this._$container.empty();
+
+            this._$container.addClass('gameScreen');
+
+            let $playersRow = $('<div class="d-flex flex-row js-players-row playersRow">');
+
+            this._$container.append($playersRow);
+
+            let playersCount: number = 0;
+            let i: number;
+
+            // check how much players we have
+            for (i = 0; i < 4; i++) {
+
+                let nameIndexName = 'teamName' + i.toString();
+                let playerName = playersData[nameIndexName];
+
+                if (playerName !== '') {
+                    playersCount++;
+                }
+
+            }
+
+            let y: number;
+
+            // create the player columns
+            for (y = 0; y < playersCount; y++) {
+
+                let $playerColumn = $('<div class="playerColumn js-player-column" data-player-id="' + y + '">');
+
+                $playerColumn.addClass('d-flex flex-column align-items-stretch');
+
+                // add on click event to play without physical button
+                $playerColumn.on('click', (event: JQueryEventObject) => {
+
+                    let userId = $(event.currentTarget).data('playerId');
+
+                    this._socket.emit('playerClickColumn', userId);
+
+                });
+
+                // 12 columns divided by player count
+                if (playersCount === 2) {
+                    $playerColumn.addClass('col-6');
+                } else if (playersCount === 3) {
+                    $playerColumn.addClass('col-4');
+                } else {
+                    $playerColumn.addClass('col-3');
+                }
+
+                switch (y) {
+                    case 0:
+                        $playerColumn.addClass('playerColumnRed');
+                        break;
+                    case 1:
+                        $playerColumn.addClass('playerColumnBlue');
+                        break;
+                    case 2:
+                        $playerColumn.addClass('playerColumnGreen');
+                        break;
+                    case 3:
+                        $playerColumn.addClass('playerColumnYellow');
+                        break;
+                }
+
+                let nameIndexName = 'teamName' + y.toString();
+                let scoreIndexName = 'teamScore' + y.toString();
+
+                let $playerName = $('<h1 class="js-player-name">');
+                let $playerScore = $('<span class="js-player-score">');
+                let $playerStatus = $('<span class="js-player-status">');
+
+                let playerName = playersData[nameIndexName];
+                let playerScore = playersData[scoreIndexName] === '' ? 0 : playersData[scoreIndexName];
+
+                $playerName.text(playerName);
+                $playerScore.text(playerScore);
+                $playerStatus.text('press your button to start');
+
+                $playerColumn.append($playerName);
+                $playerColumn.append($playerScore);
+                $playerColumn.append($playerStatus);
+
+                $playersRow.append($playerColumn);
+
+            }
+
+            resolve();
+
+        });
+
+        return buildGameScreenPromise;
+        
+    }
+
+    protected _initializePlayer(playlistTracks: any) {
+
+        let initializePlayerPromise = new Promise((resolve, reject) => {
+
+            console.log(playlistTracks);
+
+            playlistTracks.forEach((playlistTrack: any) => {
+
+                let songUrl = playlistTrack.preview;
+                let songId = playlistTrack.id;
+
+                let soundAttributes: ISoundAttributes = {
+                    sources: songUrl,
+                    id: songId,
+                    playlistId: 0,
+                    onLoading: (loadingProgress, maximumValue, currentValue) => {
+                        console.log('loading: ', loadingProgress, maximumValue, currentValue);
+                    },
+                    onPlaying: (playingProgress, maximumValue, currentValue) => {
+                        console.log('playing: ', playingProgress, maximumValue, currentValue);
+                    },
+                    onEnded: (willPlayNext) => {
+                        console.log('ended');
+                    }
+                };
+
+                // add the song to the player queue
+                this._audioPlayer.addSoundToQueue(soundAttributes);
+
+            });
+
+            resolve();
+
+        });
+
+        return initializePlayerPromise;
 
     }
 

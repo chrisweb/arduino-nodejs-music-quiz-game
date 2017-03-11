@@ -117,16 +117,25 @@ export default class SocketIoLibrary {
                 socket.on('initializeGame', (playersData: IPlayersData) => {
 
                     console.log('initializeGame, playersData: ', playersData);
+                    
+                    // we now know which playlist got selected so we
+                    // can the fetch playlist songs API call
+                    this._fetchPlaylistSongs(playersData.playlistId, (error: Error, playlistTracks: any) => {
 
-                    // inform the player screen that we can start initialization
-                    /*if (this._clientIds.playerScreenId !== null) {
-                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('initializePlayerScreen', playersData);
-                    }*/
+                        if (!error) {
 
-                    // inform both screens that the game can be initialized
-                    this._io.to('quizRoom').emit('initializeScreens', playersData);
+                            // inform both screens that the game can be initialized
+                            this._io.to('quizRoom').emit('initializeScreens', playersData, playlistTracks);
 
-                    this._fetchPlaylistSongs(playersData.playlistId, function callbackFunctionTmp() {});
+                        } else {
+
+                            // TODO: handle error
+
+                            console.log(error);
+
+                        }
+
+                    });
 
                 });
 
@@ -193,7 +202,20 @@ export default class SocketIoLibrary {
 
     protected _fetchPlaylistSongs(playlistId: number, callback: Function) {
 
-        callback();
+        this._deezerApi.getPlaylistTracks(playlistId)
+            .then((playlistTracks) => {
+
+                callback(false, playlistTracks);
+
+            })
+            .catch((error) => {
+
+                // TODO: handle error
+                console.log(error);
+
+                callback(error);
+
+            });
 
     }
 

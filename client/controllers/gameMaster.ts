@@ -50,21 +50,27 @@ export class GameMasterController {
             this._displayValidateButton(false);
             this._updateGameScreen(trackTitle, artistName);
         };
+
         // on server send event 'newSongStart'
         this._socket.on('newSongStart', onNewSongStart);
 
         const onPlaylistFinished = () => {
             this._displayValidateButton(false);
-            this._showStartScreen();
+            this._showStartSetUpScreen();
         };
+
         // on server send event 'playlistFinished'
         this._socket.on('playlistFinished', onPlaylistFinished);
 
         const onPlayerViewReady = () => {
-            // send event 'newSongStart'
-            this._socket.emit('newSongStart');
 
-            this._buildGameScreen();
+            // send event 'newSongStart'
+            //this._socket.emit('newSongStart');
+
+            //this._buildGameScreen();
+
+            this._showStartGameScreen();
+
         }
 
         // on server send event playerViewReady
@@ -84,32 +90,32 @@ export class GameMasterController {
 
         this._socket.on('initializeScreens', onInitializeScreens);
 
-        this._showStartScreen();
+        this._showStartSetUpScreen();
 
     }
 
-    protected _showStartScreen() {
+    protected _showStartSetUpScreen() {
 
         this._$container.empty();
 
-        let $startButton = $('<button class="js-start-btn btn btn-primary">')
+        let $startSetUpButton = $('<button class="js-start-set-up-btn btn btn-primary">')
 
-        $startButton.text('Start new game');
+        $startSetUpButton.text('Set up a new game');
 
-        this._$container.append($startButton);
+        this._$container.append($startSetUpButton);
 
-        // listen for start game button click
-        $startButton.one('click', (event: JQueryEventObject) => {
+        // listen for start set up game button click
+        $startSetUpButton.one('click', (event: JQueryEventObject) => {
 
             event.preventDefault();
 
-            this._showGameCreationScreen();
+            this._showGameSetUpScreen();
 
         });
 
     }
 
-    protected _showGameCreationScreen() {
+    protected _showGameSetUpScreen() {
 
         // fetch the playlists list
         this._socket.emit('fetchPlaylistsList');
@@ -129,13 +135,13 @@ export class GameMasterController {
 
             });
 
-            this._buildGameCreationScreen(playlistsOptions);
+            this._buildGameSetUpScreen(playlistsOptions);
 
         });
 
     }
 
-    protected _buildGameCreationScreen(playlistsOptions: IPlaylistsOption[]) {
+    protected _buildGameSetUpScreen(playlistsOptions: IPlaylistsOption[]) {
 
         // build the screen
         this._$container.empty();
@@ -189,7 +195,7 @@ export class GameMasterController {
         $playlistSelectFormGroup.append($playlistSelect);
         $gameCreationForm.append($playlistSelectFormGroup);
 
-        let $submitButton = $('<button type="submit" class="btn btn-primary">');
+        let $submitButton = $('<button type="submit" class="btn btn-primary js-game-set-up-submit-button">');
 
         $submitButton.text('submit');
 
@@ -213,8 +219,35 @@ export class GameMasterController {
             formData[formSerialize[i].name] = formSerialize[i].value;
         }
 
+        let submitButton = $(event.target).find('.js-game-set-up-submit-button');
+
+        submitButton.addClass('m-progress');
+
         // get form info and send it to server
         this._socket.emit('initializeGame', formData);
+
+    }
+
+    protected _showStartGameScreen() {
+
+        // build the screen
+        this._$container.empty();
+        
+        const onClickButtonStartGame = (event: Event) => {
+
+            event.preventDefault();
+
+            this._buildGameScreen();
+
+        };
+
+        this._$container.one('click', '.js-start-game', onClickButtonStartGame);
+
+        let $startGameButton = $('<button class="js-start-game">');
+
+        $startGameButton.text('Start');
+
+        this._$container.append($startGameButton);
 
     }
 
@@ -237,15 +270,16 @@ export class GameMasterController {
 
     protected _buildWaitScreen() {
 
-        let $container = $('#container');
-
-        $container.empty();
+        // build the screen
+        this._$container.empty();
 
         let $page = $('<div id="page_wait">');
+
         let $title = $('<h1>').text('PLEASE WAIT');
+
         $page.append($title);
 
-        $container.append($page);
+        this._$container.append($page);
 
     }
 
@@ -254,27 +288,34 @@ export class GameMasterController {
         // build the screen
         this._$container.empty();
 
-        let $pageGame = $('<div id="page_game">');
+        this._$container.append('Current track:<br>');
 
-        $pageGame.append('Current track:<br>');
-        $pageGame.append($('<span class="js-current-track-title">'));
-        $pageGame.append($('<span class="js-current-track-artist">'));
+        let $currentTrackTitle = $('<span class="js-current-track-title">');
 
-        let $validBtnContainer = $('<div class="js-valide-answer hidden">');
+        this._$container.append($currentTrackTitle);
 
-        $validBtnContainer.append($('<button class="js-good">').text('Correct'));
-        $validBtnContainer.append($('<button class="js-bad">').text('Uncorrect'));
-        $pageGame.append($validBtnContainer);
+        let $currentTrackArtist = $('<span class="js-current-track-artist">')
 
-        $pageGame.append($('<br><br>'));
-        $pageGame.append($('<button class="js-next-track">').text('Next Track'));
+        this._$container.append($currentTrackArtist);
 
-        $pageGame.append($('<br><br>'));
-        $pageGame.append($('<button class="js-end-game">').text('End the game'));
+        let $validButtonContainer = $('<div class="js-valide-answer hidden">');
 
-        this._$container.append($pageGame);
+        let $correctButton = $('<button class="js-good">').text('Correct');
+        let $wrongButton = $('<button class="js-bad">').text('Wrong');
 
-        const onClickBtnNextTrackFunction = (event: Event) => {
+        $validButtonContainer.append($correctButton);
+        $validButtonContainer.append($wrongButton);
+
+        this._$container.append($validButtonContainer);
+
+        this._$container.append($('<br><br>'));
+        this._$container.append($('<button class="js-next-track">').text('Next Track'));
+
+        this._$container.append($('<br><br>'));
+        this._$container.append($('<button class="js-end-game">').text('End the game'));
+
+        const onClickButtonNextTrack = (event: Event) => {
+
             event.preventDefault();
 
             // send to server event 'nextTrack'
@@ -282,11 +323,13 @@ export class GameMasterController {
 
             this._displayValidateButton(false);
             this._buildWaitScreen();
+
         };
 
-        $pageGame.on('click', '.js-next-track', onClickBtnNextTrackFunction);
+        this._$container.off('click', '.js-next-track', onClickButtonNextTrack);
+        this._$container.on('click', '.js-next-track', onClickButtonNextTrack);
 
-        const onClickBtnEndGameFunction = (event: Event) => {
+        const onClickButtonEndGame = (event: Event) => {
 
             event.preventDefault();
 
@@ -296,21 +339,13 @@ export class GameMasterController {
                 this._socket.emit('endGame');
 
                 this._displayValidateButton(false);
-                this._showStartScreen();
+                this._showStartSetUpScreen();
 
             }
 
         };
 
-        $pageGame.on('click', '.js-end-game', onClickBtnEndGameFunction);
-
-
-        const simulateEventNewSongStart = () => {
-            this._socket.emit('simulateEventNewSongStart');
-        };
-        $pageGame.append($('<br><br>'));
-        $pageGame.append($('<button class="js-debug-new-track">').text('click here to simulate event newSongStart'));
-        $pageGame.on('click', '.js-debug-new-track', simulateEventNewSongStart);
+        this._$container.one('click', '.js-end-game', onClickButtonEndGame);
 
     }
 
