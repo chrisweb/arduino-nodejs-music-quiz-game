@@ -1,6 +1,10 @@
 # Arduino NodeJS Music Quiz Game
 
-A music quiz game using an arduino to record buttons input and nodejs as gameserver
+A music quiz game using an arduino to record buttons input and nodejs as gameserver  
+
+[musicquizgame.com](https://musicquizgame.com) (coming soon)  
+
+say hello at [musicquizgame@gmail.com](mailto:musicquizgame@gmail.com)  
 
 ## Arduino buttons breadboard design
 

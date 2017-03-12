@@ -39,7 +39,9 @@ export class PlayerController {
         // INFO: twitter bootstrap 4 components https://v4-alpha.getbootstrap.com/components/alerts/
         // grid: https://v4-alpha.getbootstrap.com/layout/grid/
 
-        let options: ICoreOptions = {};
+        let options: ICoreOptions = {
+            playNextOnEnded: false
+        };
 
         this._audioPlayer = new PlayerCore(options);
 
