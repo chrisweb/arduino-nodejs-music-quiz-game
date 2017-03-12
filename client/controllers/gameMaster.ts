@@ -14,6 +14,11 @@ export class GameMasterController {
 
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
+    protected _gameHasStarted: boolean = false;
+    protected _guessingStepStarted: boolean = false;
+    protected _playersData: any;
+    protected _playlistSongs: any;
+    protected _currentPlaylistSongIndex: number = 0;
 
     public constructor() {
 
@@ -67,9 +72,7 @@ export class GameMasterController {
             // send event 'newSongStart'
             //this._socket.emit('newSongStart');
 
-            //this._buildGameScreen();
-
-            this._showStartGameScreen();
+            this._buildGameScreen();
 
         }
 
@@ -83,12 +86,38 @@ export class GameMasterController {
         // on server send event 'arduinoPressButton'
         this._socket.on('playerPressedButton', onPlayerPressedButton);
 
-        const onInitializeScreens = (playersData: IPlaylistsOption) => {
-            // TODO ?
-            //this._onInitializeScreens(playersData);
+        const onInitializeScreens = (playersData: any, playlistTracks: any) => {
+
+            this._playersData = playersData;
+            this._playlistSongs = playlistTracks;
+
         };
 
         this._socket.on('initializeScreens', onInitializeScreens);
+
+        const onSongHasStarted = () => {
+            this._onSongHasStarted();
+        };
+
+        this._socket.on('songHasStarted', onSongHasStarted);
+
+        const onSongHasEnded = () => {
+            this._onSongHasEnded();
+        };
+
+        this._socket.on('songHasEnded', onSongHasEnded);
+
+        const onSongLoading = () => {
+            this._onSongLoading();
+        };
+
+        this._socket.on('songLoading', onSongLoading);
+
+        const onSongProgress = () => {
+            this._onSongProgress();
+        };
+
+        this._socket.on('songProgress', onSongProgress);
 
         this._showStartSetUpScreen();
 
@@ -228,47 +257,26 @@ export class GameMasterController {
 
     }
 
-    protected _showStartGameScreen() {
-
-        // build the screen
-        this._$container.empty();
-        
-        const onClickButtonStartGame = (event: Event) => {
-
-            event.preventDefault();
-
-            this._buildGameScreen();
-
-        };
-
-        this._$container.one('click', '.js-start-game', onClickButtonStartGame);
-
-        let $startGameButton = $('<button class="js-start-game">');
-
-        $startGameButton.text('Start');
-
-        this._$container.append($startGameButton);
-
-    }
-
     protected _onPlayerPressedButton(playerId: number) {
 
-        // check if the game has started
-        //if () {
+        // TODO: check if the game has started
+        //if (this._gameHasStarted) {
 
             // TODO: check if we are in a "guessing step", else dismiss the click
-            this._displayValidateButton(true);
+            //if (this._guessingStepStarted) {
+                
+            //}
 
         //} else {
 
             // TODO: check if all players are ready
-            // TODO: display the startgame button
+            // TODO: display the game screen
 
         //}
 
     }
 
-    protected _buildWaitScreen() {
+    /*protected _buildWaitScreen() {
 
         // build the screen
         this._$container.empty();
@@ -281,13 +289,14 @@ export class GameMasterController {
 
         this._$container.append($page);
 
-    }
+    }*/
 
     protected _buildGameScreen() {
 
         // build the screen
         this._$container.empty();
 
+        // player ui
         this._$container.append('Current track:<br>');
 
         let $currentTrackTitle = $('<span class="js-current-track-title">');
@@ -298,40 +307,61 @@ export class GameMasterController {
 
         this._$container.append($currentTrackArtist);
 
+        // answer validation box
         let $validButtonContainer = $('<div class="js-valide-answer hidden">');
 
-        let $correctButton = $('<button class="js-good">').text('Correct');
-        let $wrongButton = $('<button class="js-bad">').text('Wrong');
+        let $correctButton = $('<button class="js-correct">').text('Correct');
+        let $wrongButton = $('<button class="js-wrong">').text('Wrong');
 
         $validButtonContainer.append($correctButton);
         $validButtonContainer.append($wrongButton);
 
         this._$container.append($validButtonContainer);
 
+        // game master control buttons
         this._$container.append($('<br><br>'));
-        this._$container.append($('<button class="js-next-track">').text('Next Track'));
+
+        let $buttonPlaySong = $('<button class="js-play-song">');
+
+        $buttonPlaySong.text('Play Song');
+
+        this._$container.append($buttonPlaySong);
 
         this._$container.append($('<br><br>'));
-        this._$container.append($('<button class="js-end-game">').text('End the game'));
 
-        const onClickButtonNextTrack = (event: Event) => {
+        let $buttonEndGame = $('<button class="js-end-game">')
+
+        $buttonEndGame.text('End the game')
+
+        this._$container.append($buttonEndGame);
+
+        const onClickButtonPlaySong = (event: Event) => {
 
             event.preventDefault();
 
-            // send to server event 'nextTrack'
-            this._socket.emit('nextTrack');
+            // TODO: check if there is not already a song currently being played
 
-            this._displayValidateButton(false);
-            this._buildWaitScreen();
+            // send to server event 'nextTrack'
+            this._playSong();
+
+            //this._displayValidateButton(false);
+
+            //this._buildWaitScreen();
+
+            $buttonPlaySong.prop('disabled', true);
+
+            $buttonPlaySong.addClass('m-progress');
 
         };
 
-        this._$container.off('click', '.js-next-track', onClickButtonNextTrack);
-        this._$container.on('click', '.js-next-track', onClickButtonNextTrack);
+        this._$container.off('click', '.js-play-song', onClickButtonPlaySong);
+        this._$container.on('click', '.js-play-song', onClickButtonPlaySong);
 
         const onClickButtonEndGame = (event: Event) => {
 
             event.preventDefault();
+
+            // TODO: use a nicely designed overlay instead of the native confirm popup
 
             if (confirm('End the game (go to score screen)?')) {
 
@@ -339,6 +369,7 @@ export class GameMasterController {
                 this._socket.emit('endGame');
 
                 this._displayValidateButton(false);
+
                 this._showStartSetUpScreen();
 
             }
@@ -346,6 +377,42 @@ export class GameMasterController {
         };
 
         this._$container.one('click', '.js-end-game', onClickButtonEndGame);
+
+    }
+
+    protected _playSong() {
+
+        // get the song data
+        let songData = this._getSongData();
+
+        // update the audio player ui
+        this._updateAudioPlayerUI();
+
+        // tell the player screen to start the song playback
+        this._socket.emit('playSong', this._currentPlaylistSongIndex);
+
+        // update the playlist songs index
+        this._currentPlaylistSongIndex++;
+
+    }
+
+    protected _getSongData() {
+
+        let songData = this._playlistSongs[this._currentPlaylistSongIndex];
+
+        return songData;
+
+    }
+
+    protected _startCountdown() {
+
+        //this._$container.find();
+
+    }
+
+    protected _stopCountdown() {
+
+
 
     }
 
@@ -359,40 +426,71 @@ export class GameMasterController {
     protected _displayValidateButton(display: boolean) {
 
         let $btnContainer = $('#page_game .js-valide-answer');
+        
+        const onClickGoodBtnFunction = (event: Event) => {
+
+            event.preventDefault();
+
+            // send to server event 'answerIsValide'
+            this._socket.emit('answerIsValide');
+
+        };
+
+        const onClickBadBtnFunction = () => {
+
+            event.preventDefault();
+
+            // send to server event 'answerIsUnvalide'
+            this._socket.emit('answerIsUnvalide');
+        };
+
+        $btnContainer.off('click', '.js-correct', onClickGoodBtnFunction);
+        $btnContainer.off('click', '.js-wrong', onClickBadBtnFunction);
 
         if (display === true) {
 
             $btnContainer.removeClass('hidden');
 
-            const onClickGoodBtnFunction = (event: Event) => {
-
-                event.preventDefault();
-
-                // send to server event 'answerIsValide'
-                this._socket.emit('answerIsValide');
-
-            };
-
-            $btnContainer.on('click', '.js-good', onClickGoodBtnFunction);
-
-            const onClickBadBtnFunction = () => {
-
-                event.preventDefault();
-
-                // send to server event 'answerIsUnvalide'
-                this._socket.emit('answerIsUnvalide');
-            };
-
-            $btnContainer.on('click', '.js-bad', onClickBadBtnFunction);
+            $btnContainer.on('click', '.js-correct', onClickGoodBtnFunction);
+            $btnContainer.on('click', '.js-wrong', onClickBadBtnFunction);
 
         } else {
 
             $btnContainer.addClass('hidden');
 
-            $btnContainer.off('click', '.js-good');
-
-            $btnContainer.off('click', '.js-bad');
-
         }
     }
+
+    protected _onSongHasStarted() {
+        
+        // start the guessing time countdown
+        this._startCountdown();
+
+    }
+
+    protected _onSongHasEnded() {
+        
+        // stop the guessing time countdown
+        this._stopCountdown();
+
+    }
+
+    protected _onSongLoading() {
+
+
+
+    }
+
+    protected _onSongProgress() {
+
+
+
+    }
+
+    protected _updateAudioPlayerUI() {
+
+
+
+    }
+
 }

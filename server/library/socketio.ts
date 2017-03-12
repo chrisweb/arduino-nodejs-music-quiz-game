@@ -165,14 +165,46 @@ export default class SocketIoLibrary {
 
                 });
                 
+                socket.on('playSong', (currentPlaylistSongIndex: number) => {
 
-                const onSimulateEventNewSongStart = () => {
-                    if (this._clientIds.gameMasterScreenId !== null) {
-                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('newSongStart', 'titre ' + Math.random(),  'artist ' + Math.random());
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('playSong', currentPlaylistSongIndex);
                     }
-                };
 
-                socket.on('simulateEventNewSongStart', onSimulateEventNewSongStart);
+                });
+
+                socket.on('songHasStarted', () => {
+
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songHasStarted');
+                    }
+
+                });
+
+                socket.on('songHasEnded', () => {
+
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songHasEnded');
+                    }
+
+                });
+
+                socket.on('songLoading', () => {
+
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songLoading');
+                    }
+
+                });
+
+                socket.on('songProgress', () => {
+
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songProgress');
+                    }
+
+                });
+
             });
             
             this._io.on('disconnect', function () {

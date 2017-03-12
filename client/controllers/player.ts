@@ -73,48 +73,21 @@ export class PlayerController {
 
         });
 
-        this._socket.on('playerPressedButton', (playerId: number) => {
+        const onPlayerPressedButton = (playerId: number) => {
 
-            console.log('player playerPressButton userId = ' + playerId);
+            this._onPlayerPressedButton(playerId);
 
-            let $pageGame = $('.gameScreen');
-            let allPlayers = $pageGame.find('.js-player-container');
+        }
 
-            // display lock effect
-            allPlayers.removeClass('active').addClass('lock');
+        this._socket.on('playerPressedButton', onPlayerPressedButton);
 
-            // display player press effet
-            let $activePlayer = $pageGame.find('[data-player-id="' + playerId + '"]');
-            $activePlayer.removeClass('lock').addClass('active');
+        const onPlaySong = (currentPlaylistSongIndex: number) => {
 
-            // start timer
-            let $timer = $pageGame.find('.js-timer');
-            $timer.removeClass('hidden');
-            $timer.find('.js-timer-count').text(this._timerDuration);
+            this._onPlaySong(currentPlaylistSongIndex);
 
-            this._timerInterval = setInterval(function on_timerInterval() {
+        }
 
-                let currentValue: number = parseInt($timer.find('.js-timer-count').text());
-
-                $timer.find('.js-timer-count').text(currentValue - 1);
-
-                // hide timer and call server with event 'playerTimerFinish'
-                if (currentValue - 1 < 0) {
-
-                    clearInterval(this._timerInterval);
-
-                    // send event 'playerTimerFinish' to server
-                    this._socket.emit('playerTimerFinish');
-
-                    $timer.addClass('hidden');
-
-                    // reset other player and lock active current player because he doesn't answer
-                    allPlayers.removeClass('lock');
-                    $activePlayer.removeClass('active').addClass('lock');
-
-                }
-
-            }, 1000)});
+        this._socket.on('playSong', onPlaySong);
 
         this._showStartScreen();
 
@@ -273,6 +246,14 @@ export class PlayerController {
                     onPlaying: (playingProgress, maximumValue, currentValue) => {
                         console.log('playing: ', playingProgress, maximumValue, currentValue);
                     },
+                    onStarted: () => {
+
+                        console.log('started');
+                        
+                        // send socket io message to game master that song has started
+                        this._socket.emit('songHasStarted');
+
+                    },
                     onEnded: (willPlayNext) => {
                         console.log('ended');
                     }
@@ -291,7 +272,7 @@ export class PlayerController {
 
     }
 
-    protected _showScoreScreen(playersScores: Array<{ name: string, score: number, playerId: number }>) {
+    /*protected _showScoreScreen(playersScores: Array<{ name: string, score: number, playerId: number }>) {
 
         this._$container.empty();
 
@@ -319,6 +300,59 @@ export class PlayerController {
             $place.css('background-color', this._$container.find('.gameScreen [data-player-id="' + playersScores[i].playerId + '"]').css('background-color'));
 
         }
+    
+    }*/
+
+    protected _onPlayerPressedButton(playerId: number) {
+
+        console.log('player playerPressButton userId = ' + playerId);
+
+        let $pageGame = $('.gameScreen');
+        let allPlayers = $pageGame.find('.js-player-container');
+
+        // display lock effect
+        allPlayers.removeClass('active').addClass('lock');
+
+        // display player press effet
+        let $activePlayer = $pageGame.find('[data-player-id="' + playerId + '"]');
+        $activePlayer.removeClass('lock').addClass('active');
+
+        // start timer
+        /*let $timer = $pageGame.find('.js-timer');
+
+        $timer.removeClass('hidden');
+        $timer.find('.js-timer-count').text(this._timerDuration);*/
+
+        /*this._timerInterval = setInterval(function on_timerInterval() {
+
+            let currentValue: number = parseInt($timer.find('.js-timer-count').text());
+
+            $timer.find('.js-timer-count').text(currentValue - 1);
+
+            // hide timer and call server with event 'playerTimerFinish'
+            if (currentValue - 1 < 0) {
+
+                clearInterval(this._timerInterval);
+
+                // send event 'playerTimerFinish' to server
+                this._socket.emit('playerTimerFinish');
+
+                $timer.addClass('hidden');
+
+                // reset other player and lock active current player because he doesn't answer
+                allPlayers.removeClass('lock');
+                $activePlayer.removeClass('active').addClass('lock');
+
+            }
+
+        }, 1000);*/
+
+    }
+
+    protected _onPlaySong(currentPlaylistSongIndex: number) {
+
+        // start playing a song using the audio player
+        this._audioPlayer.play();
 
     }
 
