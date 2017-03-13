@@ -15,7 +15,8 @@ export class GameMasterController {
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
     protected _gameHasStarted: boolean = false;
-    protected _guessingStepStarted: boolean = false;
+    protected _songPlayTime: boolean = false;
+    protected _guessingTime: boolean = false;
     protected _playersData: any;
     protected _playlistSongs: any;
     protected _currentPlaylistSongIndex: number = 0;
@@ -259,11 +260,13 @@ export class GameMasterController {
 
     protected _onPlayerPressedButton(playerId: number) {
 
+        this._displayValidateButton(true);
+
         // TODO: check if the game has started
         //if (this._gameHasStarted) {
 
             // TODO: check if we are in a "guessing step", else dismiss the click
-            //if (this._guessingStepStarted) {
+            //if (this._songPlayTime) {
                 
             //}
 
@@ -404,13 +407,25 @@ export class GameMasterController {
 
     }
 
-    protected _startCountdown() {
+    protected _startSongPlayingCountdown() {
 
         //this._$container.find();
 
     }
 
-    protected _stopCountdown() {
+    protected _stopSongPlayingCountdown() {
+
+        
+
+    }
+
+    protected _startAnswerCountdown() {
+
+        //this._$container.find();
+
+    }
+
+    protected _stopAnswerCountdown() {
 
 
 
@@ -427,32 +442,35 @@ export class GameMasterController {
 
         let $btnContainer = $('#page_game .js-valide-answer');
         
-        const onClickGoodBtnFunction = (event: Event) => {
+        const onClickCorrectButton = (event: Event) => {
 
             event.preventDefault();
 
-            // send to server event 'answerIsValide'
-            this._socket.emit('answerIsValide');
-
+            // inform the player view that the answer was correct
+            this._socket.emit('answerIsCorrect');
+            
         };
 
-        const onClickBadBtnFunction = () => {
+        const onClickWrongButton = () => {
 
             event.preventDefault();
 
-            // send to server event 'answerIsUnvalide'
-            this._socket.emit('answerIsUnvalide');
+            // inform the player view that the answer was wrong
+            this._socket.emit('answerIsWrong');
+
+
+
         };
 
-        $btnContainer.off('click', '.js-correct', onClickGoodBtnFunction);
-        $btnContainer.off('click', '.js-wrong', onClickBadBtnFunction);
+        $btnContainer.off('click', '.js-correct', onClickCorrectButton);
+        $btnContainer.off('click', '.js-wrong', onClickWrongButton);
 
         if (display === true) {
 
             $btnContainer.removeClass('hidden');
 
-            $btnContainer.on('click', '.js-correct', onClickGoodBtnFunction);
-            $btnContainer.on('click', '.js-wrong', onClickBadBtnFunction);
+            $btnContainer.on('click', '.js-correct', onClickCorrectButton);
+            $btnContainer.on('click', '.js-wrong', onClickWrongButton);
 
         } else {
 
@@ -464,14 +482,14 @@ export class GameMasterController {
     protected _onSongHasStarted() {
         
         // start the guessing time countdown
-        this._startCountdown();
+        this._startSongPlayingCountdown();
 
     }
 
     protected _onSongHasEnded() {
         
         // stop the guessing time countdown
-        this._stopCountdown();
+        this._stopSongPlayingCountdown();
 
     }
 

@@ -194,3 +194,21 @@ body {
 .hidden {
     display: none;
 }
+
+.playingCountdown {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+    color: white;
+    font-size: 2.5rem;
+}
+
+.answerCountdown {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    color: white;
+    font-size: 2.5rem;
+}

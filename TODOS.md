@@ -31,6 +31,7 @@
 * fetch the songs using the deezer API after a playlist got selected
 * initialize the audio player and add all the songs to the queue
 * register a domain (musicquizgame.com)
+* change the domain DNS to point to our github page
 * open a gmail account (musicquizgame@gmail.com)
 
 ## Xavier:

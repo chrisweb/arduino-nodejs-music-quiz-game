@@ -189,18 +189,34 @@ export default class SocketIoLibrary {
 
                 });
 
-                socket.on('songLoading', () => {
+                socket.on('songLoading', (loadingProgress: number, maximumValue: number, currentValue: number) => {
 
                     if (this._clientIds.gameMasterScreenId !== null) {
-                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songLoading');
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songLoading', loadingProgress, maximumValue, currentValue);
                     }
 
                 });
 
-                socket.on('songProgress', () => {
+                socket.on('songProgress', (playingProgress: number, maximumValue: number, currentValue: number) => {
 
                     if (this._clientIds.gameMasterScreenId !== null) {
-                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songProgress');
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songProgress', playingProgress, maximumValue, currentValue);
+                    }
+
+                });
+
+                socket.on('answerIsCorrect', () => {
+
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('answerIsCorrect');
+                    }
+
+                });
+
+                socket.on('answerIsWrong', () => {
+
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('answerIsWrong');
                     }
 
                 });
