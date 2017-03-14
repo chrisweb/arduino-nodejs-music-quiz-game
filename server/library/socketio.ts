@@ -172,23 +172,47 @@ export default class SocketIoLibrary {
                     }
 
                 });
+                
+                socket.on('resumeSong', () => {
 
-                socket.on('songHasStarted', () => {
-
-                    if (this._clientIds.gameMasterScreenId !== null) {
-                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songHasStarted');
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('resumeSong');
                     }
 
                 });
 
-                socket.on('songHasEnded', () => {
+                socket.on('songStarted', () => {
 
                     if (this._clientIds.gameMasterScreenId !== null) {
-                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songHasEnded');
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songStarted');
                     }
 
                 });
 
+                socket.on('songEnded', () => {
+
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songEnded');
+                    }
+
+                });
+
+                socket.on('songPaused', (playTimeOffset: number) => {
+
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songPaused', playTimeOffset);
+                    }
+
+                });
+
+                socket.on('songResumed', (playTimeOffset: number) => {
+
+                    if (this._clientIds.gameMasterScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songResumed', playTimeOffset);
+                    }
+
+                });
+                
                 socket.on('songLoading', (loadingProgress: number, maximumValue: number, currentValue: number) => {
 
                     if (this._clientIds.gameMasterScreenId !== null) {

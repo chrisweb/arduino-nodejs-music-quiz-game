@@ -15,11 +15,14 @@ export class GameMasterController {
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
     protected _gameHasStarted: boolean = false;
-    protected _songPlayTime: boolean = false;
-    protected _guessingTime: boolean = false;
+    protected _isSongPlaying: boolean = false;
+    protected _isAnsweringTime: boolean = false;
     protected _playersData: any;
     protected _playlistSongs: any;
     protected _currentPlaylistSongIndex: number = 0;
+    protected _latestPlayerId: number | null = null;
+    protected _songPlayingProgress: number | null = null;
+    protected _songPlayingIntervalId: number;
 
     public constructor() {
 
@@ -52,16 +55,8 @@ export class GameMasterController {
 
         });*/
 
-        const onNewSongStart = (trackTitle: string, artistName: string) => {
-            this._displayValidateButton(false);
-            this._updateGameScreen(trackTitle, artistName);
-        };
-
-        // on server send event 'newSongStart'
-        this._socket.on('newSongStart', onNewSongStart);
-
         const onPlaylistFinished = () => {
-            this._displayValidateButton(false);
+            this._showValidateAnswerContainer(false);
             this._showStartSetUpScreen();
         };
 
@@ -69,12 +64,7 @@ export class GameMasterController {
         this._socket.on('playlistFinished', onPlaylistFinished);
 
         const onPlayerViewReady = () => {
-
-            // send event 'newSongStart'
-            //this._socket.emit('newSongStart');
-
             this._buildGameScreen();
-
         }
 
         // on server send event playerViewReady
@@ -91,31 +81,44 @@ export class GameMasterController {
 
             this._playersData = playersData;
             this._playlistSongs = playlistTracks;
+            this._gameHasStarted = true;
 
         };
 
         this._socket.on('initializeScreens', onInitializeScreens);
 
-        const onSongHasStarted = () => {
-            this._onSongHasStarted();
+        const onSongStarted = () => {
+            this._onSongStarted();
         };
 
-        this._socket.on('songHasStarted', onSongHasStarted);
+        this._socket.on('songStarted', onSongStarted);
 
-        const onSongHasEnded = () => {
-            this._onSongHasEnded();
+        const onSongEnded = () => {
+            this._onSongEnded();
         };
 
-        this._socket.on('songHasEnded', onSongHasEnded);
+        this._socket.on('songEnded', onSongEnded);
+
+        const onSongPaused = (playTimeOffset: number) => {
+            this._onSongPaused(playTimeOffset);
+        };
+
+        this._socket.on('songPaused', onSongPaused);
+
+        const onSongResumed = (playTimeOffset: number) => {
+            this._onSongResumed(playTimeOffset);
+        };
+
+        this._socket.on('songResumed', onSongResumed);
 
         const onSongLoading = () => {
             this._onSongLoading();
         };
-
+        
         this._socket.on('songLoading', onSongLoading);
 
-        const onSongProgress = () => {
-            this._onSongProgress();
+        const onSongProgress = (playingProgress: number, maximumValue: number, currentValue: number) => {
+            this._onSongProgress(playingProgress, maximumValue, currentValue);
         };
 
         this._socket.on('songProgress', onSongProgress);
@@ -128,7 +131,7 @@ export class GameMasterController {
 
         this._$container.empty();
 
-        let $startSetUpButton = $('<button class="js-start-set-up-btn btn btn-primary">')
+        let $startSetUpButton = $('<button class="btn btn-primary js-start-set-up-button">')
 
         $startSetUpButton.text('Set up a new game');
 
@@ -259,23 +262,33 @@ export class GameMasterController {
     }
 
     protected _onPlayerPressedButton(playerId: number) {
+        
+        if (this._gameHasStarted) {
 
-        this._displayValidateButton(true);
+            // check if song is playing, else dismiss the click
+            if (this._isSongPlaying) {
 
-        // TODO: check if the game has started
-        //if (this._gameHasStarted) {
+                // if the song was playing and a player pressed then the
+                // player screen will have stopped the song
+                this._isSongPlaying = false;
 
-            // TODO: check if we are in a "guessing step", else dismiss the click
-            //if (this._songPlayTime) {
-                
-            //}
+                this._showValidateAnswerContainer(true);
 
-        //} else {
+                this._latestPlayerId = playerId;
+
+                // remove the progress indicator from the play song button
+                let $buttonPlaySong = this._$container.find('.js-play-song-button');
+
+                $buttonPlaySong.removeClass('m-progress');
+
+            }
+
+        } else {
 
             // TODO: check if all players are ready
             // TODO: display the game screen
 
-        //}
+        }
 
     }
 
@@ -300,31 +313,46 @@ export class GameMasterController {
         this._$container.empty();
 
         // player ui
-        this._$container.append('Current track:<br>');
+        let $audioPlayerUI = $('<div class="js-player-ui">');
 
-        let $currentTrackTitle = $('<span class="js-current-track-title">');
+        let $audioPlayerSongName = $('<div>');
+        let $audioPlayerArtistName = $('<div>');
 
-        this._$container.append($currentTrackTitle);
+        $audioPlayerUI.append($audioPlayerSongName);
+        $audioPlayerUI.append($audioPlayerArtistName);
 
-        let $currentTrackArtist = $('<span class="js-current-track-artist">')
+        let $songNameTitle = $('<span>');
+        let $artistNameTitle = $('<span>');
 
-        this._$container.append($currentTrackArtist);
+        $songNameTitle.text('song: ');
+        $artistNameTitle.text('artist: ');
+
+        $audioPlayerSongName.append($songNameTitle);
+        $audioPlayerArtistName.append($artistNameTitle);
+
+        let $currentSongName = $('<span class="js-current-song-name">');
+        let $currentSongArtistName = $('<span class="js-current-song-artist-name">');
+
+        $audioPlayerSongName.append($currentSongName);
+        $audioPlayerArtistName.append($currentSongArtistName);
+        
+        this._$container.append($audioPlayerUI);
 
         // answer validation box
-        let $validButtonContainer = $('<div class="js-valide-answer hidden">');
+        let $validateAnswerContainer = $('<div class="js-validate-answer hidden">');
 
-        let $correctButton = $('<button class="js-correct">').text('Correct');
-        let $wrongButton = $('<button class="js-wrong">').text('Wrong');
+        let $correctButton = $('<button class="btn btn-primary js-correct-button">').text('Correct');
+        let $wrongButton = $('<button class="btn btn-primary js-wrong-button">').text('Wrong');
 
-        $validButtonContainer.append($correctButton);
-        $validButtonContainer.append($wrongButton);
+        $validateAnswerContainer.append($correctButton);
+        $validateAnswerContainer.append($wrongButton);
 
-        this._$container.append($validButtonContainer);
+        this._$container.append($validateAnswerContainer);
 
         // game master control buttons
         this._$container.append($('<br><br>'));
 
-        let $buttonPlaySong = $('<button class="js-play-song">');
+        let $buttonPlaySong = $('<button class="btn btn-primary js-play-song-button">');
 
         $buttonPlaySong.text('Play Song');
 
@@ -332,7 +360,7 @@ export class GameMasterController {
 
         this._$container.append($('<br><br>'));
 
-        let $buttonEndGame = $('<button class="js-end-game">')
+        let $buttonEndGame = $('<button class="btn btn-primary js-end-game-button">')
 
         $buttonEndGame.text('End the game')
 
@@ -342,14 +370,7 @@ export class GameMasterController {
 
             event.preventDefault();
 
-            // TODO: check if there is not already a song currently being played
-
-            // send to server event 'nextTrack'
             this._playSong();
-
-            //this._displayValidateButton(false);
-
-            //this._buildWaitScreen();
 
             $buttonPlaySong.prop('disabled', true);
 
@@ -357,13 +378,13 @@ export class GameMasterController {
 
         };
 
-        this._$container.off('click', '.js-play-song', onClickButtonPlaySong);
-        this._$container.on('click', '.js-play-song', onClickButtonPlaySong);
+        this._$container.off('click', '.js-play-song-button', onClickButtonPlaySong);
+        this._$container.on('click', '.js-play-song-button', onClickButtonPlaySong);
 
         const onClickButtonEndGame = (event: Event) => {
 
             event.preventDefault();
-
+            
             // TODO: use a nicely designed overlay instead of the native confirm popup
 
             if (confirm('End the game (go to score screen)?')) {
@@ -371,7 +392,9 @@ export class GameMasterController {
                 // send to server event 'endGame'
                 this._socket.emit('endGame');
 
-                this._displayValidateButton(false);
+                this._showValidateAnswerContainer(false);
+
+                this._gameHasStarted = false;
 
                 this._showStartSetUpScreen();
 
@@ -379,23 +402,118 @@ export class GameMasterController {
 
         };
 
-        this._$container.one('click', '.js-end-game', onClickButtonEndGame);
+        this._$container.one('click', '.js-end-game-button', onClickButtonEndGame);
+
+        // build the players table
+        let $playersTable = $('<table class="table table-responsive js-players-table">');
+
+        let playersData = this._playersData;
+        let playersCount: number = 0;
+        let i: number;
+
+        // check how much players we have
+        for (i = 0; i < 4; i++) {
+
+            let nameIndexName = 'teamName' + i.toString();
+            let playerName = playersData[nameIndexName];
+
+            if (playerName !== '') {
+                playersCount++;
+            }
+
+        }
+
+        let y: number;
+
+        let $playersTableHead = $('<thead>');
+
+        let $playersTableHeadRow = $('<tr class="">');
+
+        let $playerIdHeadColumn = $('<td class="">');
+        let $playerNameHeadColumn = $('<td class="">');
+        let $playerScoreHeadColumn = $('<td class="">');
+
+        $playerIdHeadColumn.text('id');
+        $playerNameHeadColumn.text('name');
+        $playerScoreHeadColumn.text('score');
+
+        $playersTableHeadRow.append($playerIdHeadColumn);
+        $playersTableHeadRow.append($playerNameHeadColumn);
+        $playersTableHeadRow.append($playerScoreHeadColumn);
+
+        $playersTableHead.append($playersTableHeadRow);
+
+        $playersTable.append($playersTableHead);
+        
+        // tbody
+        let $playersTableBody = $('<tbody>');
+
+        $playersTable.append($playersTableBody);
+
+        // create a table row for each player
+        for (y = 0; y < playersCount; y++) {
+
+            let $playersTableRow = $('<tr class="js-players-table-row-' + y + '">');
+
+            let $playerIdColumn = $('<td class="js-players-table-id-column">');
+            let $playerNameColumn = $('<td class="js-players-table-name-column">');
+            let $playerScoreColumn = $('<td class="js-players-table-score-column">');
+
+            let nameIndexName = 'teamName' + y.toString();
+            let scoreIndexName = 'teamScore' + y.toString();
+
+            let playerName = playersData[nameIndexName];
+            let playerScore = playersData[scoreIndexName] === '' ? 0 : playersData[scoreIndexName];
+
+            $playerIdColumn.text(y.toString());
+            $playerNameColumn.text(playerName);
+            $playerScoreColumn.text(playerScore);
+
+            $playersTableRow.append($playerIdColumn);
+            $playersTableRow.append($playerNameColumn);
+            $playersTableRow.append($playerScoreColumn);
+
+            $playersTableBody.append($playersTableRow);
+
+        }
+
+        this._$container.append($playersTable);
+
+        // add song playing counter
+        let $songPlayingCounter = $('<div class="js-playing-countdown hidden countdown mastercountdown playingCountdown">');
+
+        this._$container.append($songPlayingCounter);
+
+        // add answer counter
+        let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown mastercountdown answerCountdown">');
+
+        this._$container.append($songPlayingCounter);
 
     }
 
     protected _playSong() {
 
-        // get the song data
-        let songData = this._getSongData();
+        // if the progress is null, this means no song got
+        // played yet or the previous song has ended
+        if (this._songPlayingProgress === null) {
 
-        // update the audio player ui
-        this._updateAudioPlayerUI();
+            // get the song data
+            let songData = this._getSongData();
 
-        // tell the player screen to start the song playback
-        this._socket.emit('playSong', this._currentPlaylistSongIndex);
+            // update the audio player ui
+            this._updateAudioPlayerUI(songData);
 
-        // update the playlist songs index
-        this._currentPlaylistSongIndex++;
+            // tell the player screen to start the song playback
+            this._socket.emit('playSong', this._currentPlaylistSongIndex);
+
+            // update the playlist songs index
+            this._currentPlaylistSongIndex++;
+
+        } else {
+
+            this._socket.emit('resumeSong');
+
+        }
 
     }
 
@@ -407,40 +525,64 @@ export class GameMasterController {
 
     }
 
+    // TODO: this is exactly the same method as we already have in the player controller => refactoring: abstract class
     protected _startSongPlayingCountdown() {
 
-        //this._$container.find();
+        let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
+
+        $songPlayingCountdown.removeClass('hidden');
+
+        const onSongPlayingInterval = () => {
+
+            if (this._songPlayingProgress !== null) {
+
+                let count = 30 - Math.round(this._songPlayingProgress);
+
+                // deezer songs seem to be a little bit over 30 seconds
+                // as we substract the playtime from 30 seconds we need to
+                // exclude some potential negative values
+                if (count < 0) {
+                    return;
+                }
+
+                $songPlayingCountdown.text(count);
+
+            }
+
+        }
+
+        this._songPlayingIntervalId = window.setInterval(onSongPlayingInterval, 300);
 
     }
 
+    // TODO: this is exactly the same method as we already have in the player controller => refactoring: abstract class
     protected _stopSongPlayingCountdown() {
+
+        let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
+
+        $songPlayingCountdown.addClass('hidden');
+
+        this._songPlayingProgress = null;
+
+        clearInterval(this._songPlayingIntervalId);
+
+    }
+    
+    protected _startAnswerCountdown() {
+
+
+
+    }
+    
+    protected _stopAnswerCountdown() {
 
         
 
     }
 
-    protected _startAnswerCountdown() {
+    protected _showValidateAnswerContainer(display: boolean) {
 
-        //this._$container.find();
-
-    }
-
-    protected _stopAnswerCountdown() {
-
-
-
-    }
-
-    protected _updateGameScreen(trackTitle: string, artistName: string) {
-
-        this._$container.find('.js-current-track-title').text(trackTitle);
-        this._$container.find('.js-current-track-artist').text(artistName);
-
-    }
-
-    protected _displayValidateButton(display: boolean) {
-
-        let $btnContainer = $('#page_game .js-valide-answer');
+        let $validateAnswerContainer = this._$container.find('.js-validate-answer');
         
         const onClickCorrectButton = (event: Event) => {
 
@@ -448,66 +590,141 @@ export class GameMasterController {
 
             // inform the player view that the answer was correct
             this._socket.emit('answerIsCorrect');
-            
-        };
 
-        const onClickWrongButton = () => {
+            // update the player score by one
+            this._incrementPlayerScore();
+
+            // re-enable the play button
+            let $buttonPlaySong = this._$container.find('.js-play-song-button');
+
+            $buttonPlaySong.text('Play (next song)');
+            $buttonPlaySong.prop('disabled', false);
+
+            // as the answer was correct we can hide the song progress
+            this._stopSongPlayingCountdown();
+
+            // hide the validation container
+            this._showValidateAnswerContainer(false);
+            
+        }
+
+        const onClickWrongButton = (event: Event) => {
 
             event.preventDefault();
 
             // inform the player view that the answer was wrong
             this._socket.emit('answerIsWrong');
 
+            // re-enable the play button
+            let $buttonPlaySong = this._$container.find('.js-play-song-button');
 
+            $buttonPlaySong.text('Play (resume)');
+            $buttonPlaySong.prop('disabled', false);
 
-        };
+            // hide the validation container
+            this._showValidateAnswerContainer(false);
 
-        $btnContainer.off('click', '.js-correct', onClickCorrectButton);
-        $btnContainer.off('click', '.js-wrong', onClickWrongButton);
+        }
+
+        $validateAnswerContainer.off('click', '.js-correct-button');
+        $validateAnswerContainer.off('click', '.js-wrong-button');
 
         if (display === true) {
 
-            $btnContainer.removeClass('hidden');
+            $validateAnswerContainer.removeClass('hidden');
 
-            $btnContainer.on('click', '.js-correct', onClickCorrectButton);
-            $btnContainer.on('click', '.js-wrong', onClickWrongButton);
+            $validateAnswerContainer.on('click', '.js-correct-button', onClickCorrectButton);
+            $validateAnswerContainer.on('click', '.js-wrong-button', onClickWrongButton);
 
         } else {
 
-            $btnContainer.addClass('hidden');
+            $validateAnswerContainer.addClass('hidden');
 
         }
     }
 
-    protected _onSongHasStarted() {
+    protected _onSongStarted() {
         
-        // start the guessing time countdown
+        // start the song playing countdown
         this._startSongPlayingCountdown();
 
+        // update the playing status
+        this._isSongPlaying = true;
+
     }
 
-    protected _onSongHasEnded() {
+    protected _onSongEnded() {
         
-        // stop the guessing time countdown
+        // stop the song playing countdown
         this._stopSongPlayingCountdown();
 
+        // reactivate the play song button
+        let $buttonPlaySong = this._$container.find('.js-play-song-button');
+
+        $buttonPlaySong.prop('disabled', false);
+
+        $buttonPlaySong.removeClass('m-progress');
+
+        // if the song has ended it means nobody guessed the song
+        this._showValidateAnswerContainer(false);
+
+        // update the playing status
+        this._isSongPlaying = false;
+
     }
 
+    protected _onSongPaused(playTimeOffset: number) {
+
+        // update the playing status
+        this._isSongPlaying = false;
+
+    }
+
+    protected _onSongResumed(playTimeOffset: number) {
+
+        // reactivate the play song button
+        let $buttonPlaySong = this._$container.find('.js-play-song-button');
+
+        $buttonPlaySong.addClass('m-progress');
+
+        // update the playing status
+        this._isSongPlaying = true;
+
+    }
+    
     protected _onSongLoading() {
 
 
 
     }
 
-    protected _onSongProgress() {
+    protected _onSongProgress(playingProgress: number, maximumValue: number, currentValue: number) {
 
-
+        this._songPlayingProgress = currentValue;
 
     }
 
-    protected _updateAudioPlayerUI() {
+    protected _updateAudioPlayerUI(sondData: any) {
 
+        let $audioPlayerUI = this._$container.find('.js-player-ui');
 
+        let $songNameElement = $audioPlayerUI.find('.js-current-song-name');
+        let $songArtistNameElement = $audioPlayerUI.find('.js-current-song-artist-name');
+
+        $songNameElement.text(sondData.title);
+        $songArtistNameElement.text(sondData.artist.name);
+
+    }
+
+    protected _incrementPlayerScore() {
+
+        let $playersTableRow = this._$container.find('.js-players-table-row-' + this._latestPlayerId);
+        let $playerScoreColumn = $playersTableRow.find('.js-players-table-score-column');
+
+        let currentScore = parseInt($playerScoreColumn.text());
+        let newScore = currentScore + 1;
+
+        $playerScoreColumn.text(newScore);
 
     }
 

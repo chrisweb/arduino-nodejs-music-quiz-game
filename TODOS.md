@@ -2,18 +2,24 @@
 
 ## open:
 
-
 * allow user on gamemaster screen to connect own deezer account (oauth)
 * allow user to fetch own (public and private) playlists list from deezer
 * on player screen ask all teams to press their buzzer once to tell the game that are ready
 * two players are minimum, four are maximum, let the game master add team 3 and 4 only if needed, form (+) button adds one more team
 * let the gamemaster choose a color per team, by default attribute a color to each team (alert if two teams have same color)
 * check if two teams have the same name, if so alert
-* create the ui for the player (game master screen)
 * add other services / APIs like spotify or youtube as sources for music
 * add the arduino source code to the repository
 * find somebody to do a design / logo for the project
 * build a landing page (musicquizgame.com), using github pages
+* play a sound when a player presses the buzzer
+* let the game master set the time users have to guess
+* create game has ended / score page
+* if the playlist is empty the game must end
+* build a box for the physical buttons using a 3d printer
+* during game make arduino light up the button that got pressed (first)
+* if during a round a player presses the button, but he has already played then ignore it
+* highlight the team column which pressed the button
 
 ## done:
 
@@ -34,24 +40,6 @@
 * change the domain DNS to point to our github page
 * open a gmail account (musicquizgame@gmail.com)
 
-## Xavier:
-* gamemaster: 
- * when click submit show game page
- * page game code button start game (send event startGame to server and server to player)
- * display answer mode and code 'false' button ('true' button is for Chris)
-* player: 
- * correct play game screen
- * show answer mode on game page when user press button
- * display score page
+## ideas for the future:
 
-## Chris:
-* player:
- * when server send event gameStart start the song
-* gamemaster:
- * on game page code next button (skipe current track)
- * answer 'true' button, add score and next song
- * check when playlist is finished
- * start new game
-* node:
- * fetch songs and send to player
-
+* create a version of the game where the user have to choose between several right answers, so a game version with no game master

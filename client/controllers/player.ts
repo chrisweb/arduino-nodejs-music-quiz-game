@@ -28,14 +28,19 @@ export interface IPlayersDataSource extends IPlayersData {
 
 export class PlayerController {
 
+    protected _playersData: IPlayersData;
+    protected _playlistSongs: any;
     protected _songPlayingIntervalId: number;
     protected _answerIntervalId: number;
     protected _timerDuration: number = 15;
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
     protected _audioPlayer: PlayerCore;
-    protected _guessingTime: boolean = false;
-    protected _songPlayingProgress: number = 0;
+    protected _isSongPlaying: boolean = false;
+    protected _isAnsweringTime: boolean = false;
+    protected _songPlayingProgress: number | null = null;
+    protected _latestPlayerId: number | null = null;
+    protected _currentPlaylistSongIndex: number = 0;
 
     public constructor() {
 
@@ -43,7 +48,8 @@ export class PlayerController {
         // grid: https://v4-alpha.getbootstrap.com/layout/grid/
 
         let options: ICoreOptions = {
-            playNextOnEnded: false
+            playNextOnEnded: false,
+            playingProgressIntervalTime: 300
         };
 
         this._audioPlayer = new PlayerCore(options);
@@ -70,43 +76,46 @@ export class PlayerController {
         // identify as player
         this._socket.emit('identifyPlayer');
 
-        this._socket.on('initializeScreens', (playersData: IPlayersData, playlistTracks: any) => {
+        const onInitializeScreens = (playersData: IPlayersData, playlistTracks: any) => {
+            
+            this._playersData = playersData;
+            this._playlistSongs = playlistTracks;
 
-            this._showGameScreen(playersData, playlistTracks);
+            this._showGameScreen();
 
-        });
+        };
+
+        this._socket.on('initializeScreens', onInitializeScreens);
 
         const onPlayerPressedButton = (playerId: number) => {
-
             this._onPlayerPressedButton(playerId);
-
         }
 
         this._socket.on('playerPressedButton', onPlayerPressedButton);
 
         const onPlaySong = (currentPlaylistSongIndex: number) => {
-
             this._onPlaySong(currentPlaylistSongIndex);
-
         }
 
         this._socket.on('playSong', onPlaySong);
+        
+        const onResumeSong = () => {
+            this._onResumeSong();
+        }
+
+        this._socket.on('resumeSong', onResumeSong);
 
         const onAnswerIsCorrect = () => {
-
             this._onAnswerIsCorrect();
-
         }
 
-        this._socket.on('answerIsCorrect', onPlaySong);
+        this._socket.on('answerIsCorrect', onAnswerIsCorrect);
 
         const onAnswerIsWrong = () => {
-
             this._onAnswerIsWrong();
-
         }
 
-        this._socket.on('answerIsWrong', onPlaySong);
+        this._socket.on('answerIsWrong', onAnswerIsWrong);
 
         // build the first screen
         this._showStartScreen();
@@ -125,11 +134,11 @@ export class PlayerController {
 
     }
 
-    protected _showGameScreen(playersData: IPlayersData, playlistTracks: any) {
+    protected _showGameScreen() {
 
-        let buildGameScreenPromise = this._buildGameScreen(playersData);
+        let buildGameScreenPromise = this._buildGameScreen(this._playersData);
 
-        let initializePlayerPromise = this._initializePlayer(playlistTracks);
+        let initializePlayerPromise = this._initializePlayer(this._playlistSongs);
 
         Promise.all([buildGameScreenPromise, initializePlayerPromise]).then(() => {
 
@@ -187,6 +196,8 @@ export class PlayerController {
 
                     let userId = $(event.currentTarget).data('playerId');
 
+                    console.log('browser player click, playerId:', userId);
+
                     this._socket.emit('playerClickColumn', userId);
 
                 });
@@ -238,14 +249,19 @@ export class PlayerController {
             }
 
             // add song playing counter
-            let $songPlayingCounter = $('<div class="js-playing-countdown playingCountdown">');
+            let $songPlayingCounter = $('<div class="js-playing-countdown hidden countdown playingCountdown">');
 
             this._$container.append($songPlayingCounter);
 
             // add answer counter
-            let $songAnswerCounter = $('<div class="js-answer-countdown answerCountdown">');
+            let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown answerCountdown">');
 
             this._$container.append($songPlayingCounter);
+
+            // add message container
+            let $messageContainer = $('<div class="js-message-container hidden messageContainer">');
+
+            this._$container.append($messageContainer);
 
             resolve();
 
@@ -281,28 +297,67 @@ export class PlayerController {
 
                         console.log('playing: ', playingProgress, maximumValue, currentValue);
 
-                        this._songPlayingProgress = playingProgress;
+                        this._songPlayingProgress = currentValue;
 
-                        this._socket.emit('songPlaying', playingProgress, maximumValue, currentValue);
+                        this._socket.emit('songProgress', playingProgress, maximumValue, currentValue);
 
                     },
-                    onStarted: () => {
+                    onStarted: (playTimeOffset) => {
 
-                        console.log('started');
+                        console.log('started', playTimeOffset);
                         
                         // send socket io message to game master that song has started
-                        this._socket.emit('songHasStarted');
+                        this._socket.emit('songStarted');
+
+                        // update the playing status
+                        this._isSongPlaying = true;
+
+                        // hide any previous messages
+                        this._hideMessage();
 
                         this._startSongPlayingCountdown();
 
+                    },
+                    onPaused: (playTimeOffset) => {
+
+                        console.log('paused', playTimeOffset);
+
+                        // update the playing status
+                        this._isSongPlaying = false;
+
+                        // send socket io message to game master that song has paused
+                        this._socket.emit('songPaused', playTimeOffset);
+
+                    },
+                    onResumed: (playTimeOffset) => {
+
+                        console.log('resumed', playTimeOffset);
+
+                        // send socket io message to game master that song has resumed
+                        this._socket.emit('songResumed', playTimeOffset);
+
+                        // update the playing status
+                        this._isSongPlaying = true;
+
+                        // hide any previous messages
+                        this._hideMessage();
+
+                    },
+                    onStopped: (playTimeOffset) => {
+                        console.log('stopped', playTimeOffset);
                     },
                     onEnded: (willPlayNext) => {
 
                         console.log('ended');
 
-                        this._socket.emit('songHasEnded');
+                        this._socket.emit('songEnded');
+
+                        // update the playing status
+                        this._isSongPlaying = false;
 
                         this._stopSongPlayingCountdown();
+
+                        this._showMessage('noAnswer');
 
                     }
                 };
@@ -353,15 +408,19 @@ export class PlayerController {
 
     protected _onPlayerPressedButton(playerId: number) {
 
-        console.log('player playerPressButton userId = ' + playerId);
+        console.log('player playerPressButton playerId: ', playerId);
 
-        // pause playing the current song
-        this._audioPlayer.pause();
+        if (this._isSongPlaying) {
 
-        this._stopSongPlayingCountdown();
+            // pause playing the current song
+            this._audioPlayer.pause();
 
-        this._startAnswerCountdown();
+            this._startAnswerCountdown();
 
+            this._latestPlayerId = playerId;
+
+        }
+        
         /*let $pageGame = $('.gameScreen');
         let allPlayers = $pageGame.find('.js-player-container');
 
@@ -408,19 +467,38 @@ export class PlayerController {
 
         let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
 
-        this._songPlayingIntervalId = window.setInterval(function on_timerInterval() {
+        $songPlayingCountdown.removeClass('hidden');
 
-            let count = 30 - this._songPlayingProgress;
+        const onSongPlayingInterval = () => {
 
-            $songPlayingCountdown.text(count);
+            if (this._songPlayingProgress !== null) {
 
-        }, 300);
+                let count = 30 - Math.round(this._songPlayingProgress);
+
+                // deezer songs seem to be a little bit over 30 seconds
+                // as we substract the playtime from 30 seconds we need to
+                // exclude some potential negative values
+                if (count < 0) {
+                    return;
+                }
+
+                $songPlayingCountdown.text(count);
+
+            }
+
+        }
+
+        this._songPlayingIntervalId = window.setInterval(onSongPlayingInterval, 300);
 
     }
 
     protected _stopSongPlayingCountdown() {
 
         let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
+
+        $songPlayingCountdown.addClass('hidden');
+
+        this._songPlayingProgress = null;
 
         clearInterval(this._songPlayingIntervalId);
 
@@ -430,13 +508,23 @@ export class PlayerController {
 
         let $answerCountdown = this._$container.find('.js-answer-countdown');
 
-        this._answerIntervalId = window.setInterval(function on_timerInterval() {
+        const onAnswerInterval = () => {
 
-            $answerCountdown.text(this._timerDuration);
+            if (this._timerDuration > 0) {
 
-            this._timerDuration--;
+                $answerCountdown.text(this._timerDuration);
 
-        }, 1000);
+                this._timerDuration--;
+
+            } else {
+
+                this._stopAnswerCountdown();
+
+            }
+
+        }
+
+        this._answerIntervalId = window.setInterval(onAnswerInterval, 1000);
 
     }
 
@@ -450,20 +538,95 @@ export class PlayerController {
 
     protected _onPlaySong(currentPlaylistSongIndex: number) {
 
+        let songData = this._getSongData(currentPlaylistSongIndex);
+
         // start playing a song using the audio player
+        this._audioPlayer.play(songData.id);
+
+    }
+
+    protected _onResumeSong() {
+
+        // resume the song playback using the audio player
         this._audioPlayer.play();
+
+    }
+
+    protected _getSongData(currentPlaylistSongIndex: number) {
+
+        let songData = this._playlistSongs[currentPlaylistSongIndex];
+
+        return songData;
 
     }
 
     protected _onAnswerIsCorrect() {
 
+        this._showMessage('correctAnswer');
 
+        this._stopSongPlayingCountdown();
+
+        this._stopAnswerCountdown();
+
+        this._incrementPlayerScore();
 
     }
 
     protected _onAnswerIsWrong() {
 
+        this._showMessage('wrongAnswer');
+        
+        this._stopAnswerCountdown();
 
+    }
+
+    protected _incrementPlayerScore() {
+
+        let $playerColumn = this._$container.find('.js-player-column[data-player-id="' + this._latestPlayerId + '"]');
+        let $playerColumnScore = $playerColumn.find('.js-player-score');
+
+        let currentScore = parseInt($playerColumnScore.text());
+        let newScore = currentScore + 1;
+
+        $playerColumnScore.text(newScore);
+
+    }
+
+    protected _showMessage(messageType: string) {
+
+        let message = '';
+
+        switch (messageType) {
+            case 'noAnswer':
+                message = 'time has run out and no answer was given';
+                break;
+            case 'correctAnswer':
+                message = 'the answer is correct';
+                break;
+            case 'wrongAnswer':
+                message = 'the answer is wrong';
+                break;
+        }
+
+        let $messageContainer = this._$container.find('.js-message-container');
+
+        $messageContainer.text(message);
+        $messageContainer.removeClass('hidden');
+
+        let messageContainerHeight = $messageContainer.height();
+        let windowHeight = $(window).height();
+
+        let topMargin = (windowHeight - messageContainerHeight) / 2;
+
+        $messageContainer.css('top', topMargin + 'px');
+
+    }
+
+    protected _hideMessage() {
+
+        let $messageContainer = this._$container.find('.js-message-container');
+
+        $messageContainer.addClass('hidden');
 
     }
 
