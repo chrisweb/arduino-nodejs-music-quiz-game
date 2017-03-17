@@ -23,7 +23,8 @@
 
 ## done:
 
-* order and arduino board as well as the physical buttons (adafruit big 100mm arcade buttons)
+* order an Arduino UNO board
+* order 4 Adafruit Massive Arcade Button with LED - 100mm Red / Blue / Green / Yellow
 * do prototype for both the gamemaster and player screens
 * do nodejs - arduino serial ports reading prototype, to test the buttons input
 * fetch the playlist using the deezer API and add them to the setup game playlist selection
