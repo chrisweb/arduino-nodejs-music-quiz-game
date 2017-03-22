@@ -245,6 +245,14 @@ export default class SocketIoLibrary {
 
                 });
 
+                socket.on('timeToAnswerRunOut', () => {
+
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('timeToAnswerRunOut');
+                    }
+
+                });
+
             });
             
             this._io.on('disconnect', function () {

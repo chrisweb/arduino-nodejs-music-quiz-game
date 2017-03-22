@@ -23,6 +23,8 @@ export class GameMasterController {
     protected _latestPlayerId: number | null = null;
     protected _songPlayingProgress: number | null = null;
     protected _songPlayingIntervalId: number;
+    protected _answerIntervalId: number;
+    protected _timerDuration: number = 15;
 
     public constructor() {
 
@@ -487,7 +489,7 @@ export class GameMasterController {
         // add answer counter
         let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown mastercountdown answerCountdown">');
 
-        this._$container.append($songPlayingCounter);
+        this._$container.append($songAnswerCounter);
 
     }
 
@@ -561,22 +563,52 @@ export class GameMasterController {
         let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
 
         $songPlayingCountdown.addClass('hidden');
+        $songPlayingCountdown.text('');
 
         this._songPlayingProgress = null;
 
         clearInterval(this._songPlayingIntervalId);
 
     }
-    
+
+    // TODO: this is exactly the same method as we already have in the player controller => refactoring: abstract class
     protected _startAnswerCountdown() {
 
+        let $answerCountdown = this._$container.find('.js-answer-countdown');
 
+        $answerCountdown.removeClass('hidden');
+
+        const onAnswerInterval = () => {
+
+            if (this._timerDuration > 0) {
+
+                $answerCountdown.text(this._timerDuration);
+
+                this._timerDuration--;
+
+            } else {
+
+                this._timeToAnswerRunOut();
+
+            }
+
+        }
+
+        this._answerIntervalId = window.setInterval(onAnswerInterval, 1000);
 
     }
     
     protected _stopAnswerCountdown() {
 
-        
+        let $answerCountdown = this._$container.find('.js-answer-countdown');
+
+        $answerCountdown.addClass('hidden');
+        $answerCountdown.text('');
+
+        clearInterval(this._answerIntervalId);
+
+        // reset timer duration
+        this._timerDuration = 15;
 
     }
 
@@ -605,6 +637,9 @@ export class GameMasterController {
 
             // hide the validation container
             this._showValidateAnswerContainer(false);
+
+            // stop the answer countdown
+            this._stopAnswerCountdown();
             
         }
 
@@ -623,6 +658,9 @@ export class GameMasterController {
 
             // hide the validation container
             this._showValidateAnswerContainer(false);
+
+            // stop the answer countdown
+            this._stopAnswerCountdown();
 
         }
 
@@ -662,8 +700,8 @@ export class GameMasterController {
         let $buttonPlaySong = this._$container.find('.js-play-song-button');
 
         $buttonPlaySong.prop('disabled', false);
-
         $buttonPlaySong.removeClass('m-progress');
+        $buttonPlaySong.text('Play (next song)');
 
         // if the song has ended it means nobody guessed the song
         this._showValidateAnswerContainer(false);
@@ -677,6 +715,8 @@ export class GameMasterController {
 
         // update the playing status
         this._isSongPlaying = false;
+
+        this._startAnswerCountdown();
 
     }
 
@@ -725,6 +765,25 @@ export class GameMasterController {
         let newScore = currentScore + 1;
 
         $playerScoreColumn.text(newScore);
+
+    }
+
+    protected _timeToAnswerRunOut() {
+
+        // inform the player view that the answer was wrong
+        this._socket.emit('timeToAnswerRunOut');
+
+        // re-enable the play button
+        let $buttonPlaySong = this._$container.find('.js-play-song-button');
+
+        $buttonPlaySong.text('Play (resume)');
+        $buttonPlaySong.prop('disabled', false);
+
+        // hide the validation container
+        this._showValidateAnswerContainer(false);
+
+        // stop the time to answer counter
+        this._stopAnswerCountdown();
 
     }
 

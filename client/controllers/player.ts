@@ -116,6 +116,12 @@ export class PlayerController {
         }
 
         this._socket.on('answerIsWrong', onAnswerIsWrong);
+        
+        const onTimeToAnswerRunOut = () => {
+            this._onTimeToAnswerRunOut();
+        }
+
+        this._socket.on('timeToAnswerRunOut', onTimeToAnswerRunOut);
 
         // build the first screen
         this._showStartScreen();
@@ -256,7 +262,7 @@ export class PlayerController {
             // add answer counter
             let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown answerCountdown">');
 
-            this._$container.append($songPlayingCounter);
+            this._$container.append($songAnswerCounter);
 
             // add message container
             let $messageContainer = $('<div class="js-message-container hidden messageContainer">');
@@ -497,6 +503,7 @@ export class PlayerController {
         let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
 
         $songPlayingCountdown.addClass('hidden');
+        $songPlayingCountdown.text('');
 
         this._songPlayingProgress = null;
 
@@ -507,6 +514,8 @@ export class PlayerController {
     protected _startAnswerCountdown() {
 
         let $answerCountdown = this._$container.find('.js-answer-countdown');
+        
+        $answerCountdown.removeClass('hidden');
 
         const onAnswerInterval = () => {
 
@@ -518,7 +527,7 @@ export class PlayerController {
 
             } else {
 
-                this._stopAnswerCountdown();
+                // we will get a socket.io message from game master screen
 
             }
 
@@ -532,7 +541,13 @@ export class PlayerController {
 
         let $answerCountdown = this._$container.find('.js-answer-countdown');
 
+        $answerCountdown.addClass('hidden');
+        $answerCountdown.text('');
+
         clearInterval(this._answerIntervalId);
+
+        // reset timer duration
+        this._timerDuration = 15;
 
     }
 
@@ -549,6 +564,9 @@ export class PlayerController {
 
         // resume the song playback using the audio player
         this._audioPlayer.play();
+
+        // hide all messages, like message that time has run out to answer
+        this._hideMessage();
 
     }
 
@@ -576,6 +594,14 @@ export class PlayerController {
 
         this._showMessage('wrongAnswer');
         
+        this._stopAnswerCountdown();
+
+    }
+
+    protected _onTimeToAnswerRunOut() {
+
+        this._showMessage('noAnswer');
+
         this._stopAnswerCountdown();
 
     }
@@ -627,6 +653,7 @@ export class PlayerController {
         let $messageContainer = this._$container.find('.js-message-container');
 
         $messageContainer.addClass('hidden');
+        $messageContainer.text('');
 
     }
 
