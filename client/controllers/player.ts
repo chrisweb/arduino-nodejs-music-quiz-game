@@ -28,7 +28,7 @@ export interface IPlayersDataSource extends IPlayersData {
 
 export class PlayerController {
 
-    protected _playersData: IPlayersData;
+    protected _playersData: IPlayersDataSource;
     protected _playlistSongs: any;
     protected _songPlayingIntervalId: number;
     protected _answerIntervalId: number;
@@ -111,7 +111,7 @@ export class PlayerController {
         // identify as player
         this._socket.emit('identifyPlayer');
 
-        const onInitializeScreens = (playersData: IPlayersData, playlistTracks: any) => {
+        const onInitializeScreens = (playersData: IPlayersDataSource, playlistTracks: any) => {
             
             this._playersData = playersData;
             this._playlistSongs = playlistTracks;
@@ -184,6 +184,14 @@ export class PlayerController {
 
         this._socket.on('answerTimeSelect', onChangeAnswerTimeSelectChange);
 
+        const onEndGame = () => {
+
+            this._showScoreScreen();
+
+        }
+
+        this._socket.on('endGame', onEndGame);
+
         // build the first screen
         this._showStartScreen();
         
@@ -209,7 +217,7 @@ export class PlayerController {
 
     protected _showGameScreen() {
 
-        let buildGameScreenPromise = this._buildGameScreen(this._playersData);
+        let buildGameScreenPromise = this._buildGameScreen();
 
         let initializePlayerPromise = this._initializePlayer(this._playlistSongs);
 
@@ -221,7 +229,9 @@ export class PlayerController {
 
     }
 
-    protected _buildGameScreen(playersData: IPlayersData) {
+    protected _buildGameScreen() {
+
+        let playersData: IPlayersData = this._playersData;
 
         let buildGameScreenPromise = new Promise((resolve, reject) => {
 
@@ -300,7 +310,7 @@ export class PlayerController {
                 let $playerStatus = $('<span class="js-player-status">');
 
                 let playerName = playersData[nameIndexName];
-                let playerScore = playersData[scoreIndexName] === '' ? 0 : playersData[scoreIndexName];
+                let playerScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
 
                 $playerName.text(playerName);
                 $playerScore.text(playerScore);
@@ -441,36 +451,96 @@ export class PlayerController {
 
     }
 
-    /*protected _showScoreScreen(playersScores: Array<{ name: string, score: number, playerId: number }>) {
-
+    protected _showScoreScreen() {
+        
         this._$container.empty();
 
-        let $pageScore = $('<div id="page_score">');
+        this._$container.removeClass('gameScreen');
+        this._$container.addClass('scoreScreen');
+        
+        let playersData = this._playersData;
+        let playersCount: number = 0;
+        let i: number;
+        let scoresSum = 0;
 
-        for (let i: number = 0; i < playersScores.length; ++i) {
+        // check how much players we have
+        for (i = 0; i < 4; i++) {
 
-            let $placeDiv = $('<div class="place place_' + i + ' js-place-' + i + '">');
-            let $playerName = $('<h1 class="js-player-name">');
-            let $playerScore = $('<h1 class="js-player-score">');
-            $placeDiv.append($playerName);
-            $placeDiv.append($playerScore);
-            $pageScore.append($placeDiv);
+            let nameIndexName = 'teamName' + i.toString();
+            let playerName = playersData[nameIndexName];
+
+            if (playerName !== '') {
+
+                playersCount++;
+
+                let scoreIndexName = 'teamScore' + i.toString();
+
+                let playerScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
+
+                scoresSum += playerScore;
+
+            }
 
         }
 
-        this._$container.append($pageScore);
+        let $podium = $('<table class="podium">');
+        let $podiumRow = $('<tr>');
 
+        $podium.append($podiumRow);
 
-        for (let i = 0; i < playersScores.length; ++i) {
+        let y: number;
 
-            let $place = $pageScore.find('.js-place-' + (i + 1));
-            $place.find('.js-player-name').text(playersScores[i].name);
-            $place.find('.js-player-score').text(playersScores[i].score);
-            $place.css('background-color', this._$container.find('.gameScreen [data-player-id="' + playersScores[i].playerId + '"]').css('background-color'));
+        // create the player columns
+        for (y = 0; y < playersCount; y++) {
+
+            let $podiumColumn = $('<td class="podiumColumn">');
+
+            let $playerPodiumColumn = $('<div class="playerPodiumColumn" data-player-id="' + y + '">');
+
+            $podiumColumn.append($playerPodiumColumn);
+
+            switch (y) {
+                case 0:
+                    $playerPodiumColumn.addClass('playerColumnRed');
+                    break;
+                case 1:
+                    $playerPodiumColumn.addClass('playerColumnBlue');
+                    break;
+                case 2:
+                    $playerPodiumColumn.addClass('playerColumnGreen');
+                    break;
+                case 3:
+                    $playerPodiumColumn.addClass('playerColumnYellow');
+                    break;
+            }
+
+            //let nameIndexName = 'teamName' + y.toString();
+            let scoreIndexName = 'teamScore' + y.toString();
+
+            let playerScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
+
+            // height = player score percentage of total
+            let heightBasedOnScore = (playerScore / scoresSum) * 100;
+
+            if (heightBasedOnScore === 0) {
+                heightBasedOnScore = 2;
+            }
+
+            $playerPodiumColumn.css('height', heightBasedOnScore + '%');
+
+            $podiumRow.append($podiumColumn);
 
         }
+
+        this._$container.append($podium);
+
+        let $gameOver = $('<h1 class="gameOver">');
+
+        $gameOver.text('GAME OVER ... thx for playing');
+
+        this._$container.append($gameOver);
     
-    }*/
+    }
 
     protected _onPlayerPressedButton(playerId: number) {
 
@@ -648,10 +718,19 @@ export class PlayerController {
         let $playerColumn = this._$container.find('.js-player-column[data-player-id="' + this._latestPlayerId + '"]');
         let $playerColumnScore = $playerColumn.find('.js-player-score');
 
-        let currentScore = parseInt($playerColumnScore.text());
+        console.log(this._playersData);
+
+        let playersData = this._playersData
+
+        let scoreIndexName = 'teamScore' + this._latestPlayerId.toString();
+
+        let currentScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
+
         let newScore = currentScore + 1;
 
         $playerColumnScore.text(newScore);
+
+        this._playersData[scoreIndexName] = newScore;
 
     }
 

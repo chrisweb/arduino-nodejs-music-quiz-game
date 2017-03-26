@@ -277,6 +277,14 @@ export default class SocketIoLibrary {
 
                 });
 
+                socket.on('endGame', (value: number) => {
+
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('endGame');
+                    }
+
+                });
+
             });
             
             this._io.on('disconnect', function () {

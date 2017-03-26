@@ -13,7 +13,6 @@
 * add the arduino source code to the repository
 * find somebody to do a design / logo for the project
 * build a landing page (musicquizgame.com), using github pages
-* create game has ended / score page
 * if the playlist is empty the game must end
 * during game make arduino light up the button that got pressed (first)
 * if during a round a player presses the button, but he has already played then ignore it
@@ -50,6 +49,7 @@
 * play a sound when a player presses the buzzer
 * add an option to the game master screen to change to sound being played on buzzer pressed and / or disable sounds
 * let the game master set the time users have to guess
+* create game has ended / score page
 
 ## ideas for the future:
 

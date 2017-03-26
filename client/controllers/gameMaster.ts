@@ -824,10 +824,19 @@ export class GameMasterController {
         let $playersTableRow = this._$container.find('.js-players-table-row-' + this._latestPlayerId);
         let $playerScoreColumn = $playersTableRow.find('.js-players-table-score-column');
 
-        let currentScore = parseInt($playerScoreColumn.text());
+        console.log(this._playersData);
+
+        let playersData = this._playersData
+
+        let scoreIndexName = 'teamScore' + this._latestPlayerId.toString();
+
+        let currentScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
+
         let newScore = currentScore + 1;
 
         $playerScoreColumn.text(newScore);
+
+        this._playersData[scoreIndexName] = newScore;
 
     }
 
