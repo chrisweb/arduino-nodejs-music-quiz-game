@@ -32,7 +32,6 @@ export class PlayerController {
     protected _playlistSongs: any;
     protected _songPlayingIntervalId: number;
     protected _answerIntervalId: number;
-    protected _timerDuration: number = 15;
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
     protected _songsAudioPlayer: PlayerCore;
@@ -44,6 +43,8 @@ export class PlayerController {
     protected _currentPlaylistSongIndex: number = 0;
     protected _volume: number = 80;
     protected _buzzerSound: string = 'messagealert';
+    protected _answerTimeDuration: number;
+    protected _answerTimeSelect: number = 15;
 
     public constructor() {
 
@@ -174,6 +175,14 @@ export class PlayerController {
         }
 
         this._socket.on('buzzerSoundSelectChange', onBuzzerSoundSelectChange);
+
+        const onChangeAnswerTimeSelectChange = (value: number) => {
+
+            this._answerTimeSelect = value;
+
+        }
+
+        this._socket.on('answerTimeSelect', onChangeAnswerTimeSelectChange);
 
         // build the first screen
         this._showStartScreen();
@@ -546,13 +555,15 @@ export class PlayerController {
         
         $answerCountdown.removeClass('hidden');
 
+        this._answerTimeDuration = this._answerTimeSelect;
+
         const onAnswerInterval = () => {
 
-            if (this._timerDuration > 0) {
+            if (this._answerTimeDuration > 0) {
 
-                $answerCountdown.text(this._timerDuration);
+                $answerCountdown.text(this._answerTimeDuration);
 
-                this._timerDuration--;
+                this._answerTimeDuration--;
 
             } else {
 
@@ -574,9 +585,6 @@ export class PlayerController {
         $answerCountdown.text('');
 
         clearInterval(this._answerIntervalId);
-
-        // reset timer duration
-        this._timerDuration = 15;
 
     }
 

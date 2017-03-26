@@ -24,9 +24,10 @@ export class GameMasterController {
     protected _songPlayingProgress: number | null = null;
     protected _songPlayingIntervalId: number;
     protected _answerIntervalId: number;
-    protected _timerDuration: number = 15;
     protected _volume: number = 80;
     protected _buzzerSound: string = 'messagealert';
+    protected _answerTimeDuration: number;
+    protected _answerTimeSelect: number = 15;
 
     public constructor() {
 
@@ -351,6 +352,9 @@ export class GameMasterController {
         this._$container.off('click', '.js-play-song-button', onClickButtonPlaySong);
         this._$container.on('click', '.js-play-song-button', onClickButtonPlaySong);
 
+        // some space
+        this._$container.append($('<br><br>'));
+
         // volume bar
         let $volumeSlider = $('<input type="range" min="0" max="100" value="' + this._volume + '" step="1" id="js-sound-volume" />');
 
@@ -402,6 +406,9 @@ export class GameMasterController {
         };
 
         this._$container.one('click', '.js-end-game-button', onClickButtonEndGame);
+
+        // some space
+        this._$container.append($('<br><br>'));
 
         // build the players table
         let $playersTable = $('<table class="table table-responsive js-players-table">');
@@ -518,6 +525,36 @@ export class GameMasterController {
         $buzzerSoundSelect.off('change', onChangeBuzzerSoundSelect);
         $buzzerSoundSelect.on('change', onChangeBuzzerSoundSelect);
 
+        // some space
+        this._$container.append($('<br><br>'));
+
+        // answer time select
+        let $answerTimeSelect = $('<select>');
+
+        let $answerTimeSelectOptionfifteen = $('<option value="15" selected="selected">15 seconds</option>');
+        let $answerTimeSelectOptionthirty = $('<option value="30">30 seconds</option>');
+        let $answerTimeSelectOptionfourtyfive = $('<option value="45">45 seconds</option>');
+
+        $answerTimeSelect.append($answerTimeSelectOptionfifteen);
+        $answerTimeSelect.append($answerTimeSelectOptionthirty);
+        $answerTimeSelect.append($answerTimeSelectOptionfourtyfive);
+
+        this._$container.append($answerTimeSelect);
+
+        const onChangeAnswerTimeSelect = (event: Event) => {
+
+            let $answerTimeSelect = $(event.target) as JQuery;
+            let value = parseInt($answerTimeSelect.val());
+
+            this._answerTimeSelect = value;
+
+            this._socket.emit('answerTimeSelect', value);
+
+        };
+
+        $answerTimeSelect.off('change', onChangeAnswerTimeSelect);
+        $answerTimeSelect.on('change', onChangeAnswerTimeSelect);
+
     }
 
     protected _playSong() {
@@ -605,13 +642,15 @@ export class GameMasterController {
 
         $answerCountdown.removeClass('hidden');
 
+        this._answerTimeDuration = this._answerTimeSelect;
+
         const onAnswerInterval = () => {
 
-            if (this._timerDuration > 0) {
+            if (this._answerTimeDuration > 0) {
 
-                $answerCountdown.text(this._timerDuration);
+                $answerCountdown.text(this._answerTimeDuration);
 
-                this._timerDuration--;
+                this._answerTimeDuration--;
 
             } else {
 
@@ -633,9 +672,6 @@ export class GameMasterController {
         $answerCountdown.text('');
 
         clearInterval(this._answerIntervalId);
-
-        // reset timer duration
-        this._timerDuration = 15;
 
     }
 

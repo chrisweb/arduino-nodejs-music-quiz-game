@@ -268,6 +268,14 @@ export default class SocketIoLibrary {
                     }
 
                 });
+                
+                socket.on('answerTimeSelect', (value: number) => {
+
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('answerTimeSelect', value);
+                    }
+
+                });
 
             });
             
