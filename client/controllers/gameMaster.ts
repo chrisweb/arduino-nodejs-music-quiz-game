@@ -25,6 +25,8 @@ export class GameMasterController {
     protected _songPlayingIntervalId: number;
     protected _answerIntervalId: number;
     protected _timerDuration: number = 15;
+    protected _volume: number = 80;
+    protected _buzzerSound: string = 'messagealert';
 
     public constructor() {
 
@@ -44,18 +46,6 @@ export class GameMasterController {
 
         // identify as game master
         this._socket.emit('identifyGameMaster');
-
-        /*let message = 'hello world';
-
-        console.log('sending message: ' + message);
-
-        socket.emit('eventFoo', message);
-
-        socket.on('eventBar', function (responseMessage: string) {
-
-            console.log('response message recieved: ' + responseMessage);
-
-        });*/
 
         const onPlaylistFinished = () => {
             this._showValidateAnswerContainer(false);
@@ -294,21 +284,6 @@ export class GameMasterController {
 
     }
 
-    /*protected _buildWaitScreen() {
-
-        // build the screen
-        this._$container.empty();
-
-        let $page = $('<div id="page_wait">');
-
-        let $title = $('<h1>').text('PLEASE WAIT');
-
-        $page.append($title);
-
-        this._$container.append($page);
-
-    }*/
-
     protected _buildGameScreen() {
 
         // build the screen
@@ -351,23 +326,16 @@ export class GameMasterController {
 
         this._$container.append($validateAnswerContainer);
 
-        // game master control buttons
+        // some space
         this._$container.append($('<br><br>'));
 
+        // game master music controls
         let $buttonPlaySong = $('<button class="btn btn-primary js-play-song-button">');
 
         $buttonPlaySong.text('Play Song');
 
         this._$container.append($buttonPlaySong);
-
-        this._$container.append($('<br><br>'));
-
-        let $buttonEndGame = $('<button class="btn btn-primary js-end-game-button">')
-
-        $buttonEndGame.text('End the game')
-
-        this._$container.append($buttonEndGame);
-
+        
         const onClickButtonPlaySong = (event: Event) => {
 
             event.preventDefault();
@@ -382,6 +350,35 @@ export class GameMasterController {
 
         this._$container.off('click', '.js-play-song-button', onClickButtonPlaySong);
         this._$container.on('click', '.js-play-song-button', onClickButtonPlaySong);
+
+        // volume bar
+        let $volumeSlider = $('<input type="range" min="0" max="100" value="' + this._volume + '" step="1" id="js-sound-volume" />');
+
+        this._$container.append($volumeSlider);
+
+        const onChangeVolume = (event: Event) => {
+
+            let rangeElement = event.target as HTMLInputElement;
+            let value = parseInt(rangeElement.value);
+
+            this._volume = value;
+
+            this._socket.emit('volumeChange', value);
+
+        };
+
+        $volumeSlider.off('change', onChangeVolume);
+        $volumeSlider.on('change', onChangeVolume);
+
+        // some space
+        this._$container.append($('<br><br>'));
+
+        // end game button
+        let $buttonEndGame = $('<button class="btn btn-primary js-end-game-button">')
+
+        $buttonEndGame.text('End the game')
+
+        this._$container.append($buttonEndGame);
 
         const onClickButtonEndGame = (event: Event) => {
 
@@ -490,6 +487,36 @@ export class GameMasterController {
         let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown mastercountdown answerCountdown">');
 
         this._$container.append($songAnswerCounter);
+
+        // some space
+        this._$container.append($('<br><br>'));
+
+        // buzzer sound selection
+        let $buzzerSoundSelect = $('<select>');
+
+        let $buzzerSoundSelectOptionMessageAlert = $('<option value="messagealert" selected="selected">Message Alert</option>');
+        let $buzzerSoundSelectOptionBuzzer = $('<option value="buzzer">Buzzer</option>');
+        let $buzzerSoundSelectOptionNoSound = $('<option value="none">No sound on press buzzer</option>');
+
+        $buzzerSoundSelect.append($buzzerSoundSelectOptionMessageAlert);
+        $buzzerSoundSelect.append($buzzerSoundSelectOptionBuzzer);
+        $buzzerSoundSelect.append($buzzerSoundSelectOptionNoSound);
+        
+        this._$container.append($buzzerSoundSelect);
+
+        const onChangeBuzzerSoundSelect = (event: Event) => {
+
+            let $buzzerSoundSelect = $(event.target) as JQuery;
+            let value = $buzzerSoundSelect.val();
+
+            this._buzzerSound = value;
+
+            this._socket.emit('buzzerSoundSelectChange', value);
+
+        };
+
+        $buzzerSoundSelect.off('change', onChangeBuzzerSoundSelect);
+        $buzzerSoundSelect.on('change', onChangeBuzzerSoundSelect);
 
     }
 

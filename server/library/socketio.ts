@@ -252,6 +252,22 @@ export default class SocketIoLibrary {
                     }
 
                 });
+                
+                socket.on('volumeChange', (value: number) => {
+
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('volumeChange', value);
+                    }
+
+                });
+                
+                socket.on('buzzerSoundSelectChange', (value: string) => {
+
+                    if (this._clientIds.playerScreenId !== null) {
+                        this._io.sockets.connected[this._clientIds.playerScreenId].emit('buzzerSoundSelectChange', value);
+                    }
+
+                });
 
             });
             

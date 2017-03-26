@@ -35,24 +35,58 @@ export class PlayerController {
     protected _timerDuration: number = 15;
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
-    protected _audioPlayer: PlayerCore;
+    protected _songsAudioPlayer: PlayerCore;
+    protected _soundsAudioPlayer: PlayerCore;
     protected _isSongPlaying: boolean = false;
     protected _isAnsweringTime: boolean = false;
     protected _songPlayingProgress: number | null = null;
     protected _latestPlayerId: number | null = null;
     protected _currentPlaylistSongIndex: number = 0;
+    protected _volume: number = 80;
+    protected _buzzerSound: string = 'messagealert';
 
     public constructor() {
 
         // INFO: twitter bootstrap 4 components https://v4-alpha.getbootstrap.com/components/alerts/
         // grid: https://v4-alpha.getbootstrap.com/layout/grid/
 
-        let options: ICoreOptions = {
+        // initialize songs audio player
+        let songsPlayerOptions: ICoreOptions = {
             playNextOnEnded: false,
             playingProgressIntervalTime: 300
         };
 
-        this._audioPlayer = new PlayerCore(options);
+        this._songsAudioPlayer = new PlayerCore(songsPlayerOptions);
+
+        // set initial volume
+        this._songsAudioPlayer.setVolume(this._volume);
+
+        // initialize sounds audio player
+        let soundsPlayerOptions: ICoreOptions = {
+            playNextOnEnded: false,
+            soundsBaseUrl: 'http://127.0.0.1:35000/static/audio/sounds/'
+        };
+
+        this._soundsAudioPlayer = new PlayerCore(soundsPlayerOptions);
+
+        // set initial volume
+        this._soundsAudioPlayer.setVolume(this._volume);
+
+        let messageAlertSoundAttributes: ISoundAttributes = {
+            sources: 'messagealert.mp3',
+            id: 1,
+            playlistId: 0
+        };
+
+        this._soundsAudioPlayer.addSoundToQueue(messageAlertSoundAttributes);
+
+        let buzzerSoundAttributes: ISoundAttributes = {
+            sources: 'buzzer.mp3',
+            id: 2,
+            playlistId: 0
+        };
+
+        this._soundsAudioPlayer.addSoundToQueue(buzzerSoundAttributes);
 
     }
 
@@ -122,9 +156,33 @@ export class PlayerController {
         }
 
         this._socket.on('timeToAnswerRunOut', onTimeToAnswerRunOut);
+        
+        const onVolumeChange = (value: number) => {
+
+            this._volume = value;
+
+            this._onVolumeChange();
+
+        }
+
+        this._socket.on('volumeChange', onVolumeChange);
+
+        const onBuzzerSoundSelectChange = (value: string) => {
+
+            this._buzzerSound = value;
+
+        }
+
+        this._socket.on('buzzerSoundSelectChange', onBuzzerSoundSelectChange);
 
         // build the first screen
         this._showStartScreen();
+        
+    }
+
+    protected _onVolumeChange() {
+
+        this._songsAudioPlayer.setVolume(this._volume);
 
     }
 
@@ -151,13 +209,6 @@ export class PlayerController {
             this._socket.emit('playerViewReady');
 
         });
-
-        /*let $timer = $('<div class="timer_container js-timer hidden">');
-        $timer.append('<h1 class="js-timer-count">');
-        this._$container.append($timer);
-
-        // reset timer
-        clearInterval(this._timerInterval);*/
 
     }
 
@@ -369,7 +420,7 @@ export class PlayerController {
                 };
 
                 // add the song to the player queue
-                this._audioPlayer.addSoundToQueue(soundAttributes);
+                this._songsAudioPlayer.addSoundToQueue(soundAttributes);
 
             });
 
@@ -418,54 +469,32 @@ export class PlayerController {
 
         if (this._isSongPlaying) {
 
-            // pause playing the current song
-            this._audioPlayer.pause();
+            // play a "pressed" sound
+            this._playPressedSound();
 
+            // pause playing the current song
+            this._songsAudioPlayer.pause();
+
+            // start the answer countdown
             this._startAnswerCountdown();
 
+            // update the player id
             this._latestPlayerId = playerId;
 
         }
-        
-        /*let $pageGame = $('.gameScreen');
-        let allPlayers = $pageGame.find('.js-player-container');
 
-        // display lock effect
-        allPlayers.removeClass('active').addClass('lock');
+    }
 
-        // display player press effet
-        let $activePlayer = $pageGame.find('[data-player-id="' + playerId + '"]');
-        $activePlayer.removeClass('lock').addClass('active');*/
+    protected _playPressedSound() {
 
-        // start timer
-        /*let $timer = $pageGame.find('.js-timer');
-
-        $timer.removeClass('hidden');
-        $timer.find('.js-timer-count').text(this._timerDuration);*/
-
-        /*this._timerInterval = setInterval(function on_timerInterval() {
-
-            let currentValue: number = parseInt($timer.find('.js-timer-count').text());
-
-            $timer.find('.js-timer-count').text(currentValue - 1);
-
-            // hide timer and call server with event 'playerTimerFinish'
-            if (currentValue - 1 < 0) {
-
-                clearInterval(this._timerInterval);
-
-                // send event 'playerTimerFinish' to server
-                this._socket.emit('playerTimerFinish');
-
-                $timer.addClass('hidden');
-
-                // reset other player and lock active current player because he doesn't answer
-                allPlayers.removeClass('lock');
-                $activePlayer.removeClass('active').addClass('lock');
-
-            }
-
-        }, 1000);*/
+        switch (this._buzzerSound) {
+            case 'messagealert':
+                this._soundsAudioPlayer.play(1);
+                break;
+            case 'buzzer':
+                this._soundsAudioPlayer.play(2);
+                break;
+        }
 
     }
 
@@ -556,14 +585,14 @@ export class PlayerController {
         let songData = this._getSongData(currentPlaylistSongIndex);
 
         // start playing a song using the audio player
-        this._audioPlayer.play(songData.id);
+        this._songsAudioPlayer.play(songData.id);
 
     }
 
     protected _onResumeSong() {
 
         // resume the song playback using the audio player
-        this._audioPlayer.play();
+        this._songsAudioPlayer.play();
 
         // hide all messages, like message that time has run out to answer
         this._hideMessage();
