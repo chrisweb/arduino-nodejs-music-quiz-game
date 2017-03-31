@@ -55,30 +55,41 @@ void loop() {
   button3State = digitalRead(button3Pin);
   button4State = digitalRead(button4Pin);
 
-  if (button1Active == HIGH) {
-    // turn LED on:
-    digitalWrite(led1Pin, HIGH);
-  } else {
-    // turn LED off:
-    digitalWrite(led1Pin, LOW);
+
+  if (button1Active == true) {
+    // check if the pushbutton is pressed.
+    // if it is, the buttonState is HIGH:
+    if (button1State == HIGH) {
+      // turn LED on:
+      digitalWrite(led1Pin, HIGH);
+    } else {
+      // turn LED off:
+      digitalWrite(led1Pin, LOW);
+    }
   }
 
-  if (button2Active == HIGH) {
-    digitalWrite(led2Pin, HIGH);
-  } else {
-    digitalWrite(led2Pin, LOW);
+  if (button2Active == true) {
+    if (button2State == HIGH) {
+      digitalWrite(led2Pin, HIGH);
+    } else {
+      digitalWrite(led2Pin, LOW);
+    }
   }
 
-  if (button3Active == HIGH) {
-    digitalWrite(led3Pin, HIGH);
-  } else {
-    digitalWrite(led3Pin, LOW);
+  if (button3Active == true) {
+    if (button3State == HIGH) {
+      digitalWrite(led3Pin, HIGH);
+    } else {
+      digitalWrite(led3Pin, LOW);
+    }
   }
 
-  if (button4Active == HIGH) {
-    digitalWrite(led4Pin, HIGH);
-  } else {
-    digitalWrite(led4Pin, LOW);
+  if (button4Active == true) {
+    if (button4State == HIGH) {
+      digitalWrite(led4Pin, HIGH);
+    } else {
+      digitalWrite(led4Pin, LOW);
+    }
   }
   
   // send button status
