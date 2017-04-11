@@ -603,9 +603,6 @@ export class PlayerController {
 
         if (this._isSongPlaying) {
 
-            // play a "pressed" sound
-            this._playPressedSound();
-
             // pause playing the current song
             this._songsAudioPlayer.pause();
 
@@ -614,6 +611,9 @@ export class PlayerController {
 
             // update the player id
             this._latestPlayerId = playerId;
+
+            // play a "pressed" sound
+            this._playPressedSound();
 
         }
 
