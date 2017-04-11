@@ -1,8 +1,14 @@
+[![Dependencies](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game.png)](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game)
+[![Dependencies](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game/dev-status.png)](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game)
+[![GitHub release](https://img.shields.io/github/release/chrisweb/arduino-nodejs-music-quiz-game.svg)](https://github.com/chrisweb/arduino-nodejs-music-quiz-game/releases)
+
 # Arduino NodeJS Music Quiz Game
+
+![music quiz game logo](./docs/images/music_quiz_game-logo.png)
 
 A music quiz game using an arduino to record buttons input and nodejs as gameserver  
 
-[musicquizgame.com](https://musicquizgame.com) (coming soon)  
+[musicquizgame.com](https://musicquizgame.com)  
 
 say hello at [musicquizgame@gmail.com](mailto:musicquizgame@gmail.com)  
 
@@ -185,3 +191,12 @@ gulp watch
 ```
 node ./build/server
 ```
+# Licenses
+
+Source code licensed under MIT
+
+Logo, design, project name, domain name copyright (c) chris weber 2017
+
+# Design
+
+Designed by the awesome people at [Tubik Studio](https://tubikstudio.com/)

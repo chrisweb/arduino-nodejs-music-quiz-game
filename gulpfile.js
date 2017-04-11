@@ -79,7 +79,7 @@ gulp.task('copy:assets', () => {
 // copy isomorphix-router from node modules package into the assets build directory
 gulp.task('copy:isomorphix-router', ['copy:path-to-regexp'], () => {
     return gulp
-        .src('node_modules/isomorphix-router/build/**/*')
+        .src(['node_modules/isomorphix-router/build/**/*', '!node_modules/isomorphix-router/build/@types/**'])
         .pipe(gulp.dest('build/assets/javascripts/vendor/isomorphix-router/'));
 });
 
@@ -107,7 +107,7 @@ gulp.task('copy:socketio-client', () => {
 // copy webaudioapiplayer from node modules into the assets build directory
 gulp.task('copy:web-audio-api-player', () => {
     return gulp
-        .src(['node_modules/web-audio-api-player/build/**/*'])
+        .src(['node_modules/web-audio-api-player/build/**/*', '!node_modules/web-audio-api-player/build/@types/**'])
         .pipe(gulp.dest('build/assets/javascripts/vendor/web-audio-api-player/'));
 });
 

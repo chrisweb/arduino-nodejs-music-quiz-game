@@ -1,7 +1,7 @@
 ﻿
 'use strict';
 
-// vendor
+// vendor (node_modules)
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 

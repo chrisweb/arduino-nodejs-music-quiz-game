@@ -176,19 +176,23 @@ body {
 }
 
 .playerColumnRed {
-    background-color: red;
+    background-color: #ffa3b6;
+    @include gradient-y(#ffa3b6, #ff4b4b);
 }
 
 .playerColumnBlue {
-    background-color: blue;
+    background-color: #54e0fb;
+    @include gradient-y(#54e0fb, #2289df);
 }
 
 .playerColumnGreen {
-    background-color: green;
+    background-color: #00a86b;
+    @include gradient-y(#00a86b, #36edc1);
 }
 
 .playerColumnYellow {
-    background-color: yellow;
+    background-color: #f2a126;
+    @include gradient-y(#f2a126, #fdd677);
 }
 
 .hidden {
@@ -240,4 +244,20 @@ body {
 
 .gameOver {
     text-align: center;
+}
+
+.visualizerCanvasContainer {
+    @include gradient-y-three-colors(rgba(255,255,255,0), rgba(255,255,255,1), 50%, rgba(255,255,255,0));
+    position: absolute;
+    padding: 0;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+}
+
+.visualizerCanvas {
+
 }

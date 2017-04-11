@@ -1,10 +1,13 @@
 ﻿
 'use strict';
 
-// vendor
+// vendor (node_modules)
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 import { PlayerCore, ICoreOptions, PlayerSound, ISoundAttributes } from 'web-audio-api-player';
+
+// library
+import { PlayerVisualizer } from '../library/player/visualizer';
 
 export interface IPlayersData {
     [index: string]: string | number
@@ -45,6 +48,7 @@ export class PlayerController {
     protected _buzzerSound: string = 'messagealert';
     protected _answerTimeDuration: number;
     protected _answerTimeSelect: number = 15;
+    protected _audioPlayerVisualizer: PlayerVisualizer;
 
     public constructor() {
 
@@ -73,6 +77,7 @@ export class PlayerController {
         // set initial volume
         this._soundsAudioPlayer.setVolume(this._volume);
 
+        // initialize game sounds
         let messageAlertSoundAttributes: ISoundAttributes = {
             sources: 'messagealert.mp3',
             id: 1,
@@ -339,6 +344,29 @@ export class PlayerController {
 
             this._$container.append($messageContainer);
 
+            // add the visualizer canvas
+            let $visualizerCanvasContainer = $('<div class="visualizerCanvasContainer hidden">');
+
+            let $visualizerCanvas = $('<canvas id="js-visualizerCanvas" class="visualizerCanvas">');
+
+            $visualizerCanvasContainer.append($visualizerCanvas);
+            
+            this._$container.append($visualizerCanvasContainer);
+
+            let windowWidth = $(window).innerWidth();
+            let canvasWidthToHeightRatio = 4;
+
+            // set height and width css property
+            $visualizerCanvasContainer.height(windowWidth / canvasWidthToHeightRatio);
+            $visualizerCanvasContainer.width(windowWidth);
+
+            // for canvas set height and width using attributes
+            $visualizerCanvas.prop('height', (windowWidth / canvasWidthToHeightRatio));
+            $visualizerCanvas.prop('width', (windowWidth));
+            
+            // initialize audio player visualizer
+            this._audioPlayerVisualizer = new PlayerVisualizer(this._songsAudioPlayer);
+
             resolve();
 
         });
@@ -391,7 +419,13 @@ export class PlayerController {
                         // hide any previous messages
                         this._hideMessage();
 
+                        // start countdown
                         this._startSongPlayingCountdown();
+
+                        // visualizer
+                        this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
+
+                        this._audioPlayerVisualizer.looper();
 
                     },
                     onPaused: (playTimeOffset) => {
@@ -403,6 +437,9 @@ export class PlayerController {
 
                         // send socket io message to game master that song has paused
                         this._socket.emit('songPaused', playTimeOffset);
+
+                        // visualizer
+                        this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
 
                     },
                     onResumed: (playTimeOffset) => {
@@ -418,9 +455,22 @@ export class PlayerController {
                         // hide any previous messages
                         this._hideMessage();
 
+                        // visualizer
+                        this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
+
+                        this._audioPlayerVisualizer.looper();
+
                     },
                     onStopped: (playTimeOffset) => {
+
                         console.log('stopped', playTimeOffset);
+
+                        // update the playing status
+                        this._isSongPlaying = false;
+
+                        // visualizer
+                        this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
+
                     },
                     onEnded: (willPlayNext) => {
 
@@ -431,9 +481,14 @@ export class PlayerController {
                         // update the playing status
                         this._isSongPlaying = false;
 
+                        // stop countdown 
                         this._stopSongPlayingCountdown();
 
+                        // show message time run out but no answer was given
                         this._showMessage('noAnswer');
+
+                        // visualizer
+                        this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
 
                     }
                 };
