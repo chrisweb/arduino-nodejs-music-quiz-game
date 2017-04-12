@@ -362,7 +362,10 @@ export class PlayerVisualizer {
             if (topBarCornerRadius > (barHeight / 2)) {
                 topBarCornerRadius = barHeight / 2;
             }
-            
+
+            // between the two bars we need a bit of spacing
+            topBarTopLeftY = topBarTopLeftY - (barWidth / 2);
+
             this._roundRect(this._canvasContext, topBarTopLeftX, topBarTopLeftY, topBarRectangleWidth, topBarRectangleHeight, topBarCornerRadius, topBarFill, topBarStroke);
 
             // draw bottom bar
@@ -373,6 +376,9 @@ export class PlayerVisualizer {
             let bottomBarCornerRadius = bottomBarRectangleWidth / 3;
             let bottomBarFill = true;
             let bottomBarStroke = false;
+
+            // between the two bars we need a bit of spacing
+            bottomBarTopLeftY = bottomBarTopLeftY + (barWidth / 2);
 
             // if the radius of the corners is bigger than half of the height
             // set the radius to half of the height to avoid corners that are
