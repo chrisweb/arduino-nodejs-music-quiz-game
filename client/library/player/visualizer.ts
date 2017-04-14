@@ -17,31 +17,61 @@ export class PlayerVisualizer {
     protected _canvasElement: JQuery;
     protected _canvasContext: CanvasRenderingContext2D;
 
-    protected _spectrumBarCount: number = 59;
+    // the amount of bars
+    protected _spectrumBarCount: number = 0;
+
+    // the bar and space between the bars dimensions
     protected _barWidth: number = 0;
     protected _barSeperation: number = 0;
 
+    // the size of the head margin dropoff zone
     protected _headMargin: number = 7;
+    // the size of the tail margin dropoff zone
     protected _tailMargin: number = 0;
+    // the minimum weight applied to bars in the dropoff zone
     protected _minMarginWeight: number = 0.7;
+    // ??? you probably don't want to change this value ;)
     protected _marginDecay: number = 1.6;
-    protected _spectrumMaxExponent: number = 5;
-    protected _spectrumMinExponent: number = 3;
 
+    // the max exponent to raise spectrum values to
+    protected _spectrumMaxExponent: number = 5;
+    // the min exponent to raise spectrum values to
+    protected _spectrumMinExponent: number = 3;
+    // the scale for spectrum exponents
+    protected _spectrumExponentScale: number = 2;
+
+    // the first bin rendered in the spectrum
     protected _spectrumStart: number = 4;
+    // the last bin rendered in the spectrum
     protected _spectrumEnd: number = 1200;
+    // the logarithmic scale to adjust spectrum values to
     protected _spectrumLogScale: number = 2.5;
 
+    // spectrum dimensions
     protected _spectrumHeight: number = 0;
     protected _spectrumWidth: number = 0;
 
+    // the logarithmic scale to adjust spectrum values to
+    protected _spectrumScale: number = 2.5;
+
+    // the difference between the original canvas width
+    // and the final width of the visualization that got
+    // calculated by doing the sum of all the bars and
+    // all the spaces
+    protected _sizeDifference: number = 0;
+
+    // margin weighting follows a polynomial slope passing
+    // through(0, minMarginWeight) and(marginSize, 1)
     protected _headMarginSlope: number = 0;
     protected _tailMarginSlope: number = 0;
 
+    // is the player currently playing any song
     protected _isPlaying: boolean = false;
 
+    // the web audio api player audio graph for the songs
     protected _visualizerAudioGraph: any = {};
 
+    // the browser request anination frame
     protected _requestAnimationFrameId: number = null;
 
     constructor(audioPlayer: PlayerCore) {
@@ -84,43 +114,16 @@ export class PlayerVisualizer {
         });
 
     }
-     
-    protected _spectrumEase(Value: number) {
 
-        return Math.pow(Value, this._spectrumLogScale);
+    protected _transformToVisualBins(initialArray: any) {
 
-    }
-
-    protected _getVisualBins(initialArray: any) {
-
-        let samplePoints = [];
-        let newArray = [];
+        let newArray = new Uint8Array(this._spectrumBarCount);
 
         for (let i = 0; i < this._spectrumBarCount; i++) {
 
-            let bin = this._spectrumEase(i / this._spectrumBarCount) * (this._spectrumEnd - this._spectrumStart) + this._spectrumStart;
+            let bin = Math.pow(i / this._spectrumBarCount, this._spectrumScale) * (this._spectrumEnd - this._spectrumStart) + this._spectrumStart;
 
-            samplePoints[i] = Math.floor(bin);
-
-        }
-
-        for (let i = 0; i < this._spectrumBarCount; i++) {
-
-            let currentSpot = samplePoints[i];
-            let nextSpot = samplePoints[i + 1];
-
-            if (nextSpot == null) {
-                nextSpot = this._spectrumEnd;
-            }
-
-            let currentMaximum = initialArray[currentSpot];
-            let difference = nextSpot - currentSpot;
-
-            for (let j = 1; j < difference; j++) {
-                currentMaximum = (initialArray[currentSpot + j] + currentMaximum) / 2;
-            }
-
-            newArray[i] = currentMaximum;
+            newArray[i] = initialArray[Math.floor(bin) + this._spectrumStart] * (bin % 1) + initialArray[Math.floor(bin + 1) + this._spectrumStart] * (1 - (bin % 1));
 
         }
 
@@ -128,42 +131,80 @@ export class PlayerVisualizer {
 
     }
 
-    protected _transformToVisualBins(binsArray: any) {
+    protected _getTransformedSpectrum(binsArray: any) {
 
-        binsArray = this._averageTransform(binsArray);
-        binsArray = this._tailTransform(binsArray);
-        binsArray = this._exponentialTransform(binsArray);
+        let transformedValues = this._normalizeAmplitude(binsArray);
 
-        return binsArray;
+        transformedValues = this._averageTransform(transformedValues);
+        transformedValues = this._tailTransform(transformedValues);
+        transformedValues = this._smooth(transformedValues);
+        transformedValues = this._exponentialTransform(transformedValues);
+
+        return transformedValues;
 
     }
 
-    protected _averageTransform(binsArray: any) {
+    protected _normalizeAmplitude(binsArray: any) {
 
+        let values = [];
+
+        for (let i = 0; i < this._spectrumBarCount; i++) {
+            values[i] = binsArray[i] / 255 * this._spectrumHeight;
+        }
+
+        return values;
+
+    }
+
+    protected _smooth(binsArray: any) {
+
+        return this._savitskyGolaySmooth(binsArray);
+
+    }
+
+    /**
+     * Applies a Savitsky-Golay smoothing algorithm to the given array.
+     *
+     * See {@link http://www.wire.tu-bs.de/OLDWEB/mameyer/cmr/savgol.pdf} for more
+     * info.
+     *
+     * @param array The array to apply the algorithm to
+     *
+     * @return The smoothed array
+     */
+    protected _savitskyGolaySmooth(binsArray: any) {
+
+        let smoothingPoints = 3; // points to use for algorithmic smoothing. Must be an odd number.
+        let smoothingPasses = 1; // number of smoothing passes to execute
+
+        let lastArray = binsArray;
         let transformedValues = [];
-        let arrayLength = binsArray.length;
 
-        for (let i = 0; i < arrayLength; i++) {
+        for (let pass = 0; pass < smoothingPasses; pass++) {
 
-            let value = 0;
+            let sidePoints = Math.floor(smoothingPoints / 2); // our window is centered so this is both nL and nR
+            let cn = 1 / (2 * sidePoints + 1); // constant
 
-            if (i == 0) {
-                value = binsArray[i];
-            } else if (i == arrayLength - 1) {
-                value = (binsArray[i - 1] + binsArray[i]) / 2;
-            } else {
+            for (let i = 0; i < sidePoints; i++) {
 
-                let PrevValue = binsArray[i - 1];
-                let CurValue = binsArray[i];
-                let NextValue = binsArray[i + 1];
-
-                value = (CurValue + (NextValue + PrevValue) / 2) / 2;
+                transformedValues[i] = lastArray[i];
+                transformedValues[lastArray.length - i - 1] = lastArray[lastArray.length - i - 1];
 
             }
 
-            value = Math.min(value + 1, this._spectrumHeight);
+            for (let i = sidePoints; i < lastArray.length - sidePoints; i++) {
 
-            transformedValues[i] = value;
+                let sum = 0;
+
+                for (let n = -sidePoints; n <= sidePoints; n++) {
+                    sum += cn * lastArray[i + n] + n;
+                }
+
+                transformedValues[i] = sum;
+
+            }
+
+            lastArray = transformedValues;
 
         }
 
@@ -171,9 +212,75 @@ export class PlayerVisualizer {
 
     }
 
-    protected _tailTransform(binsArray: any) {
+    protected _averageTransform(binsArray: any) {
 
         let transformedValues = [];
+        let length = binsArray.length;
+
+        for (let i = 0; i < length; i++) {
+
+            let value = 0;
+
+            if (i == 0) {
+                value = binsArray[i];
+            } else if (i == length - 1) {
+                value = (binsArray[i - 1] + binsArray[i]) / 2;
+            } else {
+
+                let prevValue = binsArray[i - 1];
+                let curValue = binsArray[i];
+                let nextValue = binsArray[i + 1];
+
+                if (curValue >= prevValue && curValue >= nextValue) {
+                    value = curValue;
+                } else {
+                    value = (curValue + Math.max(nextValue, prevValue)) / 2;
+                }
+            }
+
+            value = Math.min(value + 1, this._spectrumHeight);
+
+
+            transformedValues[i] = value;
+        }
+
+        let newValues = [];
+
+        for (let i = 0; i < length; i++) {
+
+            let value = 0;
+
+            if (i == 0) {
+                value = transformedValues[i];
+            } else if (i == length - 1) {
+                value = (transformedValues[i - 1] + transformedValues[i]) / 2;
+            } else {
+
+                let prevValue = transformedValues[i - 1];
+                let curValue = transformedValues[i];
+                let nextValue = transformedValues[i + 1];
+
+                if (curValue >= prevValue && curValue >= nextValue) {
+                    value = curValue;
+                } else {
+                    value = ((curValue / 2) + (Math.max(nextValue, prevValue) / 3) + (Math.min(nextValue, prevValue) / 6));
+                }
+
+            }
+
+            value = Math.min(value + 1, this._spectrumHeight);
+
+            newValues[i] = value;
+
+        }
+
+        return newValues;
+
+    }
+
+    protected _tailTransform(binsArray: any) {
+
+        let values = [];
 
         for (let i = 0; i < this._spectrumBarCount; i++) {
 
@@ -185,11 +292,11 @@ export class PlayerVisualizer {
                 value *= this._tailMarginSlope * Math.pow(this._spectrumBarCount - i, this._marginDecay) + this._minMarginWeight;
             }
 
-            transformedValues[i] = value;
+            values[i] = value;
 
         }
 
-        return transformedValues;
+        return values;
 
     }
 
@@ -199,8 +306,7 @@ export class PlayerVisualizer {
 
         for (let i = 0; i < binsArray.length; i++) {
 
-            let exp = this._spectrumMaxExponent + (this._spectrumMinExponent - this._spectrumMaxExponent) * (i / binsArray.length);
-
+            let exp = (this._spectrumMaxExponent - this._spectrumMinExponent) * (1 - Math.pow(i / this._spectrumBarCount, this._spectrumExponentScale)) + this._spectrumMinExponent;
             transformedValues[i] = Math.max(Math.pow(binsArray[i] / this._spectrumHeight, exp) * this._spectrumHeight, 1);
 
         }
@@ -210,14 +316,29 @@ export class PlayerVisualizer {
     }
 
     protected _updateSizes() {
-        
-        this._spectrumHeight = this._canvasElement.height() / 2;
+
+        // bars default size
+        this._barWidth = 12;
+        this._barSeperation = 7;
+
+        // the height of the canvas minus the space we have
+        // added between the top and bottom bars
+        this._spectrumHeight = (this._canvasElement.height() / 2) - (Math.floor(this._barWidth / 3));
         this._spectrumWidth = this._canvasElement.width();
 
-        let oneBarAndSeperationWidth = this._spectrumWidth / this._spectrumBarCount;
+        // bar count is the total spectrum with divided by
+        // 12 pixel for the bar width and 7 pixel for the seperation
+        this._spectrumBarCount = Math.floor(this._spectrumWidth / 19);
 
-        this._barWidth = (oneBarAndSeperationWidth / 3) * 2;
-        this._barSeperation = oneBarAndSeperationWidth / 3;
+        // as we used floor the sum of the bar widths and seperation widths is probably
+        // lower then the initial spectrum with
+        // second problem is that at the end of the spectrum we have one space
+        // too much
+        // calculate the difference in size and based on that center the spectrum
+        // by adding half of that amount on the left and right
+        let spectrumWidthDifference = this._spectrumWidth - ((this._barWidth * this._spectrumBarCount) + (this._barSeperation * this._spectrumBarCount));
+
+        this._sizeDifference = Math.floor(spectrumWidthDifference) + this._barSeperation;
 
     }
 
@@ -256,6 +377,7 @@ export class PlayerVisualizer {
         this._canvasElement.parent().removeClass('hidden');
 
         // now that it is visible update the sizes
+        // TODO: we should also update the size on screen resize
         this._updateSizes();
 
         // visualizer
@@ -263,15 +385,14 @@ export class PlayerVisualizer {
 
         this._visualizerAudioGraph.analyserNode.getByteFrequencyData(initialArray);
 
-        let visualBins = this._getVisualBins(initialArray);
-        let transformedVisualBins = this._transformToVisualBins(visualBins);
+        let visualBins = this._transformToVisualBins(initialArray);
 
-        //console.log(TransformedVisualData);
+        let transformedVisualBins = this._getTransformedSpectrum(visualBins);
 
         // clear the canvas
         this._canvasContext.clearRect(0, 0, this._canvasElement.width(), this._canvasElement.height());
 
-        let barsColor = [
+        let barsColors = [
             'e00efe',
             'd413fe',
             'c717fe',
@@ -332,62 +453,64 @@ export class PlayerVisualizer {
             'ff6453',
             'ff584f'
         ];
-        
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createLinearGradient
+        let linearGradient = this._canvasContext.createLinearGradient(0, 0, this._spectrumWidth, 0);
+
+        // color gradiant for the bars
+        barsColors.forEach((currentValue, index, array) => {
+
+            // color stop offset, must be between 0 and 1
+            let colorStopOffset = ((100 / (array.length - 1)) * (index)) / 100;
+
+            // https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop
+            linearGradient.addColorStop(colorStopOffset, '#' + currentValue);
+
+        });
+
+        this._canvasContext.fillStyle = linearGradient; 
+
+        // draw the bars
         for (let y = 0; y < this._spectrumBarCount; y++) {
 
-            // color of the bars
-            this._canvasContext.fillStyle = '#' + barsColor[y]; 
-
             // dimensions
-            let barVerticalPosition = y * (this._barWidth + this._barSeperation);
+            let barVerticalPosition = Math.floor(this._sizeDifference / 2) + (y * (this._barWidth + this._barSeperation));
             let barWidth = this._barWidth;
+            let barHeight = transformedVisualBins[y];
 
-            let barMaximumHeight = this._canvasElement.height();
-            //let barMaximumHeight = (this._canvasElement.height() / 2);
+            let halfBarHeight = Math.floor(barHeight / 2);
+            let halfCanvasElementHeight = Math.floor(this._canvasElement.height() / 2);
+            let oneThirdOfBarWidth = Math.floor(barWidth / 3);
 
-            let barHeight = transformedVisualBins[y] / 255 * barMaximumHeight;
-            
-            // draw top bar
-            let topBarTopLeftX = barVerticalPosition;
-            let topBarTopLeftY = (this._canvasElement.height() / 2) - barHeight;
-            let topBarRectangleWidth = barWidth;
-            let topBarRectangleHeight = barHeight;
-            let topBarCornerRadius = topBarRectangleWidth / 3;
-            let topBarFill = true;
-            let topBarStroke = false;
+            // both bars options
+            let barCornerRadius = oneThirdOfBarWidth;
+            let barFill = true;
+            let barStroke = false;
 
             // if the radius of the corners is bigger than half of the height
             // set the radius to half of the height to avoid corners that are
             // bigger then the bar itself
-            if (topBarCornerRadius > (barHeight / 2)) {
-                topBarCornerRadius = barHeight / 2;
+            if (barCornerRadius > halfBarHeight) {
+                barCornerRadius = halfBarHeight;
             }
 
-            // between the two bars we need a bit of spacing
-            topBarTopLeftY = topBarTopLeftY - (barWidth / 2);
+            // draw top bar
+            let topBarTopLeftX = barVerticalPosition;
+            let topBarTopLeftY = Math.floor(halfCanvasElementHeight - barHeight);
 
-            this._roundRect(this._canvasContext, topBarTopLeftX, topBarTopLeftY, topBarRectangleWidth, topBarRectangleHeight, topBarCornerRadius, topBarFill, topBarStroke);
+            // between the two bars we need a bit of spacing
+            topBarTopLeftY = topBarTopLeftY - oneThirdOfBarWidth;
+
+            this._roundRect(this._canvasContext, topBarTopLeftX, topBarTopLeftY, barWidth, barHeight, barCornerRadius, barFill, barStroke);
 
             // draw bottom bar
             let bottomBarTopLeftX = barVerticalPosition;
-            let bottomBarTopLeftY = this._canvasElement.height() / 2;
-            let bottomBarRectangleWidth = barWidth;
-            let bottomBarRectangleHeight = barHeight;
-            let bottomBarCornerRadius = bottomBarRectangleWidth / 3;
-            let bottomBarFill = true;
-            let bottomBarStroke = false;
+            let bottomBarTopLeftY = halfCanvasElementHeight;
 
             // between the two bars we need a bit of spacing
-            bottomBarTopLeftY = bottomBarTopLeftY + (barWidth / 2);
+            bottomBarTopLeftY = bottomBarTopLeftY + oneThirdOfBarWidth;
 
-            // if the radius of the corners is bigger than half of the height
-            // set the radius to half of the height to avoid corners that are
-            // bigger then the bar itself
-            if (bottomBarCornerRadius > (barHeight / 2)) {
-                bottomBarCornerRadius = barHeight / 2;
-            }
-
-            this._roundRect(this._canvasContext, bottomBarTopLeftX, bottomBarTopLeftY, bottomBarRectangleWidth, bottomBarRectangleHeight, bottomBarCornerRadius, bottomBarFill, bottomBarStroke);
+            this._roundRect(this._canvasContext, bottomBarTopLeftX, bottomBarTopLeftY, barWidth, barHeight, barCornerRadius, barFill, barStroke);
 
         }
 
@@ -411,7 +534,8 @@ export class PlayerVisualizer {
      * @param {Number} [radius.bl = 0] Bottom left
      * @param {Boolean} [fill = false] Whether to fill the rectangle.
      * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
-     * 
+     *
+     * Source:
      * http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
      *
      */

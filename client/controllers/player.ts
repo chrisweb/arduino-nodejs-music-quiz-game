@@ -354,15 +354,15 @@ export class PlayerController {
             this._$container.append($visualizerCanvasContainer);
 
             let windowWidth = $(window).innerWidth();
-            let canvasWidthToHeightRatio = 4;
+            let canvasWidthToHeightRatio = 4.5;
 
             // set height and width css property
-            $visualizerCanvasContainer.height(windowWidth / canvasWidthToHeightRatio);
+            $visualizerCanvasContainer.height(Math.floor(windowWidth / canvasWidthToHeightRatio));
             $visualizerCanvasContainer.width(windowWidth);
 
             // for canvas set height and width using attributes
-            $visualizerCanvas.prop('height', (windowWidth / canvasWidthToHeightRatio));
-            $visualizerCanvas.prop('width', (windowWidth));
+            $visualizerCanvas.prop('height', Math.floor(windowWidth / canvasWidthToHeightRatio));
+            $visualizerCanvas.prop('width', windowWidth);
             
             // initialize audio player visualizer
             this._audioPlayerVisualizer = new PlayerVisualizer(this._songsAudioPlayer);
@@ -399,7 +399,7 @@ export class PlayerController {
                     },
                     onPlaying: (playingProgress, maximumValue, currentValue) => {
 
-                        console.log('playing: ', playingProgress, maximumValue, currentValue);
+                        //console.log('playing: ', playingProgress, maximumValue, currentValue);
 
                         this._songPlayingProgress = currentValue;
 

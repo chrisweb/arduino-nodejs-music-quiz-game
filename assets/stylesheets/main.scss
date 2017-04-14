@@ -176,13 +176,13 @@ body {
 }
 
 .playerColumnRed {
-    background-color: #ffa3b6;
-    @include gradient-y(#ffa3b6, #ff4b4b);
+    background-color: #ff4b4b;
+    @include gradient-y(#ff4b4b, #ffa3b6);
 }
 
 .playerColumnBlue {
-    background-color: #54e0fb;
-    @include gradient-y(#54e0fb, #2289df);
+    background-color: #2289df;
+    @include gradient-y(#2289df, #54e0fb);
 }
 
 .playerColumnGreen {

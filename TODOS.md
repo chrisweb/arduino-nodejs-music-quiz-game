@@ -2,6 +2,15 @@
 
 ## open:
 
+### important (MVP) TODOS
+
+* if the playlist is empty the game must end
+* during game make arduino light up the button that got pressed (first)
+* if during a round a player presses the button, but he has already played then ignore it
+* add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
+
+### less important (nice to have) TODOS
+
 * allow user on gamemaster screen to connect own deezer account (oauth)
 * allow user to fetch own (public and private) playlists list from deezer
 * on player screen ask all teams to press their buzzer once to tell the game that are ready
@@ -10,22 +19,17 @@
 * check if two teams have the same name or an empty name, if so alert
 * put the score and team names into local storage and on next game populate the game creation form
 * add other services / APIs like spotify or youtube as sources for music
-* add the arduino source code to the repository
-* find somebody to do a design / logo for the project
 * build a landing page (musicquizgame.com), using github pages
-* if the playlist is empty the game must end
-* during game make arduino light up the button that got pressed (first)
-* if during a round a player presses the button, but he has already played then ignore it
 * highlight the team column which pressed the button on the player screen, and the row on the game master screen
 * add a button tester to the first game master screen to be able to connect the colored button to the correct arduino input
-* add music visual to the player screen
 * add a current song index x of y total songs info to the game master screen
 * create a url after a game got created that can be shared
 * create an abstract class for both controllers and move duplicate code into it
 * create an improved version of the screens using react / inferno or vuejs instead of all that jquery code
 * on the game master screen add a checkbox for auto resume, this means on "wrong answer" or "not answered" events the song gets resumed automatically without having to click resume manually
+* we should recalculate the spectrum related sizes on screen resize
 
-## done:
+## done / closed TODOS:
 
 * order an Arduino UNO board
 * order 4 Adafruit Massive Arcade Button with LED - 100mm Red / Blue / Green / Yellow
@@ -50,6 +54,8 @@
 * add an option to the game master screen to change to sound being played on buzzer pressed and / or disable sounds
 * let the game master set the time users have to guess
 * create game has ended / score page
+* find somebody to do a design / logo for the project
+* add music visual to the player screen
 
 ## ideas for the future:
 
