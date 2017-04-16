@@ -285,7 +285,7 @@ export class PlayerController {
                 $playerColumn.addClass('d-flex flex-column align-items-stretch');
 
                 // the player name and score container
-                let $playerTopContainer = $('<div class="playerTopContainer">');
+                let $playerTopContainer = $('<div class="playerTopContainer js-player-top-container">');
 
                 $playerColumn.append($playerTopContainer);
 
@@ -621,7 +621,7 @@ export class PlayerController {
 
     protected _onPlayerPressedButton(playerId: number) {
 
-        console.log('player playerPressButton playerId: ', playerId);
+        //console.log('player playerPressButton playerId: ', playerId);
 
         if (this._isSongPlaying) {
 
@@ -637,7 +637,34 @@ export class PlayerController {
             // play a "pressed" sound
             this._playPressedSound();
 
+            // activate player row
+            this._activatePlayerColumn();
+
         }
+
+    }
+
+    protected _activatePlayerColumn() {
+        
+        // activate player row
+        let $playerColumn = this._$container.find('.js-player-column[data-player-id="' + this._latestPlayerId + '"]');
+
+        let $playerColumnTopContainer = $playerColumn.find('.js-player-top-container');
+
+        $playerColumnTopContainer.addClass('active');
+
+
+    }
+
+    protected _deactivatePlayerColumn() {
+
+        // de-activate player row
+        let $playerColumn = this._$container.find('.js-player-column[data-player-id="' + this._latestPlayerId + '"]');
+
+        let $playerColumnTopContainer = $playerColumn.find('.js-player-top-container');
+
+        $playerColumnTopContainer.removeClass('active');
+
 
     }
 
@@ -764,29 +791,46 @@ export class PlayerController {
 
     protected _onAnswerIsCorrect() {
 
+        // show message
         this._showMessage('correctAnswer');
 
+        // stop the playing countdown
         this._stopSongPlayingCountdown();
 
+        // stop answer countdown
         this._stopAnswerCountdown();
 
+        // increment the player score
         this._incrementPlayerScore();
+
+        // de-activate player row
+        this._deactivatePlayerColumn();
 
     }
 
     protected _onAnswerIsWrong() {
 
+        // show message
         this._showMessage('wrongAnswer');
-        
+
+        // stop answer countdown
         this._stopAnswerCountdown();
+
+        // de-activate player row
+        this._deactivatePlayerColumn();
 
     }
 
     protected _onTimeToAnswerRunOut() {
 
+        // show message
         this._showMessage('noAnswer');
 
+        // stop answer countdown
         this._stopAnswerCountdown();
+
+        // de-activate player row
+        this._deactivatePlayerColumn();
 
     }
 
