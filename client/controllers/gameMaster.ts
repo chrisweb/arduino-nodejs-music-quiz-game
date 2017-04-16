@@ -49,6 +49,8 @@ export class GameMasterController {
 
         this._$container = $body.find('.js-container');
 
+        this._$container.addClass('container');
+
         // open socket.io connection
         this._socket = io.connect('http://127.0.0.1:35001');
 
