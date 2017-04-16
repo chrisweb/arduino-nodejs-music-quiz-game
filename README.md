@@ -8,7 +8,7 @@
 
 A music quiz game using an arduino to record buttons input and nodejs as gameserver  
 
-[musicquizgame.com](https://musicquizgame.com)  
+[musicquizgame.com](http://musicquizgame.com)  
 
 say hello at [musicquizgame@gmail.com](mailto:musicquizgame@gmail.com)  
 
