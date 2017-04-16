@@ -134,7 +134,11 @@ export class PlayerController {
         this._socket.on('playerPressedButton', onPlayerPressedButton);
 
         const onPlaySong = (currentPlaylistSongIndex: number) => {
-            this._onPlaySong(currentPlaylistSongIndex);
+
+            this._currentPlaylistSongIndex = currentPlaylistSongIndex;
+
+            this._onPlaySong();
+
         }
 
         this._socket.on('playSong', onPlaySong);
@@ -191,6 +195,12 @@ export class PlayerController {
 
         const onEndGame = () => {
 
+            // reset the player
+            this._songsAudioPlayer.reset();
+
+            this._currentPlaylistSongIndex = 0;
+
+            // show the score screen until a new game gets started
             this._showScoreScreen();
 
         }
@@ -725,9 +735,9 @@ export class PlayerController {
 
     }
 
-    protected _onPlaySong(currentPlaylistSongIndex: number) {
+    protected _onPlaySong() {
 
-        let songData = this._getSongData(currentPlaylistSongIndex);
+        let songData = this._getSongData(this._currentPlaylistSongIndex);
 
         // start playing a song using the audio player
         this._songsAudioPlayer.play(songData.id);

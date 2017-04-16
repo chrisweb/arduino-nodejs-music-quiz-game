@@ -124,6 +124,12 @@ export class GameMasterController {
 
         this._socket.on('songProgress', onSongProgress);
 
+        const onPlaylistsList = (userPlaylists: any) => {
+            this._buildGameSetUpScreen(userPlaylists);
+        }
+
+        this._socket.on('playlistsList', onPlaylistsList);
+
         this._showStartSetUpScreen();
 
     }
@@ -154,38 +160,44 @@ export class GameMasterController {
         // fetch the playlists list
         this._socket.emit('fetchPlaylistsList');
 
-        this._socket.on('playlistsList', (userPlaylists: any) => {
-
-            console.log(userPlaylists);
-
-            let playlistsOptions: IPlaylistsOption[] = [];
-
-            userPlaylists.forEach((playlist: any) => {
-
-                playlistsOptions.push({
-                    id: playlist.id,
-                    title: playlist.title
-                });
-
-            });
-
-            this._buildGameSetUpScreen(playlistsOptions);
-
-        });
+        // note to self: as soon as we get the playlist tracks
+        // the socket.io playlistsList will be triggered and this
+        // will call the method _buildGameSetUpScreen
 
     }
 
-    protected _buildGameSetUpScreen(playlistsOptions: IPlaylistsOption[]) {
+    protected _buildGameSetUpScreen(userPlaylists: any) {
 
         // build the screen
         this._$container.empty();
 
+        console.log(userPlaylists);
+
+        // parse the playlist data
+        let playlistsOptions: IPlaylistsOption[] = [];
+
+        userPlaylists.forEach((playlist: any) => {
+
+            playlistsOptions.push({
+                id: playlist.id,
+                title: playlist.title
+            });
+
+        });
+
+        // build the layout
         let $gameCreationRow = $('<div class="row">');
         let $gameCreationColumn = $('<div class="col-3">');
 
         $gameCreationRow.append($gameCreationColumn);
         this._$container.append($gameCreationRow);
 
+        // form errors container
+        let $formErrorsContainer = $('<ul class="formErrors js-form-errors">');
+
+        $gameCreationColumn.append($formErrorsContainer);
+
+        // game creation form
         let $gameCreationForm = $('<form id="gameCreationForm">');
         let $gameCreationScreenTitle = $('<h1>');
 
@@ -239,9 +251,14 @@ export class GameMasterController {
         let $playlistSelectFormGroup = $('<div class="form-group">');
         let $playlistSelect = $('<select id="playlistId" name="playlistId" class="form-control">');
 
+        // default option
         let $playlistOption = $('<option value="0">');
+
         $playlistOption.text('select a playlist');
 
+        $playlistSelect.append($playlistOption);
+
+        // the playlists selection
         playlistsOptions.forEach((playlistOption: IPlaylistsOption) => {
 
             let $playlistOption = $('<option value="' + playlistOption.id + '">');
@@ -255,6 +272,7 @@ export class GameMasterController {
         $playlistSelectFormGroup.append($playlistSelect);
         $gameCreationForm.append($playlistSelectFormGroup);
 
+        // the form submit button
         let $submitButton = $('<button type="submit" class="btn btn-primary js-game-set-up-submit-button">');
 
         $submitButton.text('submit');
@@ -272,6 +290,12 @@ export class GameMasterController {
 
         event.preventDefault();
 
+        // clear the errors container
+        let $formErrorsContainer = this._$container.find('.js-form-errors');
+
+        $formErrorsContainer.empty();
+
+        // serialize the form data
         let formSerialize: Array<{ name: string, value: string }> = $(event.currentTarget).serializeArray();
         let formData: { [key: string]: string } = {};
 
@@ -279,9 +303,50 @@ export class GameMasterController {
             formData[formSerialize[i].name] = formSerialize[i].value;
         }
 
+        // check for errors in the form
+        let formHasError = false;
+
         // check if at least two teams have been defined
+        let playersCount = 0;
 
+        for (let key in formData) {
 
+            if (key.includes('teamName') && formData[key] !== '') {
+                playersCount++;
+            }
+
+        }
+
+        if (playersCount < 2) {
+            
+            let playerCountError = $('<li>');
+
+            playerCountError.text('you must add at least two players');
+
+            $formErrorsContainer.append(playerCountError);
+
+            formHasError = true;
+
+        }
+
+        // check if a playlist has been selected
+        if (formData['playlistId'] === '0') {
+
+            let noPlaylistError = $('<li>');
+
+            noPlaylistError.text('you must select a playlist');
+
+            $formErrorsContainer.append(noPlaylistError);
+
+            formHasError = true;
+
+        }
+
+        if (formHasError) {
+            return;
+        }
+        
+        // add progress animation to submit button
         let submitButton = $(event.target).find('.js-game-set-up-submit-button');
 
         submitButton.addClass('m-progress');
@@ -404,7 +469,7 @@ export class GameMasterController {
 
         };
 
-        this._$container.off('click', '.js-play-song-button', onClickButtonPlaySong);
+        this._$container.off('click', '.js-play-song-button');
         this._$container.on('click', '.js-play-song-button', onClickButtonPlaySong);
 
         // some space
@@ -426,7 +491,7 @@ export class GameMasterController {
 
         };
 
-        $volumeSlider.off('change', onChangeVolume);
+        $volumeSlider.off('change');
         $volumeSlider.on('change', onChangeVolume);
 
         // some space
@@ -453,6 +518,7 @@ export class GameMasterController {
                 this._showValidateAnswerContainer(false);
 
                 this._gameHasStarted = false;
+                this._currentPlaylistSongIndex = 0;
 
                 this._showStartSetUpScreen();
 
@@ -577,7 +643,7 @@ export class GameMasterController {
 
         };
 
-        $buzzerSoundSelect.off('change', onChangeBuzzerSoundSelect);
+        $buzzerSoundSelect.off('change');
         $buzzerSoundSelect.on('change', onChangeBuzzerSoundSelect);
 
         // some space
@@ -607,7 +673,7 @@ export class GameMasterController {
 
         };
 
-        $answerTimeSelect.off('change', onChangeAnswerTimeSelect);
+        $answerTimeSelect.off('change');
         $answerTimeSelect.on('change', onChangeAnswerTimeSelect);
 
     }
