@@ -193,26 +193,31 @@ export class GameMasterController {
 
         $gameCreationColumn.append($gameCreationScreenTitle);
 
-        // TODO: get previous values from localstorage if any available
+        // get previous values from localstorage if any available
+        let valesToGet = {
+            teamName0: '',
+            teamName1: '',
+            teamName2: '',
+            teamName3: '',
+            teamScore0: '',
+            teamScore1: '',
+            teamScore2: '',
+            teamScore3: '',
+        }
 
-        /*
-        playlistId
-        teamName0	
-        teamName1	
-        teamName2
-        teamName3
-        teamScore0
-        teamScore1
-        teamScore2
-        teamScore3
-        */
+        let valesToPopulate = this._localStorageLibrary.getMultiple(valesToGet);
 
+        // create the form fields
         for (let i: number = 0; i < 4; ++i) {
 
             let $nameInputFieldFormGroup = $('<div class="form-group">');
             let $nameInputField = $('<input type="text" id="teamName' + i + '" name="teamName' + i + '" class="form-control">');
 
-            $nameInputField.prop('placeholder', 'player name ' + (i+1).toString());
+            $nameInputField.prop('placeholder', 'player name ' + (i + 1).toString());
+
+            if (valesToPopulate['teamName' + i] !== null) {
+                $nameInputField.val(valesToPopulate['teamName' + i]);
+            }
 
             $nameInputFieldFormGroup.append($nameInputField);
             $gameCreationForm.append($nameInputFieldFormGroup);
@@ -222,6 +227,10 @@ export class GameMasterController {
 
             $scoreInputField.prop('placeholder', 'player score ' + (i + 1).toString());
 
+            if (valesToPopulate['teamScore' + i] !== null) {
+                $scoreInputField.val(valesToPopulate['teamScore' + i]);
+            }
+
             $scoreInputFieldFormGroup.append($scoreInputField);
             $gameCreationForm.append($scoreInputFieldFormGroup);
 
@@ -229,6 +238,9 @@ export class GameMasterController {
 
         let $playlistSelectFormGroup = $('<div class="form-group">');
         let $playlistSelect = $('<select id="playlistId" name="playlistId" class="form-control">');
+
+        let $playlistOption = $('<option value="0">');
+        $playlistOption.text('select a playlist');
 
         playlistsOptions.forEach((playlistOption: IPlaylistsOption) => {
 
@@ -261,11 +273,14 @@ export class GameMasterController {
         event.preventDefault();
 
         let formSerialize: Array<{ name: string, value: string }> = $(event.currentTarget).serializeArray();
-        let formData: { [teamName: string]: string } = {};
+        let formData: { [key: string]: string } = {};
 
         for (let i: number = 0; i < formSerialize.length; ++i) {
             formData[formSerialize[i].name] = formSerialize[i].value;
         }
+
+        // check if at least two teams have been defined
+
 
         let submitButton = $(event.target).find('.js-game-set-up-submit-button');
 
@@ -274,19 +289,20 @@ export class GameMasterController {
         // get form info and send it to server
         this._socket.emit('initializeGame', formData);
 
-        // TODO: first clear all values
+        // first clear all values
+        let resetValues = {
+            playlistId: '',
+            teamName0: '',
+            teamName1: '',
+            teamName2: '',
+            teamName3: '',
+            teamScore0: '',
+            teamScore1: '',
+            teamScore2: '',
+            teamScore3: '',
+        }
 
-        /*
-        playlistId
-        teamName0	
-        teamName1	
-        teamName2
-        teamName3
-        teamScore0
-        teamScore1
-        teamScore2
-        teamScore3
-        */
+        this._localStorageLibrary.removeMultiple(resetValues);
 
         // save the player name and scores in localstorage for next time
         this._localStorageLibrary.setMultiple(formData);
@@ -863,7 +879,7 @@ export class GameMasterController {
         let $playersTableRow = this._$container.find('.js-players-table-row-' + this._latestPlayerId);
         let $playerScoreColumn = $playersTableRow.find('.js-players-table-score-column');
 
-        console.log(this._playersData);
+        //console.log(this._playersData);
 
         let playersData = this._playersData
 
@@ -873,7 +889,11 @@ export class GameMasterController {
 
         let newScore = currentScore + 1;
 
+        // update the game master player column
         $playerScoreColumn.text(newScore);
+
+        // update the localstorage
+        this._localStorageLibrary.set(scoreIndexName, newScore);
 
         this._playersData[scoreIndexName] = newScore;
 

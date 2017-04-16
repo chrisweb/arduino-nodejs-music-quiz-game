@@ -8,6 +8,8 @@
 * during game make arduino light up the button that got pressed (first)
 * if during a round a player presses the button, but he has already played then ignore it
 * add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
+* put class active on player column top container when player has pressed Button
+* remove active class from player column top container after answer was given or time has run out
 
 ### less important (nice to have) TODOS
 
@@ -17,7 +19,6 @@
 * two players are minimum, four are maximum, let the game master add team 3 and 4 only if needed, form (+) button adds one more team
 * let the gamemaster choose a color per team, by default attribute a color to each team (alert if two teams have same color)
 * check if two teams have the same name or an empty name, if so alert
-* put the score and team names into local storage and on next game populate the game creation form
 * add other services / APIs like spotify or youtube as sources for music
 * build a landing page (musicquizgame.com), using github pages
 * highlight the team column which pressed the button on the player screen, and the row on the game master screen
@@ -56,6 +57,8 @@
 * create game has ended / score page
 * find somebody to do a design / logo for the project
 * add music visual to the player screen
+* put the score and team names into local storage and on next game populate the game creation form
+* get the values from local storage when building the game master game setup form
 
 ## ideas for the future:
 

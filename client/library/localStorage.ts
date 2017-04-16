@@ -1,6 +1,6 @@
 ﻿
 export interface IValuesToStoreObject {
-    [key: string]: string | number;
+    [key: string]: string | null;
 }
 
 export class LocalStorageLibrary {
@@ -26,13 +26,35 @@ export class LocalStorageLibrary {
 
     }
 
+    public remove(key: string): void {
+
+        this._localStorage.removeItem(key);
+
+    }
+
     public setMultiple(values: IValuesToStoreObject) {
 
         for (var key in values) {
-
             this._localStorage.setItem(key, values[key].toString());
-
         };
+
+    }
+
+    public getMultiple(values: IValuesToStoreObject): IValuesToStoreObject {
+
+        for (var key in values) {
+            values[key] = this._localStorage.getItem(key);
+        };
+
+        return values;
+
+    }
+
+    public removeMultiple(values: IValuesToStoreObject): void {
+
+        for (var key in values) {
+            this._localStorage.removeItem(key);
+        }
 
     }
 
