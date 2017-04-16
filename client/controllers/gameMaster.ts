@@ -226,34 +226,61 @@ export class GameMasterController {
 
         // create the form fields
         for (let i: number = 0; i < 4; ++i) {
+            
+            let $teamLabel = $('<label>');
 
-            let $nameInputFieldFormGroup = $('<div class="form-group">');
+            $teamLabel.text('team ' + (i + 1).toString() + ':');
+
+            $gameCreationForm.append($teamLabel);
+
+            let $nameInputFieldFormGroup = $('<div class="input-group">');
+            
             let $nameInputField = $('<input type="text" id="teamName' + i + '" name="teamName' + i + '" class="form-control">');
 
-            $nameInputField.prop('placeholder', 'player name ' + (i + 1).toString());
+            $nameInputField.prop('placeholder', 'enter a team name');
 
             if (valesToPopulate['teamName' + i] !== null) {
                 $nameInputField.val(valesToPopulate['teamName' + i]);
             }
 
+            let $nameInputGroupAddonIcon = $('<span class="input-group-addon"><i class="material-icons md-18">face</i></span>');
+
             $nameInputFieldFormGroup.append($nameInputField);
+            $nameInputFieldFormGroup.append($nameInputGroupAddonIcon);
+
             $gameCreationForm.append($nameInputFieldFormGroup);
 
-            let $scoreInputFieldFormGroup = $('<div class="form-group">');
+            $gameCreationForm.append($('<br>'));
+
+            let $scoreInputFieldFormGroup = $('<div class="input-group">');
+
             let $scoreInputField = $('<input type="text" id="teamScore' + i + '" name="teamScore' + i + '" class="form-control">');
 
-            $scoreInputField.prop('placeholder', 'player score ' + (i + 1).toString());
+            $scoreInputField.prop('placeholder', 'enter a player score');
 
             if (valesToPopulate['teamScore' + i] !== null) {
                 $scoreInputField.val(valesToPopulate['teamScore' + i]);
             }
 
+            let $scoreInputGroupAddonIcon = $('<span class="input-group-addon"><i class="material-icons md-18">star_border</i></span>');
+
             $scoreInputFieldFormGroup.append($scoreInputField);
+            $scoreInputFieldFormGroup.append($scoreInputGroupAddonIcon);
+
             $gameCreationForm.append($scoreInputFieldFormGroup);
 
-        }
+            $gameCreationForm.append($('<br>'));
 
-        let $playlistSelectFormGroup = $('<div class="form-group">');
+        }
+        
+        let $playlistLabel = $('<label>');
+
+        $playlistLabel.text('playlist:');
+
+        $gameCreationForm.append($playlistLabel);
+
+        let $playlistSelectFormGroup = $('<div class="input-group">');
+
         let $playlistSelect = $('<select id="playlistId" name="playlistId" class="form-control">');
 
         // default option
@@ -274,8 +301,14 @@ export class GameMasterController {
 
         });
 
+        let $playlistInputGroupAddonIcon = $('<span class="input-group-addon"><i class="material-icons md-18">queue_music</i></span>');
+
         $playlistSelectFormGroup.append($playlistSelect);
+        $playlistSelectFormGroup.append($playlistInputGroupAddonIcon);
+
         $gameCreationForm.append($playlistSelectFormGroup);
+
+        $gameCreationForm.append($('<br>'));
 
         // the form submit button
         let $submitButton = $('<button type="submit" class="btn btn-primary js-game-set-up-submit-button">');
@@ -399,6 +432,9 @@ export class GameMasterController {
 
                 $buttonPlaySong.removeClass('m-progress');
 
+                // activate the player row of the player that pressed
+                this._activatePlayerRow();
+
             }
 
         } else {
@@ -414,6 +450,142 @@ export class GameMasterController {
 
         // build the screen
         this._$container.empty();
+
+        // game master main row
+        let $gameMasterMainRow = $('<div class="d-flex flex-row js-gamemaster-main-row">');
+
+        // create three columns
+        let $columnOne = $('<div class="col-4 d-flex flex-column align-items-stretch js-gamemaster-column-one">');
+        let $columnTwo = $('<div class="col-4 d-flex flex-column align-items-stretch js-gamemaster-column-two">');
+        let $columnThree = $('<div class="col-4 d-flex flex-column align-items-stretch js-gamemaster-column-three">');
+        
+        $gameMasterMainRow.append($columnOne);
+        $gameMasterMainRow.append($columnTwo);
+        $gameMasterMainRow.append($columnThree);
+
+        this._$container.append($gameMasterMainRow);
+
+        // game master music controls
+        let $buttonPlaySong = $('<button class="btn btn-primary js-play-song-button">');
+
+        $buttonPlaySong.text('Play Song');
+
+        $columnOne.append($buttonPlaySong);
+
+        const onClickButtonPlaySong = (event: Event) => {
+
+            event.preventDefault();
+
+            this._playSong();
+
+            $buttonPlaySong.prop('disabled', true);
+
+            $buttonPlaySong.addClass('m-progress');
+
+        };
+
+        this._$container.off('click', '.js-play-song-button');
+        this._$container.on('click', '.js-play-song-button', onClickButtonPlaySong);
+
+        // some space
+        $columnOne.append($('<br><br>'));
+
+        // volume bar
+        let $volumeSlider = $('<input type="range" min="0" max="100" value="' + this._volume + '" step="1" id="js-sound-volume" />');
+
+        $columnOne.append($volumeSlider);
+
+        const onChangeVolume = (event: Event) => {
+
+            let rangeElement = event.target as HTMLInputElement;
+            let value = parseInt(rangeElement.value);
+
+            this._volume = value;
+
+            this._socket.emit('volumeChange', value);
+
+        };
+
+        $volumeSlider.off('change');
+        $volumeSlider.on('change', onChangeVolume);
+        
+        // some space
+        $columnOne.append($('<br><br>'));
+
+        // build the players table
+        let $playersTable = $('<table class="table js-players-table">');
+
+        let playersData = this._playersData;
+        let playersCount: number = 0;
+        let i: number;
+
+        // check how much players we have
+        for (i = 0; i < 4; i++) {
+
+            let nameIndexName = 'teamName' + i.toString();
+            let playerName = playersData[nameIndexName];
+
+            if (playerName !== '') {
+                playersCount++;
+            }
+
+        }
+
+        let y: number;
+
+        let $playersTableHead = $('<thead>');
+
+        let $playersTableHeadRow = $('<tr class="">');
+
+        let $playerIdHeadColumn = $('<td class="">');
+        let $playerNameHeadColumn = $('<td class="">');
+        let $playerScoreHeadColumn = $('<td class="">');
+
+        $playerIdHeadColumn.text('id');
+        $playerNameHeadColumn.text('name');
+        $playerScoreHeadColumn.text('score');
+
+        $playersTableHeadRow.append($playerIdHeadColumn);
+        $playersTableHeadRow.append($playerNameHeadColumn);
+        $playersTableHeadRow.append($playerScoreHeadColumn);
+
+        $playersTableHead.append($playersTableHeadRow);
+
+        $playersTable.append($playersTableHead);
+
+        // tbody
+        let $playersTableBody = $('<tbody>');
+
+        $playersTable.append($playersTableBody);
+
+        // create a table row for each player
+        for (y = 0; y < playersCount; y++) {
+
+            let $playersTableRow = $('<tr class="js-players-table-row-' + y + '">');
+
+            let $playerIdColumn = $('<td class="js-players-table-id-column">');
+            let $playerNameColumn = $('<td class="js-players-table-name-column">');
+            let $playerScoreColumn = $('<td class="js-players-table-score-column">');
+
+            let nameIndexName = 'teamName' + y.toString();
+            let scoreIndexName = 'teamScore' + y.toString();
+
+            let playerName = playersData[nameIndexName];
+            let playerScore = playersData[scoreIndexName] === '' ? 0 : playersData[scoreIndexName];
+
+            $playerIdColumn.text(y.toString());
+            $playerNameColumn.text(playerName);
+            $playerScoreColumn.text(playerScore);
+
+            $playersTableRow.append($playerIdColumn);
+            $playersTableRow.append($playerNameColumn);
+            $playersTableRow.append($playerScoreColumn);
+
+            $playersTableBody.append($playersTableRow);
+
+        }
+
+        $columnOne.append($playersTable);
 
         // playlist information container
         let $playlistInformationContainer = $('<div class="playlistInformation js-playlist-information">');
@@ -457,20 +629,23 @@ export class GameMasterController {
         $playlistInformationContainer.append($playlistName);
         $playlistInformationContainer.append($songPositionContainer);
 
-        this._$container.append($playlistInformationContainer);
+        $columnTwo.append($playlistInformationContainer);
+
+        // some space
+        $columnTwo.append($('<br><br>'));
 
         // player information container
         let $playerInformationContainer = $('<div class="playerInformation js-player-information hidden">');
-
+        
         // song information
-        let $audioPlayerSongName = $('<div>');
-        let $audioPlayerArtistName = $('<div>');
+        let $audioPlayerSongName = $('<p class="lead">');
+        let $audioPlayerArtistName = $('<p class="lead">');
 
         $playerInformationContainer.append($audioPlayerSongName);
         $playerInformationContainer.append($audioPlayerArtistName);
 
-        let $songNameTitle = $('<span>');
-        let $artistNameTitle = $('<span>');
+        let $songNameTitle = $('<span class="font-weight-bold">');
+        let $artistNameTitle = $('<span class="font-weight-bold">');
 
         $songNameTitle.text('song: ');
         $artistNameTitle.text('artist: ');
@@ -484,194 +659,28 @@ export class GameMasterController {
         $audioPlayerSongName.append($currentSongName);
         $audioPlayerArtistName.append($currentSongArtistName);
         
-        this._$container.append($playerInformationContainer);
+        $columnTwo.append($playerInformationContainer);
+
+        // some space
+        $columnTwo.append($('<br><br>'));
 
         // answer validation box
         let $validateAnswerContainer = $('<div class="js-validate-answer hidden">');
 
-        let $correctButton = $('<button class="btn btn-primary js-correct-button">').text('Correct');
-        let $wrongButton = $('<button class="btn btn-primary js-wrong-button">').text('Wrong');
+        let $buttonsGroup = $('<div class="btn-group btn-group-lg" role="group" aria-label="Large button group">');
 
-        $validateAnswerContainer.append($correctButton);
-        $validateAnswerContainer.append($wrongButton);
+        let $correctButton = $('<button class="btn btn-success js-correct-button">').text('Correct');
+        let $wrongButton = $('<button class="btn btn-danger js-wrong-button">').text('Wrong');
 
-        this._$container.append($validateAnswerContainer);
+        $buttonsGroup.append($correctButton);
+        $buttonsGroup.append($wrongButton);
 
-        // some space
-        this._$container.append($('<br><br>'));
+        $validateAnswerContainer.append($buttonsGroup);
 
-        // game master music controls
-        let $buttonPlaySong = $('<button class="btn btn-primary js-play-song-button">');
-
-        $buttonPlaySong.text('Play Song');
-
-        this._$container.append($buttonPlaySong);
-        
-        const onClickButtonPlaySong = (event: Event) => {
-
-            event.preventDefault();
-
-            this._playSong();
-
-            $buttonPlaySong.prop('disabled', true);
-
-            $buttonPlaySong.addClass('m-progress');
-
-        };
-
-        this._$container.off('click', '.js-play-song-button');
-        this._$container.on('click', '.js-play-song-button', onClickButtonPlaySong);
-
-        // some space
-        this._$container.append($('<br><br>'));
-
-        // volume bar
-        let $volumeSlider = $('<input type="range" min="0" max="100" value="' + this._volume + '" step="1" id="js-sound-volume" />');
-
-        this._$container.append($volumeSlider);
-
-        const onChangeVolume = (event: Event) => {
-
-            let rangeElement = event.target as HTMLInputElement;
-            let value = parseInt(rangeElement.value);
-
-            this._volume = value;
-
-            this._socket.emit('volumeChange', value);
-
-        };
-
-        $volumeSlider.off('change');
-        $volumeSlider.on('change', onChangeVolume);
-
-        // some space
-        this._$container.append($('<br><br>'));
-
-        // end game button
-        let $buttonEndGame = $('<button class="btn btn-primary js-end-game-button">')
-
-        $buttonEndGame.text('End the game')
-
-        this._$container.append($buttonEndGame);
-
-        const onClickButtonEndGame = (event: Event) => {
-
-            event.preventDefault();
-            
-            // TODO: use a nicely designed overlay instead of the native confirm popup
-
-            if (confirm('End the game (go to score screen)?')) {
-
-                // send to server event 'endGame'
-                this._socket.emit('endGame');
-
-                this._showValidateAnswerContainer(false);
-
-                this._gameHasStarted = false;
-                this._currentPlaylistSongIndex = 0;
-                this._playlistsOptions = null;
-
-                this._showStartSetUpScreen();
-
-            }
-
-        };
-
-        this._$container.one('click', '.js-end-game-button', onClickButtonEndGame);
-
-        // some space
-        this._$container.append($('<br><br>'));
-
-        // build the players table
-        let $playersTable = $('<table class="table table-responsive js-players-table">');
-
-        let playersData = this._playersData;
-        let playersCount: number = 0;
-        let i: number;
-
-        // check how much players we have
-        for (i = 0; i < 4; i++) {
-
-            let nameIndexName = 'teamName' + i.toString();
-            let playerName = playersData[nameIndexName];
-
-            if (playerName !== '') {
-                playersCount++;
-            }
-
-        }
-
-        let y: number;
-
-        let $playersTableHead = $('<thead>');
-
-        let $playersTableHeadRow = $('<tr class="">');
-
-        let $playerIdHeadColumn = $('<td class="">');
-        let $playerNameHeadColumn = $('<td class="">');
-        let $playerScoreHeadColumn = $('<td class="">');
-
-        $playerIdHeadColumn.text('id');
-        $playerNameHeadColumn.text('name');
-        $playerScoreHeadColumn.text('score');
-
-        $playersTableHeadRow.append($playerIdHeadColumn);
-        $playersTableHeadRow.append($playerNameHeadColumn);
-        $playersTableHeadRow.append($playerScoreHeadColumn);
-
-        $playersTableHead.append($playersTableHeadRow);
-
-        $playersTable.append($playersTableHead);
-        
-        // tbody
-        let $playersTableBody = $('<tbody>');
-
-        $playersTable.append($playersTableBody);
-
-        // create a table row for each player
-        for (y = 0; y < playersCount; y++) {
-
-            let $playersTableRow = $('<tr class="js-players-table-row-' + y + '">');
-
-            let $playerIdColumn = $('<td class="js-players-table-id-column">');
-            let $playerNameColumn = $('<td class="js-players-table-name-column">');
-            let $playerScoreColumn = $('<td class="js-players-table-score-column">');
-
-            let nameIndexName = 'teamName' + y.toString();
-            let scoreIndexName = 'teamScore' + y.toString();
-
-            let playerName = playersData[nameIndexName];
-            let playerScore = playersData[scoreIndexName] === '' ? 0 : playersData[scoreIndexName];
-
-            $playerIdColumn.text(y.toString());
-            $playerNameColumn.text(playerName);
-            $playerScoreColumn.text(playerScore);
-
-            $playersTableRow.append($playerIdColumn);
-            $playersTableRow.append($playerNameColumn);
-            $playersTableRow.append($playerScoreColumn);
-
-            $playersTableBody.append($playersTableRow);
-
-        }
-
-        this._$container.append($playersTable);
-
-        // add song playing counter
-        let $songPlayingCounter = $('<div class="js-playing-countdown hidden countdown mastercountdown playingCountdown">');
-
-        this._$container.append($songPlayingCounter);
-
-        // add answer counter
-        let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown mastercountdown answerCountdown">');
-
-        this._$container.append($songAnswerCounter);
-
-        // some space
-        this._$container.append($('<br><br>'));
+        $columnTwo.append($validateAnswerContainer);
 
         // buzzer sound selection
-        let $buzzerSoundSelect = $('<select>');
+        let $buzzerSoundSelect = $('<select class="custom-select">');
 
         let $buzzerSoundSelectOptionMessageAlert = $('<option value="messagealert" selected="selected">Message Alert</option>');
         let $buzzerSoundSelectOptionBuzzer = $('<option value="buzzer">Buzzer</option>');
@@ -681,7 +690,7 @@ export class GameMasterController {
         $buzzerSoundSelect.append($buzzerSoundSelectOptionBuzzer);
         $buzzerSoundSelect.append($buzzerSoundSelectOptionNoSound);
         
-        this._$container.append($buzzerSoundSelect);
+        $columnThree.append($buzzerSoundSelect);
 
         const onChangeBuzzerSoundSelect = (event: Event) => {
 
@@ -698,10 +707,10 @@ export class GameMasterController {
         $buzzerSoundSelect.on('change', onChangeBuzzerSoundSelect);
 
         // some space
-        this._$container.append($('<br><br>'));
+        $columnThree.append($('<br><br>'));
 
         // answer time select
-        let $answerTimeSelect = $('<select>');
+        let $answerTimeSelect = $('<select class="custom-select">');
 
         let $answerTimeSelectOptionfifteen = $('<option value="15" selected="selected">15 seconds</option>');
         let $answerTimeSelectOptionthirty = $('<option value="30">30 seconds</option>');
@@ -711,7 +720,7 @@ export class GameMasterController {
         $answerTimeSelect.append($answerTimeSelectOptionthirty);
         $answerTimeSelect.append($answerTimeSelectOptionfourtyfive);
 
-        this._$container.append($answerTimeSelect);
+        $columnThree.append($answerTimeSelect);
 
         const onChangeAnswerTimeSelect = (event: Event) => {
 
@@ -726,6 +735,55 @@ export class GameMasterController {
 
         $answerTimeSelect.off('change');
         $answerTimeSelect.on('change', onChangeAnswerTimeSelect);
+
+        // some space
+        $columnThree.append($('<br><br>'));
+
+        // end game button
+        let $buttonEndGame = $('<button class="btn btn-primary js-end-game-button">')
+
+        $buttonEndGame.text('End the game')
+
+        $columnThree.append($buttonEndGame);
+
+        const onClickButtonEndGame = (event: Event) => {
+
+            event.preventDefault();
+
+            // TODO: use a nicely designed overlay instead of the native confirm popup
+
+            if (confirm('End the game (go to score screen)?')) {
+
+                this._endGame();
+
+            }
+
+        };
+
+        this._$container.one('click', '.js-end-game-button', onClickButtonEndGame);
+
+        // add song playing counter
+        let $songPlayingCounter = $('<div class="js-playing-countdown hidden countdown mastercountdown playingCountdown">');
+
+        this._$container.append($songPlayingCounter);
+
+        // add answer counter
+        let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown mastercountdown answerCountdown">');
+
+        this._$container.append($songAnswerCounter);
+
+    }
+
+    protected _endGame() {
+
+        // send to server event 'endGame'
+        this._socket.emit('endGame');
+
+        this._gameHasStarted = false;
+        this._currentPlaylistSongIndex = 0;
+        this._playlistsOptions = null;
+
+        this._showStartSetUpScreen();
 
     }
 
@@ -875,6 +933,9 @@ export class GameMasterController {
 
             // stop the answer countdown
             this._stopAnswerCountdown();
+
+            // de-activate the player row
+            this._deactivatePlayerRow();
             
         }
 
@@ -896,6 +957,9 @@ export class GameMasterController {
 
             // stop the answer countdown
             this._stopAnswerCountdown();
+
+            // de-activate the player row
+            this._deactivatePlayerRow();
 
         }
 
@@ -1025,6 +1089,22 @@ export class GameMasterController {
 
     }
 
+    protected _activatePlayerRow() {
+
+        let $playersTableRow = this._$container.find('.js-players-table-row-' + this._latestPlayerId);
+
+        $playersTableRow.addClass('table-info');
+
+    }
+
+    protected _deactivatePlayerRow() {
+
+        let $playersTableRow = this._$container.find('.js-players-table-row-' + this._latestPlayerId);
+
+        $playersTableRow.removeClass('table-info');
+
+    }
+
     protected _timeToAnswerRunOut() {
 
         // inform the player view that the answer was wrong
@@ -1041,6 +1121,9 @@ export class GameMasterController {
 
         // stop the time to answer counter
         this._stopAnswerCountdown();
+
+        // de-activate the player row
+        this._deactivatePlayerRow();
 
     }
 

@@ -11,9 +11,6 @@
 * on new song remove the "has already played" and "was correct" icons
 * if during a round a player presses the button, but he has already played then ignore it
 * add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
-* put class active on player column top container when player has pressed Button
-* highlight the row of the player that pressed the button on the game master screen
-* remove active class from player column top container after answer was given or time has run out
 * fix the score panel columns height based on the score
 * layout the answer is correct / wrong messages on the player screen
 * layout the playing countdown
@@ -69,6 +66,9 @@
 * put the score and team names into local storage and on next game populate the game creation form
 * get the values from local storage when building the game master game setup form
 * check if two teams have the same name or an empty name, if so alert
+* put class active on player column top container when player has pressed Button
+* highlight the row of the player that pressed the button on the game master screen
+* remove active class from player column top container after answer was given or time has run out
 
 ## ideas for the future:
 

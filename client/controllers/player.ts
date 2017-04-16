@@ -55,6 +55,15 @@ export class PlayerController {
         // INFO: twitter bootstrap 4 components https://v4-alpha.getbootstrap.com/components/alerts/
         // grid: https://v4-alpha.getbootstrap.com/layout/grid/
 
+        // google material design icons
+        /*
+        // icons test
+        $body.append('<i class="material-icons md-18">face</i>');
+        $body.append('<i class="material-icons md-24">face</i>');
+        $body.append('<i class="material-icons md-36">face</i>');
+        $body.append('<i class="material-icons md-48">face</i>');
+        */
+
         // initialize songs audio player
         let songsPlayerOptions: ICoreOptions = {
             playNextOnEnded: false,
@@ -99,14 +108,6 @@ export class PlayerController {
     public run() {
 
         let $body = $('body');
-
-        /*
-        // icons test
-        $body.append('<i class="material-icons md-18">face</i>');
-        $body.append('<i class="material-icons md-24">face</i>');
-        $body.append('<i class="material-icons md-36">face</i>');
-        $body.append('<i class="material-icons md-48">face</i>');
-        */
 
         this._$container = $body.find('.js-container');
 
