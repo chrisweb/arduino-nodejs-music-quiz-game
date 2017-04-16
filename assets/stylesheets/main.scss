@@ -173,26 +173,74 @@ body {
 
 .playerColumn {
     height: 100%;
+
+    // overwrite twbs
+    padding-right: 0px !important;
+    padding-left: 0px !important;
 }
 
 .playerColumnRed {
-    background-color: #ff4b4b;
-    @include gradient-y(#ff4b4b, #ffa3b6);
+
+    background-color: #ffa3b6;
+    @include gradient-y(#ffa3b6, #ff4a4b);
+
+    .playerTopContainer{
+        background-color: #ff5c7f;
+    }
+
 }
 
 .playerColumnBlue {
-    background-color: #2289df;
-    @include gradient-y(#2289df, #54e0fb);
+
+    background-color: #54e0fb;
+    @include gradient-y(#54e0fb, #2189de);
+
+    .playerTopContainer{
+        background-color: #00c5f1;
+    }
+
 }
 
 .playerColumnGreen {
-    background-color: #00a86b;
-    @include gradient-y(#00a86b, #36edc1);
+
+    background-color: #35edc1;
+    @include gradient-y(#35edc1, #01a86b);
+
+    .playerTopContainer{
+        background-color: #09d191;
+    }
+
 }
 
 .playerColumnYellow {
-    background-color: #f2a126;
-    @include gradient-y(#f2a126, #fdd677);
+
+    background-color: #fdd676;
+    @include gradient-y(#fdd676, #f2a127);
+
+    .playerTopContainer{
+        background-color: #f7c21f;
+    }
+
+}
+
+.playerColumnClickZone {
+    height: 100%;
+    z-index: 110;
+    width: 100%;
+    position: absolute;
+}
+
+.playerTopContainer {
+    width: 100%;
+    @include border-bottom-radius(40px);
+    min-height: 110px;
+    color: white;
+    text-align: center;
+
+    &.active {
+        border: 5px solid white;
+    }
+
 }
 
 .hidden {

@@ -269,11 +269,25 @@ export class PlayerController {
             for (y = 0; y < playersCount; y++) {
 
                 let $playerColumn = $('<div class="playerColumn js-player-column" data-player-id="' + y + '">');
+                
+                $playersRow.append($playerColumn);
 
                 $playerColumn.addClass('d-flex flex-column align-items-stretch');
 
+                // the player name and score container
+                let $playerTopContainer = $('<div class="playerTopContainer">');
+
+                $playerColumn.append($playerTopContainer);
+
+                // create a transparent div that will be placed over the
+                // sound visualizer and will have the same size as the player
+                // column so that it can be clicked
+                let $playerColumnClickZone = $('<div class="playerColumnClickZone js-player-column-click-zone" data-player-id="' + y + '">');
+                
+                $playerColumn.append($playerColumnClickZone);
+
                 // add on click event to play without physical button
-                $playerColumn.on('click', (event: JQueryEventObject) => {
+                $playerColumnClickZone.on('click', (event: JQueryEventObject) => {
 
                     let userId = $(event.currentTarget).data('playerId');
 
@@ -321,11 +335,9 @@ export class PlayerController {
                 $playerScore.text(playerScore);
                 //$playerStatus.text('press your button to start');
 
-                $playerColumn.append($playerName);
-                $playerColumn.append($playerScore);
-                $playerColumn.append($playerStatus);
-
-                $playersRow.append($playerColumn);
+                $playerTopContainer.append($playerName);
+                $playerTopContainer.append($playerScore);
+                $playerTopContainer.append($playerStatus);
 
             }
 

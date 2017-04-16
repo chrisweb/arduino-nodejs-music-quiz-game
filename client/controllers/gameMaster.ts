@@ -5,6 +5,9 @@
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 
+// library
+import { LocalStorageLibrary } from '../library/localStorage';
+
 export interface IPlaylistsOption {
     id: number;
     title: string;
@@ -13,6 +16,8 @@ export interface IPlaylistsOption {
 export class GameMasterController {
 
     protected _socket: SocketIOClient.Socket;
+    protected _localStorageLibrary: LocalStorageLibrary;
+
     protected _$container: JQuery;
     protected _gameHasStarted: boolean = false;
     protected _isSongPlaying: boolean = false;
@@ -44,6 +49,9 @@ export class GameMasterController {
 
         // open socket.io connection
         this._socket = io.connect('http://127.0.0.1:35001');
+
+        // initialize the local storage library
+        this._localStorageLibrary = new LocalStorageLibrary();
 
         // identify as game master
         this._socket.emit('identifyGameMaster');
@@ -185,6 +193,20 @@ export class GameMasterController {
 
         $gameCreationColumn.append($gameCreationScreenTitle);
 
+        // TODO: get previous values from localstorage if any available
+
+        /*
+        playlistId
+        teamName0	
+        teamName1	
+        teamName2
+        teamName3
+        teamScore0
+        teamScore1
+        teamScore2
+        teamScore3
+        */
+
         for (let i: number = 0; i < 4; ++i) {
 
             let $nameInputFieldFormGroup = $('<div class="form-group">');
@@ -251,6 +273,23 @@ export class GameMasterController {
 
         // get form info and send it to server
         this._socket.emit('initializeGame', formData);
+
+        // TODO: first clear all values
+
+        /*
+        playlistId
+        teamName0	
+        teamName1	
+        teamName2
+        teamName3
+        teamScore0
+        teamScore1
+        teamScore2
+        teamScore3
+        */
+
+        // save the player name and scores in localstorage for next time
+        this._localStorageLibrary.setMultiple(formData);
 
     }
 

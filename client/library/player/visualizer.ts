@@ -13,6 +13,11 @@ export interface ICornerRadius {
 
 export class PlayerVisualizer {
 
+    /**
+     * Visualizer algorythm source:
+     * https://github.com/caseif/vis.js
+     */
+
     // canvas
     protected _canvasElement: JQuery;
     protected _canvasContext: CanvasRenderingContext2D;
