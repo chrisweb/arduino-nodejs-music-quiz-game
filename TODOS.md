@@ -2,26 +2,33 @@
 
 ## open:
 
-### important (MVP) TODOS
+### important (for MVP) TODOS
 
 * if the playlist is empty the game must end
 * during game make arduino light up the button that got pressed (first)
+* if a player has played but was wrong, add an icon to his column indicating he can't guess again for this round
+* if a player has given the correct answer put an icon in his column indicating that he won
+* on new song remove the "has already played" and "was correct" icons
 * if during a round a player presses the button, but he has already played then ignore it
 * add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
 * put class active on player column top container when player has pressed Button
+* highlight the row of the player that pressed the button on the game master screen
 * remove active class from player column top container after answer was given or time has run out
+* fix the score panel columns height based on the score
+* layout the answer is correct / wrong messages on the player screen
+* layout the playing countdown
+* layout the countdown for the "guessing time"
+* design the game start screen for the player, style the waiting sentence, add a loading animation and the game logo
 
 ### less important (nice to have) TODOS
 
 * allow user on gamemaster screen to connect own deezer account (oauth)
 * allow user to fetch own (public and private) playlists list from deezer
 * on player screen ask all teams to press their buzzer once to tell the game that are ready
-* two players are minimum, four are maximum, let the game master add team 3 and 4 only if needed, form (+) button adds one more team
+* let the game master add team 3 and 4 only if needed, form (+) button adds one more team
 * let the gamemaster choose a color per team, by default attribute a color to each team (alert if two teams have same color)
-* check if two teams have the same name or an empty name, if so alert
 * add other services / APIs like spotify or youtube as sources for music
 * build a landing page (musicquizgame.com), using github pages
-* highlight the team column which pressed the button on the player screen, and the row on the game master screen
 * add a button tester to the first game master screen to be able to connect the colored button to the correct arduino input
 * add a current song index x of y total songs info to the game master screen
 * create a url after a game got created that can be shared
@@ -29,6 +36,8 @@
 * create an improved version of the screens using react / inferno or vuejs instead of all that jquery code
 * on the game master screen add a checkbox for auto resume, this means on "wrong answer" or "not answered" events the song gets resumed automatically without having to click resume manually
 * we should recalculate the spectrum related sizes on screen resize
+* make the playlists selection in the game master game creation form more visual, show covers and use the select box as invisible playlist selection for when the game master selects a cover
+* on the game master game setup screen, in the playlist select, after the playlist name add the number of songs that the playlist contains as supplementary information
 
 ## done / closed TODOS:
 
@@ -59,6 +68,7 @@
 * add music visual to the player screen
 * put the score and team names into local storage and on next game populate the game creation form
 * get the values from local storage when building the game master game setup form
+* check if two teams have the same name or an empty name, if so alert
 
 ## ideas for the future:
 

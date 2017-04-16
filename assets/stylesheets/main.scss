@@ -313,3 +313,36 @@ body {
 .visualizerCanvas {
 
 }
+
+.playlistInformation {
+
+    .playlistCover {
+        display: inline-block;
+        margin-right: 20px;
+    }
+
+    .playlistName {
+        display: inline-block;
+        margin-right: 20px;
+    }
+
+    .songNumber {
+        display: inline-block;
+    }
+
+    .songTotal {
+        display: inline-block;
+    }
+
+    .songPosition {
+        display: inline-block;
+        margin-right: 20px;
+    }
+
+    .numbersDivider {
+        display: inline-block;
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+
+}

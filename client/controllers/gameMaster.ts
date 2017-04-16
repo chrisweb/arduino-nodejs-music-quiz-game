@@ -11,6 +11,7 @@ import { LocalStorageLibrary } from '../library/localStorage';
 export interface IPlaylistsOption {
     id: number;
     title: string;
+    cover: string;
 }
 
 export class GameMasterController {
@@ -33,6 +34,7 @@ export class GameMasterController {
     protected _buzzerSound: string = 'messagealert';
     protected _answerTimeDuration: number;
     protected _answerTimeSelect: number = 15;
+    protected _playlistsOptions: IPlaylistsOption[] | null = null;
 
     public constructor() {
 
@@ -180,10 +182,13 @@ export class GameMasterController {
 
             playlistsOptions.push({
                 id: playlist.id,
-                title: playlist.title
+                title: playlist.title,
+                cover: playlist.picture_small
             });
 
         });
+
+        this._playlistsOptions = playlistsOptions;
 
         // build the layout
         let $gameCreationRow = $('<div class="row">');
@@ -347,9 +352,9 @@ export class GameMasterController {
         }
         
         // add progress animation to submit button
-        let submitButton = $(event.target).find('.js-game-set-up-submit-button');
+        let $submitButton = $(event.target).find('.js-game-set-up-submit-button');
 
-        submitButton.addClass('m-progress');
+        $submitButton.addClass('m-progress');
 
         // get form info and send it to server
         this._socket.emit('initializeGame', formData);
@@ -410,14 +415,59 @@ export class GameMasterController {
         // build the screen
         this._$container.empty();
 
-        // player ui
-        let $audioPlayerUI = $('<div class="js-player-ui">');
+        // playlist information container
+        let $playlistInformationContainer = $('<div class="playlistInformation js-playlist-information">');
 
+        // playlist information
+        let $playlistCoverImage = $('<img class="playlistCover js-playlist-cover">');
+        let $playlistName = $('<div class="playlistName js-playlist-name">');
+
+        let playlistId = parseInt(this._playersData['playlistId']);
+
+        let currentPlaylist: IPlaylistsOption;
+
+        this._playlistsOptions.forEach((playlist) => {
+
+            if (playlist.id === playlistId) {
+                currentPlaylist = playlist;
+            }
+
+        });
+
+        $playlistCoverImage.prop('src', currentPlaylist.cover);
+        $playlistName.text(currentPlaylist.title);
+
+        let $songNumber = $('<div class="songNumber js-song-number">');
+        let $numbersDivider = $('<div class="numbersDivider">');
+        let $songsTotal = $('<div class="songTotal js-songs-total">');
+
+        let totalSongsCount = this._playlistSongs.length;
+
+        $songNumber.text('1');
+        $numbersDivider.text('/');
+        $songsTotal.text(totalSongsCount);
+
+        let $songPositionContainer = $('<div class="songPosition">');
+
+        $songPositionContainer.append($songNumber);
+        $songPositionContainer.append($numbersDivider);
+        $songPositionContainer.append($songsTotal);
+
+        $playlistInformationContainer.append($playlistCoverImage);
+        $playlistInformationContainer.append($playlistName);
+        $playlistInformationContainer.append($songPositionContainer);
+
+        this._$container.append($playlistInformationContainer);
+
+        // player information container
+        let $playerInformationContainer = $('<div class="playerInformation js-player-information hidden">');
+
+        // song information
         let $audioPlayerSongName = $('<div>');
         let $audioPlayerArtistName = $('<div>');
 
-        $audioPlayerUI.append($audioPlayerSongName);
-        $audioPlayerUI.append($audioPlayerArtistName);
+        $playerInformationContainer.append($audioPlayerSongName);
+        $playerInformationContainer.append($audioPlayerArtistName);
 
         let $songNameTitle = $('<span>');
         let $artistNameTitle = $('<span>');
@@ -434,7 +484,7 @@ export class GameMasterController {
         $audioPlayerSongName.append($currentSongName);
         $audioPlayerArtistName.append($currentSongArtistName);
         
-        this._$container.append($audioPlayerUI);
+        this._$container.append($playerInformationContainer);
 
         // answer validation box
         let $validateAnswerContainer = $('<div class="js-validate-answer hidden">');
@@ -519,6 +569,7 @@ export class GameMasterController {
 
                 this._gameHasStarted = false;
                 this._currentPlaylistSongIndex = 0;
+                this._playlistsOptions = null;
 
                 this._showStartSetUpScreen();
 
@@ -688,7 +739,7 @@ export class GameMasterController {
             let songData = this._getSongData();
 
             // update the audio player ui
-            this._updateAudioPlayerUI(songData);
+            this._updatePlayerUI(songData);
 
             // tell the player screen to start the song playback
             this._socket.emit('playSong', this._currentPlaylistSongIndex);
@@ -928,15 +979,24 @@ export class GameMasterController {
 
     }
 
-    protected _updateAudioPlayerUI(sondData: any) {
+    protected _updatePlayerUI(songData: any) {
 
-        let $audioPlayerUI = this._$container.find('.js-player-ui');
+        let $playerInformationContainer = this._$container.find('.js-player-information');
 
-        let $songNameElement = $audioPlayerUI.find('.js-current-song-name');
-        let $songArtistNameElement = $audioPlayerUI.find('.js-current-song-artist-name');
+        $playerInformationContainer.removeClass('hidden');
 
-        $songNameElement.text(sondData.title);
-        $songArtistNameElement.text(sondData.artist.name);
+        let $songNameElement = $playerInformationContainer.find('.js-current-song-name');
+        let $songArtistNameElement = $playerInformationContainer.find('.js-current-song-artist-name');
+
+        $songNameElement.text(songData.title);
+        $songArtistNameElement.text(songData.artist.name);
+
+        let $playlistInformationContainer = this._$container.find('.js-playlist-information');
+        let $songNumber = $playlistInformationContainer.find('.js-song-number');
+
+        let currentSongNumber = this._currentPlaylistSongIndex + 1;
+
+        $songNumber.text(currentSongNumber);
 
     }
 
