@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>music quiz game</title>
     <link href="stylesheets/main.css" rel="stylesheet" />
+    <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "VideoGame",
+      "name" : "music quiz game",
+      "url": "http://musicquizgame.com",
+      "image" : "http://musicquizgame.com/images/music_quiz_game-logo.png",
+      "description": "Music Quiz Game is an opensource project written in Javascript using physical buzzers connected to an Arduino and a Node.js server. It's a party game to play music quizzes with friends.",
+      "genre":["Music","Quiz","Party"]
+    }
+    </script>
 </head>
 <body>
     <img src="images/music_quiz_game-logo.png" alt="music quiz game logo" class="musicQuizGameLogo" />
@@ -16,6 +27,8 @@
         <h2>Description</h2>
 
         <p>Music Quiz Game is an opensource project, both the client and server code are written in javascript and the code including the Arduino UNO source code can be found in our <a href="https://github.com/chrisweb/arduino-nodejs-music-quiz-game">Github repository</a>. For the game we use 4 big physical arcade buttons (buzzers) connected to an Arduino UNO board. The buttons input gets sent to a nodejs server that then dispatches the information to two different clients. Both clients are browser apps running on two different devices. The players screen can be displayed using for example a laptop connected to a TV in front of the 4 participating teams. The second device can for example be a tablet that the game master uses to oversee the game.</p>
+
+        <img src="images/music-quiz-game_spectrum.gif" alt="music quiz game spectrum animated gif" class="musicQuizGameSpectrum" />
 
         <h2>I want to contribute</h2>
 
