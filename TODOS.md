@@ -5,11 +5,11 @@
 ### important (for MVP) TODOS
 
 * during game make arduino light up the button that got pressed (first)
+* add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
+* finish the button basis painting
 * if a player has played but was wrong, add an icon to his column indicating he can't guess again for this round
 * if a player has given the correct answer put an icon in his column indicating that he won
 * on new song remove the "has already played" and "was correct" icons
-* if during a round a player presses the button, but he has already played then ignore it
-* add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
 * fix the score panel columns height based on the score
 * layout the answer is correct / wrong messages on the player screen
 * layout the playing countdown
@@ -70,6 +70,7 @@
 * highlight the row of the player that pressed the button on the game master screen
 * remove active class from player column top container after answer was given or time has run out
 * if the playlist is empty disable the play button, the game master now press the "game end" button
+* if during a round a player presses the button, but he has already played then ignore it
 
 ## ideas for the future:
 
