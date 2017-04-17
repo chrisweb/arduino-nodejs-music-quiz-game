@@ -35,6 +35,7 @@
 * we should recalculate the spectrum related sizes on screen resize
 * make the playlists selection in the game master game creation form more visual, show covers and use the select box as invisible playlist selection for when the game master selects a cover
 * on the game master game setup screen, in the playlist select, after the playlist name add the number of songs that the playlist contains as supplementary information
+* create an (offline) cross platform desktop app version of the game using https://github.com/electron/electron 
 
 ## done / closed TODOS:
 

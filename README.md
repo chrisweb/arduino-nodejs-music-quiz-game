@@ -199,4 +199,4 @@ Logo, design, project name, domain name copyright (c) chris weber 2017
 
 # Design
 
-Designed by the awesome people at [Tubik Studio](https://tubikstudio.com/)
+Designed by the awesome people at [Tubik Studio](https://tubikstudio.com)

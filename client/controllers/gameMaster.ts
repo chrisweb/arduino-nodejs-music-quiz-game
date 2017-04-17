@@ -453,6 +453,9 @@ export class GameMasterController {
         // build the screen
         this._$container.empty();
 
+        // some space
+        this._$container.append($('<br>'));
+
         // game master main row
         let $gameMasterMainRow = $('<div class="d-flex flex-row js-gamemaster-main-row">');
 
@@ -468,7 +471,7 @@ export class GameMasterController {
         this._$container.append($gameMasterMainRow);
 
         // game master music controls
-        let $buttonPlaySong = $('<button class="btn btn-primary js-play-song-button">');
+        let $buttonPlaySong = $('<button class="btn btn-primary btn-lg js-play-song-button">');
 
         $buttonPlaySong.text('Play Song');
 

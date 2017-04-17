@@ -64,9 +64,17 @@ gulp.task('build-css', [
 ], function () {
     return gulp.src('assets/stylesheets/**/*.scss')
         .pipe(sourcemaps.init())  // Process the original sources
-        .pipe(sass({ includePaths: ['./node_modules'] })) // added include path for material design components
+        //.pipe(sass({ includePaths: ['./node_modules'] })) // added include path for material design components
         .pipe(sourcemaps.write()) // Add the map to modified source.
         .pipe(gulp.dest('build/assets/stylesheets'));
+});
+
+gulp.task('build-docs-css', function () {
+    return gulp.src('docs/stylesheets/**/*.scss')
+        .pipe(sourcemaps.init())  // Process the original sources
+        .pipe(sass())
+        .pipe(sourcemaps.write()) // Add the map to modified source.
+        .pipe(gulp.dest('docs/stylesheets'));
 });
 
 // copy assets into the build directory
@@ -139,3 +147,4 @@ gulp.task('watch', ['build'], function () {
 
 gulp.task('default', ['watch']);
 gulp.task('build', ['build-js', 'build-css']);
+gulp.task('build-docs', ['build-docs-css']);

@@ -1,5 +1,11 @@
 {
   "author": "chrisweb <chris963@gmail.com> (https://chris.lu)",
+  "bugs": {
+    "url": "https://github.com/chrisweb/arduino-nodejs-music-quiz-game/issues"
+  },
+  "contributors": [
+    "Xavier Cliquennois (https://github.com/Xavier-Cliquennois)"
+  ],
   "dependencies": {
     "body-parser": "^1.17.1",
     "bootstrap": "^4.0.0-alpha.6",
@@ -14,7 +20,7 @@
     "systemjs": "^0.20.12",
     "web-audio-api-player": "git://github.com/chrisweb/web-audio-api-player.git#0.8.4"
   },
-  "description": "quizz game using 4 big arcade buttons connected to an arduino board that sends the data to nodejs",
+  "description": "music quiz game using 4 big physical arcade buttons connected to an arduino board that sends the data to a nodejs server",
   "devDependencies": {
     "@types/body-parser": "^1.16.3",
     "@types/express": "^4.0.35",
@@ -23,7 +29,7 @@
     "@types/socket.io": "^1.4.29",
     "@types/socket.io-client": "^1.4.29",
     "@types/request": "^0.0.42",
-  	"@types/serialport": "^4.0.8",
+    "@types/serialport": "^4.0.8",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.1.6",
     "gulp-sass": "^3.1.0",
@@ -34,15 +40,29 @@
   "engines": {
     "node": "> 7.0.0"
   },
+  "homepage": "http://musicquizgame.com",
+  "keywords": [
+    "music",
+    "quiz",
+    "game",
+    "nodejs",
+    "arduino",
+    "arcade",
+    "party",
+    "fun"
+  ],
   "license": "MIT",
   "main": "build/server.js",
-  "name": "quizz-game",
-  "repository": "https://github.com/chrisweb/nodejs-arduino-game",
-  "version": "0.0.1",
+  "name": "music-quiz-game",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrisweb/arduino-nodejs-music-quiz-game.git"
+  },
   "scripts": {
     "start": "node build/server",
     "startdev": "NODE_ENV=development node build/server",
     "build": "gulp build",
     "watch": "gulp watch"
-  }
+  },
+  "version": "0.0.1"
 }
