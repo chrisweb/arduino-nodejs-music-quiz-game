@@ -4,7 +4,6 @@
 
 ### important (for MVP) TODOS
 
-* if the playlist is empty the game must end
 * during game make arduino light up the button that got pressed (first)
 * if a player has played but was wrong, add an icon to his column indicating he can't guess again for this round
 * if a player has given the correct answer put an icon in his column indicating that he won
@@ -70,6 +69,7 @@
 * put class active on player column top container when player has pressed Button
 * highlight the row of the player that pressed the button on the game master screen
 * remove active class from player column top container after answer was given or time has run out
+* if the playlist is empty disable the play button, the game master now press the "game end" button
 
 ## ideas for the future:
 

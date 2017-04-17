@@ -191,6 +191,15 @@ gulp watch
 ```
 node ./build/server
 ```
+
+## build the docs (project website on github pages)  
+
+to build the project website (on github pages), type  
+
+```
+gulp build-docs
+```  
+
 # Licenses
 
 Source code licensed under MIT

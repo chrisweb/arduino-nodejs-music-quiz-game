@@ -747,7 +747,7 @@ export class GameMasterController {
         // end game button
         let $buttonEndGame = $('<button class="btn btn-primary js-end-game-button">')
 
-        $buttonEndGame.text('End the game')
+        $buttonEndGame.text('End the game / show score screen')
 
         $columnThree.append($buttonEndGame);
 
@@ -757,7 +757,7 @@ export class GameMasterController {
 
             // TODO: use a nicely designed overlay instead of the native confirm popup
 
-            if (confirm('End the game (go to score screen)?')) {
+            if (confirm('End the game (and show score screen)?')) {
 
                 this._endGame();
 
@@ -925,10 +925,9 @@ export class GameMasterController {
             this._incrementPlayerScore();
 
             // re-enable the play button
-            let $buttonPlaySong = this._$container.find('.js-play-song-button');
+            let buttonText = 'Play (next song)';
 
-            $buttonPlaySong.text('Play (next song)');
-            $buttonPlaySong.prop('disabled', false);
+            this._reenablePlayButton(buttonText);
 
             // as the answer was correct we can hide the song progress
             this._stopSongPlayingCountdown();
@@ -952,10 +951,9 @@ export class GameMasterController {
             this._socket.emit('answerIsWrong');
 
             // re-enable the play button
-            let $buttonPlaySong = this._$container.find('.js-play-song-button');
+            let buttonText = 'Play (resume)';
 
-            $buttonPlaySong.text('Play (resume)');
-            $buttonPlaySong.prop('disabled', false);
+            this._reenablePlayButton(buttonText);
 
             // hide the validation container
             this._showValidateAnswerContainer(false);
@@ -1001,17 +999,39 @@ export class GameMasterController {
         this._stopSongPlayingCountdown();
 
         // reactivate the play song button
-        let $buttonPlaySong = this._$container.find('.js-play-song-button');
+        let buttonText = 'Play (next song)';
 
-        $buttonPlaySong.prop('disabled', false);
-        $buttonPlaySong.removeClass('m-progress');
-        $buttonPlaySong.text('Play (next song)');
-
-        // if the song has ended it means nobody guessed the song
-        this._showValidateAnswerContainer(false);
+        this._reenablePlayButton(buttonText, true);
 
         // update the playing status
         this._isSongPlaying = false;
+
+    }
+
+    protected _reenablePlayButton(buttonText: string, updateProgress = false) {
+
+        let $buttonPlaySong = this._$container.find('.js-play-song-button');
+
+        // check if there are songs left in the playlist
+        if ((this._currentPlaylistSongIndex + 1) > this._playlistSongs.length) {
+
+            // all the songs of the playlist have been played, game is over
+            buttonText = 'playlist end reached / press end the game button';
+
+            $buttonPlaySong.text(buttonText);
+
+        } else {
+
+            // reactivate the play song button
+            $buttonPlaySong.prop('disabled', false);
+
+            if (updateProgress) {
+                $buttonPlaySong.removeClass('m-progress');
+            }
+
+            $buttonPlaySong.text(buttonText);
+
+        }
 
     }
 
@@ -1025,11 +1045,6 @@ export class GameMasterController {
     }
 
     protected _onSongResumed(playTimeOffset: number) {
-
-        // reactivate the play song button
-        let $buttonPlaySong = this._$container.find('.js-play-song-button');
-
-        $buttonPlaySong.addClass('m-progress');
 
         // update the playing status
         this._isSongPlaying = true;
