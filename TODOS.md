@@ -7,8 +7,6 @@
 * during game make arduino light up the button that got pressed (first)
 * add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
 * finish the button basis painting
-* fix the score panel columns height based on the score
-* layout the answer is correct / wrong messages on the player screen
 * layout the playing countdown
 * layout the countdown for the "guessing time"
 
@@ -74,6 +72,8 @@
 * if a player has played but was wrong, add an icon to his column indicating he can't guess again for this round
 * if a player has given the correct answer put an icon in his column indicating that he won
 * on new song remove the "has already played" and "was correct" icons
+* fix the score panel columns height based on the score
+* layout the answer is correct / wrong messages on the player screen
 
 ## ideas for the future:
 
