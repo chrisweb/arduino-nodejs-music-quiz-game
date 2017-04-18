@@ -235,7 +235,7 @@ export class PlayerController {
         $startScreenCenteredContainer.append($('<br><br><br><br>'));
 
         // "wait" message
-        let $waitingMessage = $('<h1 class="waitingMessage">');
+        let $waitingMessage = $('<span class="waitingMessage">');
 
         $waitingMessage.text('Wait for the gamemaster to setup the game ...');
 
@@ -268,6 +268,7 @@ export class PlayerController {
             this._$container.empty();
 
             this._$container.addClass('gameScreen');
+            this._$container.removeClass('scoreScreen');
 
             let $playersRow = $('<div class="d-flex flex-row js-players-row playersRow">');
 
@@ -349,20 +350,20 @@ export class PlayerController {
                 let nameIndexName = 'teamName' + y.toString();
                 let scoreIndexName = 'teamScore' + y.toString();
 
-                let $playerName = $('<h1 class="js-player-name">');
-                let $playerScore = $('<span class="js-player-score">');
-                let $playerStatus = $('<span class="js-player-status">');
+                let $playerName = $('<h1 class="playerName js-player-name">');
+                let $playerScore = $('<span class="playerScore js-player-score">');
+                //let $playerStatus = $('<span class="js-player-status">');
 
                 let playerName = playersData[nameIndexName];
                 let playerScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
 
                 $playerName.text(playerName);
-                $playerScore.text(playerScore);
+                $playerScore.text('score: ' + playerScore.toString());
                 //$playerStatus.text('press your button to start');
 
                 $playerTopContainer.append($playerName);
                 $playerTopContainer.append($playerScore);
-                $playerTopContainer.append($playerStatus);
+                //$playerTopContainer.append($playerStatus);
 
                 // the icons container
                 let $playerBottomContainer = $('<div class="playerBottomContainer js-player-bottom-container">');
@@ -383,6 +384,10 @@ export class PlayerController {
 
             // add message container
             let $messageContainer = $('<div class="js-message-container hidden messageContainer">');
+
+            let $innerMessage = $('<div class="innerMessage js-inner-message">');
+
+            $messageContainer.append($innerMessage);
 
             this._$container.append($messageContainer);
 
@@ -561,7 +566,12 @@ export class PlayerController {
         let playersData = this._playersData;
         let playersCount: number = 0;
         let i: number;
-        let scoresSum = 0;
+        let highestScore: number = 0;
+
+        let $scoreContainer = $('<div class="scoreContainer js-score-container">');
+
+        // some space
+        $scoreContainer.append($('<br>'));
 
         // check how much players we have
         for (i = 0; i < 4; i++) {
@@ -577,13 +587,17 @@ export class PlayerController {
 
                 let playerScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
 
-                scoresSum += playerScore;
+                //scoresSum += playerScore;
+
+                if (playerScore > highestScore) {
+                    highestScore = playerScore;
+                }
 
             }
 
         }
 
-        let $podium = $('<table class="podium">');
+        let $podium = $('<table class="podium js-podium">');
         let $podiumRow = $('<tr>');
 
         $podium.append($podiumRow);
@@ -593,12 +607,12 @@ export class PlayerController {
         // create the player columns
         for (y = 0; y < playersCount; y++) {
 
-            let $podiumColumn = $('<td class="podiumColumn">');
+            let $podiumColumn = $('<td class="podiumColumn js-podium-column">');
 
-            let $playerPodiumColumn = $('<div class="playerPodiumColumn" data-player-id="' + y + '">');
+            let $playerPodiumColumn = $('<div class="playerPodiumColumn js-player-podium" data-player-id="' + y + '">');
 
             $podiumColumn.append($playerPodiumColumn);
-
+            
             switch (y) {
                 case 0:
                     $playerPodiumColumn.addClass('playerColumnRed');
@@ -614,17 +628,24 @@ export class PlayerController {
                     break;
             }
 
-            //let nameIndexName = 'teamName' + y.toString();
+            let nameIndexName = 'teamName' + y.toString();
             let scoreIndexName = 'teamScore' + y.toString();
 
+            let playerName = playersData[nameIndexName];
             let playerScore = playersData[scoreIndexName] === '' ? 0 : parseInt(playersData[scoreIndexName] as string);
 
-            // height = player score percentage of total
-            let heightBasedOnScore = (playerScore / scoresSum) * 100;
+            let $playerName = $('<div class="podiumPlayerName">');
+            let $playerScore = $('<div class="podiumPlayerScore">');
 
-            if (heightBasedOnScore === 0) {
-                heightBasedOnScore = 2;
-            }
+            $playerName.text(playerName);
+            $playerScore.text('score: ' + playerScore.toString());
+
+            $playerPodiumColumn.append($playerName);
+            $playerPodiumColumn.append($playerScore);
+
+            // the player score is what percent of the highest score
+            // the highest score will have a column of 100% height
+            let heightBasedOnScore = Math.ceil((100 / highestScore) * playerScore);
 
             $playerPodiumColumn.css('height', heightBasedOnScore + '%');
 
@@ -632,13 +653,19 @@ export class PlayerController {
 
         }
 
-        this._$container.append($podium);
+        $scoreContainer.append($podium);
 
-        let $gameOver = $('<h1 class="gameOver">');
+        // some space
+        $scoreContainer.append($('<br><br>'));
 
-        $gameOver.text('GAME OVER ... thx for playing');
+        // goodbye message
+        let $gameOverMessage = $('<span class="gameOver js-game-over-message">');
 
-        this._$container.append($gameOver);
+        $gameOverMessage.text('GAME OVER ... thx for playing :)');
+
+        $scoreContainer.append($gameOverMessage);
+
+        this._$container.append($scoreContainer);
     
     }
 
@@ -929,7 +956,7 @@ export class PlayerController {
 
         let newScore = currentScore + 1;
 
-        $playerColumnScore.text(newScore);
+        $playerColumnScore.text('score: ' + newScore.toString());
 
         this._playersData[scoreIndexName] = newScore;
 
@@ -938,40 +965,42 @@ export class PlayerController {
     protected _showMessage(messageType: string) {
 
         let message = '';
+        let cssColor = '';
 
         switch (messageType) {
             case 'noAnswer':
                 message = 'time has run out and no answer was given';
+                cssColor = '00c5f1';
                 break;
             case 'correctAnswer':
                 message = 'the answer is correct';
+                cssColor = '09d191';
                 break;
             case 'wrongAnswer':
                 message = 'the answer is wrong';
+                cssColor = 'ff5c7f';
                 break;
         }
-
+        
         let $messageContainer = this._$container.find('.js-message-container');
+        let $innerMessage = $messageContainer.find('.js-inner-message');
 
-        $messageContainer.text(message);
+        $innerMessage.text(message);
+        $innerMessage.css('color', '#' + cssColor);
+
         $messageContainer.removeClass('hidden');
-
-        //let messageContainerHeight = $messageContainer.height();
-        //let windowHeight = $(window).height();
-
-        //let topMargin = (windowHeight - messageContainerHeight) / 2;
-
-        //$messageContainer.css('top', topMargin + 'px');
 
     }
 
     protected _hideMessage() {
 
         let $messageContainer = this._$container.find('.js-message-container');
+        let $innerMessage = $messageContainer.find('.js-inner-message');
+
+        $innerMessage.text('');
 
         $messageContainer.addClass('hidden');
-        $messageContainer.text('');
-
+        
     }
 
 }

@@ -185,7 +185,9 @@ body {
 }
 
 .waitingMessage {
-    line-height: 1.4 !important;
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 3.5rem;
     // rainbow font firefox > 49 and webkit only
     background-image: -webkit-gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
     background-image: gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
@@ -268,6 +270,15 @@ body {
         border: 5px solid white;
     }
 
+    .playerName {
+        font-weight: 800;
+    }
+
+    .playerScore {
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+
 }
 
 .hidden {
@@ -295,22 +306,31 @@ body {
 }
 
 .messageContainer {
-    position: absolute;
     z-index: 100;
-    top: 50px; // will be overwritten by js
-    height: 8rem;
-    color: black; // will be overwritten by js
-    background-color: white;
-    font-size: 2.5rem;
-    text-align: center;
-    padding-left: 20px;
-    padding-right:20px;
-    margin: 0 auto;
+    background-color: rgba(255,255,255,0.3);
+    padding: 20px;
+    @include border-radius(60px);
 
     // http://stackoverflow.com/a/23384995/656689
+    position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%,-50%);
+}
+
+.innerMessage {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: black; // will be overwritten by js
+    background-color: white;
+    @include border-radius(40px);
+    padding: 20px;
+}
+
+.scoreContainer {
+    width: 100%;
+    height: 100%;
+    text-align: center;
 }
 
 .podium {
@@ -321,10 +341,39 @@ body {
 
 .podiumColumn {
     vertical-align: bottom;
+    height: 100%;
+}
+
+.playerPodiumColumn {
+
+    height: 100%; // will be overwritten by js
+
+    .podiumPlayerName {
+        text-align: center;
+        font-weight: 800;
+        color: white;
+        font-size: 2.5rem;
+    }
+
+    .podiumPlayerScore {
+        text-align: center;
+        font-weight: 600;
+        color: white;
+        font-size: 1.5rem;
+    }
+
 }
 
 .gameOver {
-    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 3.5rem;
+    // rainbow font firefox > 49 and webkit only
+    background-image: -webkit-gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
+    background-image: gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
+    color:transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
 }
 
 .visualizerCanvasContainer {
@@ -383,7 +432,7 @@ body {
 }
 
 .correctIcon {
-    background: url(/static/images/icon-correct.png) no-repeat white;
+    background: url(/static/images/icon-correct.png) no-repeat center white;
     width: 100px;
     height: 100px;
     @include border-radius(50px);
@@ -391,7 +440,7 @@ body {
 }
 
 .wrongIcon {
-    background: url(/static/images/icon-wrong.png) no-repeat white;
+    background: url(/static/images/icon-wrong.png) no-repeat center white;
     width: 90px;
     height: 90px;
     @include border-radius(45px);

@@ -11,7 +11,6 @@
 * layout the answer is correct / wrong messages on the player screen
 * layout the playing countdown
 * layout the countdown for the "guessing time"
-* design the game start screen for the player, style the waiting sentence, add a loading animation and the game logo
 
 ### less important (nice to have) TODOS
 
@@ -32,6 +31,8 @@
 * make the playlists selection in the game master game creation form more visual, show covers and use the select box as invisible playlist selection for when the game master selects a cover
 * on the game master game setup screen, in the playlist select, after the playlist name add the number of songs that the playlist contains as supplementary information
 * create an (offline) cross platform desktop app version of the game using https://github.com/electron/electron 
+* put more code related to game logic into the server instead of having the screens handle it, like recording who has answered wrong and disallowing another button press during same round, ...
+* what if the player name is bigger then the column width, truncate with css ellipse?
 
 ## done / closed TODOS:
 
@@ -54,6 +55,7 @@
 * open a gmail account (musicquizgame@gmail.com)
 * build a box for the physical buttons
 * add a volume control to the game master screen
+* design the game start screen for the player, style the waiting sentence, add a loading animation and the game logo
 * play a sound when a player presses the buzzer
 * add an option to the game master screen to change to sound being played on buzzer pressed and / or disable sounds
 * let the game master set the time users have to guess
