@@ -171,6 +171,29 @@ body {
     color: red;
 }
 
+.startScreenCenteredContainer {
+    // http://stackoverflow.com/a/23384995/656689
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.appLogo {
+    display: block;
+    margin: 0 auto;
+}
+
+.waitingMessage {
+    line-height: 1.4 !important;
+    // rainbow font firefox > 49 and webkit only
+    background-image: -webkit-gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
+    background-image: gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
+    color:transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
 .playersRow {
     height: 100%;
 }

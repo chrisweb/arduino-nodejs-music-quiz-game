@@ -224,11 +224,24 @@ export class PlayerController {
 
         this._$container.empty();
 
-        let $waitingMessage = $('<p class="waitingMessage">');
+        let $startScreenCenteredContainer = $('<div class="startScreenCenteredContainer">');
+
+        // app logo
+        let $appLogo = $('<img src="/static/images/music_quiz_game-logo.png" class="appLogo">');
+
+        $startScreenCenteredContainer.append($appLogo);
+
+        // some space
+        $startScreenCenteredContainer.append($('<br><br><br><br>'));
+
+        // "wait" message
+        let $waitingMessage = $('<h1 class="waitingMessage">');
 
         $waitingMessage.text('Wait for the gamemaster to setup the game ...');
 
-        this._$container.append($waitingMessage);
+        $startScreenCenteredContainer.append($waitingMessage);
+
+        this._$container.append($startScreenCenteredContainer);
 
     }
 
