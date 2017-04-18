@@ -566,7 +566,7 @@ export class GameMasterController {
         // create a table row for each player
         for (y = 0; y < playersCount; y++) {
 
-            let $playersTableRow = $('<tr class="js-players-table-row-' + y + '">');
+            let $playersTableRow = $('<tr class="js-players-table-row js-players-table-row-' + y + '">');
 
             let $playerIdColumn = $('<td class="js-players-table-id-column">');
             let $playerNameColumn = $('<td class="js-players-table-name-column">');
@@ -810,6 +810,10 @@ export class GameMasterController {
             // update the playlist songs index
             this._currentPlaylistSongIndex++;
 
+            // as it's a new round un-mark all rows of players
+            // that got marked as cant play this round
+            this._unmarkAllPlayerRows();
+
         } else {
 
             this._socket.emit('resumeSong');
@@ -963,6 +967,10 @@ export class GameMasterController {
 
             // de-activate the player row
             this._deactivatePlayerRow();
+
+            // mark player row to tell game master that this player
+            // had a wrong answer and can't play again this round
+            this._markPlayerRowAsCantPlayAgainThisRound();
 
         }
 
@@ -1122,6 +1130,24 @@ export class GameMasterController {
         let $playersTableRow = this._$container.find('.js-players-table-row-' + this._latestPlayerId);
 
         $playersTableRow.removeClass('table-info');
+
+    }
+
+    protected _markPlayerRowAsCantPlayAgainThisRound() {
+
+        let $playersTableRow = this._$container.find('.js-players-table-row-' + this._latestPlayerId);
+
+        $playersTableRow.addClass('table-danger');
+
+    }
+
+    protected _unmarkAllPlayerRows() {
+
+        let $playersTableRows = this._$container.find('.js-players-table-row');
+
+        $playersTableRows.each((index, element) => {
+            $(element).removeClass('table-danger');
+        });
 
     }
 

@@ -71,6 +71,7 @@
 * remove active class from player column top container after answer was given or time has run out
 * if the playlist is empty disable the play button, the game master now press the "game end" button
 * if during a round a player presses the button, but he has already played then ignore it
+* on the game master screen paint the rows of players that have guessed wrong this round red
 
 ## ideas for the future:
 

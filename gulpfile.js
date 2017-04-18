@@ -65,6 +65,7 @@ gulp.task('build-css', [
     return gulp.src('assets/stylesheets/**/*.scss')
         .pipe(sourcemaps.init())  // Process the original sources
         //.pipe(sass({ includePaths: ['./node_modules'] })) // added include path for material design components
+        .pipe(sass())
         .pipe(sourcemaps.write()) // Add the map to modified source.
         .pipe(gulp.dest('build/assets/stylesheets'));
 });

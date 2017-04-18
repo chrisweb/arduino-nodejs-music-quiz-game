@@ -275,19 +275,25 @@ body {
     position: absolute;
     z-index: 100;
     top: 50px; // will be overwritten by js
-    width: 100%;
     height: 8rem;
-    color: white;
-    background-color: red;
+    color: black; // will be overwritten by js
+    background-color: white;
     font-size: 2.5rem;
     text-align: center;
+    padding-left: 20px;
+    padding-right:20px;
+    margin: 0 auto;
+
+    // http://stackoverflow.com/a/23384995/656689
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
 }
 
 .podium {
     width: 80%;
     height: 80%;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
 }
 
 .podiumColumn {
@@ -345,4 +351,26 @@ body {
         padding-left: 5px;
     }
 
+}
+
+.playerBottomContainer {
+    width: 100%;
+    position: absolute;
+    bottom: 20px;
+}
+
+.correctIcon {
+    background: url(/static/images/icon-correct.png) no-repeat white;
+    width: 100px;
+    height: 100px;
+    @include border-radius(50px);
+    margin: 0 auto;
+}
+
+.wrongIcon {
+    background: url(/static/images/icon-wrong.png) no-repeat white;
+    width: 90px;
+    height: 90px;
+    @include border-radius(45px);
+    margin: 0 auto;
 }

@@ -351,6 +351,11 @@ export class PlayerController {
                 $playerTopContainer.append($playerScore);
                 $playerTopContainer.append($playerStatus);
 
+                // the icons container
+                let $playerBottomContainer = $('<div class="playerBottomContainer js-player-bottom-container">');
+
+                $playerColumn.append($playerBottomContainer);
+
             }
 
             // add song playing counter
@@ -784,6 +789,10 @@ export class PlayerController {
         // start playing a song using the audio player
         this._songsAudioPlayer.play(songData.id);
 
+        // remove all the player column icons
+        // that might have been set during the previous round
+        this._removeBottomIcons();
+
     }
 
     protected _onResumeSong() {
@@ -824,6 +833,9 @@ export class PlayerController {
         // clear the array of players that can't play this round
         this._playersThatGuessedWrongThisRound = [];
 
+        // set the icon in the player column
+        this._addBottomIcon('correct');
+
     }
 
     protected _onAnswerIsWrong() {
@@ -841,6 +853,9 @@ export class PlayerController {
         // that can't play this round
         this._playersThatGuessedWrongThisRound.push(this._latestPlayerId);
 
+        // set the icon in the player column
+        this._addBottomIcon('wrong');
+
     }
 
     protected _onTimeToAnswerRunOut() {
@@ -853,6 +868,36 @@ export class PlayerController {
 
         // de-activate player row
         this._deactivatePlayerColumn();
+
+    }
+
+    protected _addBottomIcon(type: string) {
+
+        let $playerColumn = this._$container.find('.js-player-column[data-player-id="' + this._latestPlayerId + '"]');
+        let $icon = $('<div>');
+
+        switch (type) {
+            case 'correct':
+                $icon.addClass('correctIcon');
+                break;
+            case 'wrong':
+                $icon.addClass('wrongIcon');
+                break;
+        }
+
+        $playerColumn.find('.js-player-bottom-container').append($icon);
+
+    }
+
+    protected _removeBottomIcons() {
+
+        let $playerColumns = this._$container.find('.js-player-column');
+
+        $playerColumns.each((index, element) => {
+
+            $(element).find('.js-player-bottom-container').empty();
+
+        });
 
     }
 
@@ -898,12 +943,12 @@ export class PlayerController {
         $messageContainer.text(message);
         $messageContainer.removeClass('hidden');
 
-        let messageContainerHeight = $messageContainer.height();
-        let windowHeight = $(window).height();
+        //let messageContainerHeight = $messageContainer.height();
+        //let windowHeight = $(window).height();
 
-        let topMargin = (windowHeight - messageContainerHeight) / 2;
+        //let topMargin = (windowHeight - messageContainerHeight) / 2;
 
-        $messageContainer.css('top', topMargin + 'px');
+        //$messageContainer.css('top', topMargin + 'px');
 
     }
 
