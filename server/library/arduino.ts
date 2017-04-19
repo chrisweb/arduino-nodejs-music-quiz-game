@@ -36,34 +36,35 @@ export class ArduinoLibrary {
 
                 //if (port.manufacturer.includes('Arduino')) {
 
-                    const portName = port.comName;
+                const portName = port.comName;
+                const options: SerialPort.options = {
+                    baudRate: 9600,
+                    parser: parsers.readline('\r\n')
+                };
 
-                    this._port = new SerialPort(portName, {
-                        baudrate: 9600,
-                        parser: parsers.readline('\r\n')
-                    });
+                this._port = new SerialPort(portName, options);
 
-                    this._port.on('open', function () {
-                        console.log('port ' + portName + ' open');
-                    });
+                this._port.on('open', function () {
+                    console.log('port ' + portName + ' open');
+                });
 
-                    this._port.on('close', function onClose() {
-                        console.log('port  ' + portName + ' close');
-                    });
+                this._port.on('close', function onClose() {
+                    console.log('port  ' + portName + ' close');
+                });
 
-                    this._port.on('error', function onError(error: Error) {
-                        console.log('port ' + portName + ' error: ' + error);
-                    });
+                this._port.on('error', function onError(error: Error) {
+                    console.log('port ' + portName + ' error: ' + error);
+                });
 
-                    this._port.on('data', function (data: any) {
+                this._port.on('data', function (data: any) {
 
-                        console.log('port ' + portName + ' data', data);
+                    console.log('port ' + portName + ' data', data);
 
-                        // TODO: rate limit
+                    // TODO: rate limit
 
-                        callback(false, data);
+                    callback(false, data);
 
-                    });
+                });
 
                 //}
 
