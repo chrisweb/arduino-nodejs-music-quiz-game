@@ -13,19 +13,24 @@ export class ArduinoLibrary {
 
     protected _port: SerialPort;
 
+    protected _data: string;
+
     public constructor() {
 
-
+        this._data = 'YOLO';
 
     }
 
     public listener(callback: IPortListenerCallback) {
+
+        
 
         // list serial ports:
         SerialPort.list((error, ports) => {
 
             ports.forEach((port) => {
 
+                console.log('***SerialPort.list****');
                 console.log(port.comName);
                 console.log(port.pnpId);
                 console.log(port.manufacturer);
@@ -56,14 +61,16 @@ export class ArduinoLibrary {
                     console.log('port ' + portName + ' error: ' + error);
                 });
 
-                this._port.on('data', function (data: any) {
+                this._port.on('data', (data: string) => {
 
-                    console.log('port ' + portName + ' data', data);
+                    if (data.charAt(0) === '-') {
+                        console.log('port ' + portName + ' data read callback debug', data);
+                    } else if (this._data === '' || this._data !== data) {
+                        console.log('port ' + portName + ' data', data);
 
-                    // TODO: rate limit
-
-                    callback(false, data);
-
+                        this._data = data;
+                        callback(false, data);
+                    }
                 });
 
                 //}
@@ -98,5 +105,33 @@ export class ArduinoLibrary {
         });*/
 
     }
+
+    public lockPlayer(playerId: number, isLock: boolean = true) {
+        if (this._data != undefined) {
+            let index = (playerId * 3);
+
+            this._data = this._data.substr(0, index) + (isLock ? '0' : '1') + this._data.substr(index + 1);
+            
+            console.log('port lockPlayer data', this._data );
+        }
+    }
+
+    public selectPlayer(playerId: number, isSelected: boolean = true) {
+        if (this._data != undefined) {
+            let index = (playerId * 3) + 2;
+            this._data = this._data.substr(0, index) + (isSelected ? '1' : '0') + this._data.substr(index + 1);
+
+            console.log('port selectPlayer data', this._data );
+        }
+    }
+
+    public sendUpdateStatusButtons() {
+        console.log('port sendUpdateStatusButtons data', this._data);
+        this._port.write(this._data, function(err, results) {
+            console.log("err: " + err);
+            console.log("results: " + results);
+        });
+    }
+
 
 }

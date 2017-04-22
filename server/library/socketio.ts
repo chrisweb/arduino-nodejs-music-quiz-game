@@ -69,7 +69,7 @@ export default class SocketIoLibrary {
 
         return new Promise((resolve) => {
 
-            const arduinoLibrary = new ArduinoLibrary();
+            let arduinoLibrary: ArduinoLibrary = null;
 
             this._io.on('connection', (socket: SocketIO.Socket) => {
 
@@ -92,6 +92,12 @@ export default class SocketIoLibrary {
                     console.log('identifyGameMaster: ', socket.id);
 
                     this._clientIds.gameMasterScreenId = socket.id;
+
+                    // TODO change arduinoLibrary to singleton
+                    arduinoLibrary = new ArduinoLibrary();
+                    arduinoLibrary.listener((error, data: string) => {
+                        this._parseArduinoData(data);
+                    });
 
                 });
                 
@@ -143,18 +149,33 @@ export default class SocketIoLibrary {
 
                     console.log('playerClickBuzzer, userId: ', userId);
 
-                    let index = (userId * 2) + 1;
-                    let data = '10101010';
+                    let index = (userId * 3) + 1;
+                    let data = '100100100100';
                     data = data.substr(0, index) + '1' + data.substr(index + 1);
 
                     this._parseArduinoData(data);
 
+                    if (arduinoLibrary !== null) {
+                        arduinoLibrary.selectPlayer(userId);
+                        arduinoLibrary.sendUpdateStatusButtons();
+                    }
+                    
                 });
 
-                arduinoLibrary.listener((error, data: string) => {
+                socket.on('lockPlayer', (playerId: number, isLock: boolean = true) => {
+                    
+                    if (arduinoLibrary !== null) {
+                        arduinoLibrary.lockPlayer(playerId, isLock);
+                        arduinoLibrary.sendUpdateStatusButtons();
+                    }
+                });
 
-                    this._parseArduinoData(data);
-
+                socket.on('selectPlayer', (playerId: number, isSelected: boolean = true) => {
+                    
+                    if (arduinoLibrary !== null) {
+                        arduinoLibrary.selectPlayer(playerId, isSelected);
+                        arduinoLibrary.sendUpdateStatusButtons();
+                    }
                 });
 
                 socket.on('playerViewReady', () => {
@@ -302,11 +323,11 @@ export default class SocketIoLibrary {
 
         if (data.charAt(0) === '1' && data.charAt(1) === '1') {
             this._io.to('quizRoom').emit('playerPressedButton', 0);
-        } else if (data.charAt(2) === '1' && data.charAt(3) === '1') {
+        } else if (data.charAt(3) === '1' && data.charAt(4) === '1') {
             this._io.to('quizRoom').emit('playerPressedButton', 1);
-        } else if (data.charAt(4) === '1' && data.charAt(5) === '1') {
-            this._io.to('quizRoom').emit('playerPressedButton', 2);
         } else if (data.charAt(6) === '1' && data.charAt(7) === '1') {
+            this._io.to('quizRoom').emit('playerPressedButton', 2);
+        } else if (data.charAt(9) === '1' && data.charAt(10) === '1') {
             this._io.to('quizRoom').emit('playerPressedButton', 3);
         }
 
