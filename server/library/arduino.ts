@@ -131,4 +131,13 @@ export class ArduinoLibrary {
 
     }
 
+    public resetAllPlayers() {
+
+        // TODO create a global const for the default value
+        this._arduinoSequence = '100100100100';
+
+        console.log('resetAllPlayers');
+
+    }
+
 }
