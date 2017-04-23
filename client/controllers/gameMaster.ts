@@ -961,7 +961,7 @@ export class GameMasterController {
             event.preventDefault();
 
             // inform the player view that the answer was wrong
-            this._socket.emit('answerIsWrong', this._latestPlayerId);
+            this._socket.emit('answerIsWrong');
 
             // inform arduino to lock player button
             this._socket.emit('lockPlayer', this._latestPlayerId, true);

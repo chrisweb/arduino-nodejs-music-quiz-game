@@ -14,10 +14,11 @@ export class ArduinoLibrary {
     protected _port: SerialPort | null = null;
     protected _portName: string;
     protected _arduinoSequence: string;
-
+    protected _defaultSequence = '100100100100';
+    
     public constructor() {
 
-        this._arduinoSequence = '';
+        this._arduinoSequence = this._defaultSequence;
 
     }
 
@@ -133,8 +134,7 @@ export class ArduinoLibrary {
 
     public resetAllPlayers() {
 
-        // TODO create a global const for the default value
-        this._arduinoSequence = '100100100100';
+        this._arduinoSequence = this._defaultSequence;
 
         console.log('resetAllPlayers');
 
