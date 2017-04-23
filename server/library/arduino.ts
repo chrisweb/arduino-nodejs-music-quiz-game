@@ -132,6 +132,12 @@ export class ArduinoLibrary {
             console.log("results: " + results);
         });
     }
+    
+    public resetAllPlayers() {
+        // TODO create a global const for the default value
+        this._data = '100100100100';
+        console.log('resetAllPlayers');
+    }
 
 
 }

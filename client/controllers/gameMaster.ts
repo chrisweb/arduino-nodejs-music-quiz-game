@@ -437,6 +437,9 @@ export class GameMasterController {
                 // activate the player row of the player that pressed
                 this._activatePlayerRow();
 
+                // inform arduino current selected player
+                this._socket.emit('selectPlayer', playerId, true);
+
             }
 
         } else {
@@ -788,6 +791,9 @@ export class GameMasterController {
         this._currentPlaylistSongIndex = 0;
         this._playlistsOptions = null;
 
+        // infor arduino to reset all players
+        this._socket.emit('resetAllPlayers');
+
         this._showStartSetUpScreen();
 
     }
@@ -814,6 +820,8 @@ export class GameMasterController {
             // that got marked as cant play this round
             this._unmarkAllPlayerRows();
 
+            // infor arduino to reset all players
+            this._socket.emit('resetAllPlayers');
         } else {
 
             this._socket.emit('resumeSong');
@@ -952,8 +960,11 @@ export class GameMasterController {
             event.preventDefault();
 
             // inform the player view that the answer was wrong
-            this._socket.emit('answerIsWrong');
+            this._socket.emit('answerIsWrong', this._latestPlayerId);
 
+            // inform arduino to lock player button
+            this._socket.emit('lockPlayer', this._latestPlayerId, true);
+            
             // re-enable the play button
             let buttonText = 'Play (resume)';
 

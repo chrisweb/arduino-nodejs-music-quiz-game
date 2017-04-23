@@ -42,28 +42,18 @@ void setup() {
 void serialEvent() {
   readBuffer = Serial.readString();
   Serial.println("-" + readBuffer);
-
-  digitalWrite(led1Pin, HIGH);
-  delay(1000);
-  digitalWrite(led1Pin, LOW);
-  delay(1000);
-  digitalWrite(led1Pin, HIGH);
-  delay(1000);
-  digitalWrite(led1Pin, LOW);
   
-  if (readBuffer.length() == 12) {
-    button1Active = readBuffer.charAt(0) == '0' ? false : true;
-    button1Selected = readBuffer.charAt(2) == '0' ? false : true;
-    
-    button2Active = readBuffer.charAt(3) == '0' ? false : true;
-    button2Selected = readBuffer.charAt(5) == '0' ? false : true;
-    
-    button3Active = readBuffer.charAt(6) == '0' ? false : true;
-    button3Selected = readBuffer.charAt(8) == '0' ? false : true;
-    
-    button4Active = readBuffer.charAt(9) == '0' ? false : true;
-    button4Selected = readBuffer.charAt(11) == '0' ? false : true;
-  }
+  button1Active = readBuffer.charAt(0) == '0' ? false : true;
+  button1Selected = readBuffer.charAt(2) == '0' ? false : true;
+  
+  button2Active = readBuffer.charAt(3) == '0' ? false : true;
+  button2Selected = readBuffer.charAt(5) == '0' ? false : true;
+  
+  button3Active = readBuffer.charAt(6) == '0' ? false : true;
+  button3Selected = readBuffer.charAt(8) == '0' ? false : true;
+  
+  button4Active = readBuffer.charAt(9) == '0' ? false : true;
+  button4Selected = readBuffer.charAt(11) == '0' ? false : true;
 }
 
 void loop() {
@@ -84,6 +74,8 @@ void loop() {
       // turn LED off:
       digitalWrite(led1Pin, LOW);
     }
+  } else {
+    digitalWrite(led1Pin, LOW);
   }
 
   if (button2Active == true) {
@@ -92,6 +84,8 @@ void loop() {
     } else {
       digitalWrite(led2Pin, LOW);
     }
+  } else {
+    digitalWrite(led2Pin, LOW);
   }
 
   if (button3Active == true) {
@@ -100,6 +94,8 @@ void loop() {
     } else {
       digitalWrite(led3Pin, LOW);
     }
+  } else {
+    digitalWrite(led3Pin, LOW);
   }
 
   if (button4Active == true) {
@@ -108,6 +104,8 @@ void loop() {
     } else {
       digitalWrite(led4Pin, LOW);
     }
+  } else {
+    digitalWrite(led4Pin, LOW);
   }
   
   // send button status
