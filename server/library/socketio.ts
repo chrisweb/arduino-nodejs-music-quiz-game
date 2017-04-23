@@ -177,6 +177,14 @@ export default class SocketIoLibrary {
 
                 });
 
+                socket.on('resetAllPlayers', () => {
+                    
+                    if (arduinoLibrary !== null) {
+                        arduinoLibrary.resetAllPlayers();
+                        arduinoLibrary.sendUpdateStatusButtons();
+                    }
+                });
+
                 socket.on('playerViewReady', () => {
 
                     if (this._clientIds.gameMasterScreenId !== null) {
