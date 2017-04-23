@@ -930,8 +930,9 @@ export class GameMasterController {
 
             // re-enable the play button
             let buttonText = 'Play (next song)';
+            let actionType = 'correct';
 
-            this._reenablePlayButton(buttonText);
+            this._reenablePlayButton(buttonText, actionType);
 
             // as the answer was correct we can hide the song progress
             this._stopSongPlayingCountdown();
@@ -956,9 +957,10 @@ export class GameMasterController {
 
             // re-enable the play button
             let buttonText = 'Play (resume)';
+            let actionType = 'wrong';
 
-            this._reenablePlayButton(buttonText);
-
+            this._reenablePlayButton(buttonText, actionType);
+            
             // hide the validation container
             this._showValidateAnswerContainer(false);
 
@@ -1008,20 +1010,26 @@ export class GameMasterController {
 
         // reactivate the play song button
         let buttonText = 'Play (next song)';
+        let actionType = 'ended';
 
-        this._reenablePlayButton(buttonText, true);
+        this._reenablePlayButton(buttonText, actionType, true);
 
         // update the playing status
         this._isSongPlaying = false;
 
     }
 
-    protected _reenablePlayButton(buttonText: string, updateProgress = false) {
+    protected _reenablePlayButton(buttonText: string, actionType: string, updateProgress = false) {
 
         let $buttonPlaySong = this._$container.find('.js-play-song-button');
 
         // check if there are songs left in the playlist
-        if ((this._currentPlaylistSongIndex + 1) > this._playlistSongs.length) {
+        // if no more songs we don't re-enable the button
+        // but only if the song has ended or the answer was wrong, because if
+        // the answer was wrong the game can still go on until someone guesses
+        // right or the song guess time runs out
+        if (((this._currentPlaylistSongIndex + 1) > this._playlistSongs.length)
+            && (actionType === 'ended' || actionType === 'correct')) {
 
             // all the songs of the playlist have been played, game is over
             buttonText = 'playlist end reached / press end the game button';

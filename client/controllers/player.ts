@@ -49,7 +49,6 @@ export class PlayerController {
     protected _answerTimeDuration: number;
     protected _answerTimeSelect: number = 15;
     protected _audioPlayerVisualizer: PlayerVisualizer;
-    protected _playersThatGuessedWrongThisRound: number[] = [];
 
     public constructor() {
 
@@ -534,9 +533,6 @@ export class PlayerController {
                         // show message time run out but no answer was given
                         this._showMessage('noAnswer');
 
-                        // clear the array of players that can't play this round
-                        this._playersThatGuessedWrongThisRound = [];
-
                         // visualizer
                         this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
 
@@ -675,30 +671,20 @@ export class PlayerController {
 
         if (this._isSongPlaying) {
 
-            let canStillPlayThisRound = true;
+            // pause playing the current song
+            this._songsAudioPlayer.pause();
 
-            if (this._playersThatGuessedWrongThisRound.indexOf(playerId) > -1) {
-                canStillPlayThisRound = false;
-            }
+            // start the answer countdown
+            this._startAnswerCountdown();
 
-            if (canStillPlayThisRound) {
+            // update the player id
+            this._latestPlayerId = playerId;
 
-                // pause playing the current song
-                this._songsAudioPlayer.pause();
+            // play a "pressed" sound
+            this._playPressedSound();
 
-                // start the answer countdown
-                this._startAnswerCountdown();
-
-                // update the player id
-                this._latestPlayerId = playerId;
-
-                // play a "pressed" sound
-                this._playPressedSound();
-
-                // activate player row
-                this._activatePlayerColumn();
-
-            }
+            // activate player row
+            this._activatePlayerColumn();
 
         }
 
@@ -870,9 +856,6 @@ export class PlayerController {
         // de-activate player row
         this._deactivatePlayerColumn();
 
-        // clear the array of players that can't play this round
-        this._playersThatGuessedWrongThisRound = [];
-
         // set the icon in the player column
         this._addBottomIcon('correct');
 
@@ -888,10 +871,6 @@ export class PlayerController {
 
         // de-activate player row
         this._deactivatePlayerColumn();
-
-        // add the player id to the list of players
-        // that can't play this round
-        this._playersThatGuessedWrongThisRound.push(this._latestPlayerId);
 
         // set the icon in the player column
         this._addBottomIcon('wrong');

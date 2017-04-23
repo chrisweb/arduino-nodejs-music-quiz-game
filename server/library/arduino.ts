@@ -11,20 +11,18 @@ export interface IPortListenerCallback {
 
 export class ArduinoLibrary {
 
-    protected _port: SerialPort;
-
-    protected _data: string;
+    protected _port: SerialPort | null = null;
+    protected _portName: string;
+    protected _arduinoSequence: string;
 
     public constructor() {
 
-        this._data = 'YOLO';
+        this._arduinoSequence = '';
 
     }
 
     public listener(callback: IPortListenerCallback) {
-
         
-
         // list serial ports:
         SerialPort.list((error, ports) => {
 
@@ -41,97 +39,96 @@ export class ArduinoLibrary {
 
                 //if (port.manufacturer.includes('Arduino')) {
 
-                const portName = port.comName;
+                this._portName = port.comName;
+
                 const options: SerialPort.options = {
                     baudRate: 9600,
                     parser: parsers.readline('\r\n')
                 };
 
-                this._port = new SerialPort(portName, options);
+                this._port = new SerialPort(this._portName, options);
+
+                //}
 
                 this._port.on('open', function () {
-                    console.log('port ' + portName + ' open');
+                    console.log('port ' + this._portName + ' open');
                 });
 
                 this._port.on('close', function onClose() {
-                    console.log('port  ' + portName + ' close');
+                    console.log('port  ' + this._portName + ' close');
                 });
 
                 this._port.on('error', function onError(error: Error) {
-                    console.log('port ' + portName + ' error: ' + error);
+                    console.log('port ' + this._portName + ' error: ' + error);
                 });
 
-                this._port.on('data', (data: string) => {
+                this._port.on('data', (arduinoSequence: string) => {
 
-                    if (data.charAt(0) === '-') {
-                        console.log('port ' + portName + ' data read callback debug', data);
-                    } else if (this._data === '' || this._data !== data) {
-                        console.log('port ' + portName + ' data', data);
+                    if (arduinoSequence.charAt(0) === '-') {
 
-                        this._data = data;
-                        callback(false, data);
+                        console.log('port ' + this._portName + ' data read callback debug', arduinoSequence);
+
+                    } else if (this._arduinoSequence === '' || this._arduinoSequence !== arduinoSequence) {
+
+                        console.log('port ' + this._portName + ' data', arduinoSequence);
+
+                        this._arduinoSequence = arduinoSequence;
+
+                        callback(false, arduinoSequence);
+
                     }
-                });
 
-                //}
+                });
 
             });
 
         });
 
-        /*this._port = new SerialPort('COM3', {
-            baudrate: 9600,
-            parser: parsers.readline('\r\n')
-        });
-
-        this._port.on('open', function onOpen() {
-            console.log('port open');
-        });
-
-        this._port.on('close', function onClose() {
-            console.log('port close');
-        });
-
-        this._port.on('error', function onError(error) {
-            console.log('port error: ' + error);
-        });
-
-        this._port.on('data', function onData(data: any) {
-
-            console.log('port data', portName);
-
-            callback(false, data);
-
-        });*/
-
     }
 
     public lockPlayer(playerId: number, isLock: boolean = true) {
-        if (this._data != undefined) {
+
+        if (this._arduinoSequence != undefined) {
+
             let index = (playerId * 3);
 
-            this._data = this._data.substr(0, index) + (isLock ? '0' : '1') + this._data.substr(index + 1);
+            this._arduinoSequence = this._arduinoSequence.substr(0, index) + (isLock ? '0' : '1') + this._arduinoSequence.substr(index + 1);
             
-            console.log('port lockPlayer data', this._data );
+            console.log('port lockPlayer arduinoSequence', this._arduinoSequence);
+
         }
+
     }
 
     public selectPlayer(playerId: number, isSelected: boolean = true) {
-        if (this._data != undefined) {
-            let index = (playerId * 3) + 2;
-            this._data = this._data.substr(0, index) + (isSelected ? '1' : '0') + this._data.substr(index + 1);
 
-            console.log('port selectPlayer data', this._data );
+        if (this._arduinoSequence != undefined) {
+
+            let index = (playerId * 3) + 2;
+
+            this._arduinoSequence = this._arduinoSequence.substr(0, index) + (isSelected ? '1' : '0') + this._arduinoSequence.substr(index + 1);
+
+            console.log('port selectPlayer arduinoSequence', this._arduinoSequence);
+
         }
+
     }
 
     public sendUpdateStatusButtons() {
-        console.log('port sendUpdateStatusButtons data', this._data);
-        this._port.write(this._data, function(err, results) {
-            console.log("err: " + err);
-            console.log("results: " + results);
-        });
-    }
 
+        console.log('port sendUpdateStatusButtons arduinoSequence', this._arduinoSequence);
+
+        if (this._port !== null) {
+
+            this._port.write(this._arduinoSequence, function (err, results) {
+
+                console.log("err: " + err);
+                console.log("results: " + results);
+
+            });
+
+        }
+
+    }
 
 }

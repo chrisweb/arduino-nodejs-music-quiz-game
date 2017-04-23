@@ -42,6 +42,9 @@ export default class SocketIoLibrary {
     protected _io: SocketIO.Server;
     protected _configuration: IConfiguration;
     protected _deezerApi: DeezerLibrary;
+    protected _arduinoLibrary: ArduinoLibrary;
+    protected _latestPlayerId: number | null = null;
+    protected _playersThatGuessedWrongThisRound: number[] = [];
 
     protected _clientIds: IClientIds = {
         playerScreenId: null,
@@ -63,13 +66,18 @@ export default class SocketIoLibrary {
         // deezer api setup
         this._deezerApi = new DeezerLibrary();
 
+        // arduino library setup
+        this._arduinoLibrary = new ArduinoLibrary();
+
+        this._arduinoLibrary.listener((error, data: string) => {
+            this._parseArduinoData(data);
+        });
+
     }
 
     public setupSocketIo() {
 
         return new Promise((resolve) => {
-
-            let arduinoLibrary: ArduinoLibrary = null;
 
             this._io.on('connection', (socket: SocketIO.Socket) => {
 
@@ -92,12 +100,6 @@ export default class SocketIoLibrary {
                     console.log('identifyGameMaster: ', socket.id);
 
                     this._clientIds.gameMasterScreenId = socket.id;
-
-                    // TODO change arduinoLibrary to singleton
-                    arduinoLibrary = new ArduinoLibrary();
-                    arduinoLibrary.listener((error, data: string) => {
-                        this._parseArduinoData(data);
-                    });
 
                 });
                 
@@ -151,31 +153,28 @@ export default class SocketIoLibrary {
 
                     let index = (userId * 3) + 1;
                     let data = '100100100100';
+
                     data = data.substr(0, index) + '1' + data.substr(index + 1);
 
                     this._parseArduinoData(data);
 
-                    if (arduinoLibrary !== null) {
-                        arduinoLibrary.selectPlayer(userId);
-                        arduinoLibrary.sendUpdateStatusButtons();
-                    }
+                    this._arduinoLibrary.selectPlayer(userId);
+                    this._arduinoLibrary.sendUpdateStatusButtons();
                     
                 });
 
                 socket.on('lockPlayer', (playerId: number, isLock: boolean = true) => {
-                    
-                    if (arduinoLibrary !== null) {
-                        arduinoLibrary.lockPlayer(playerId, isLock);
-                        arduinoLibrary.sendUpdateStatusButtons();
-                    }
+
+                    this._arduinoLibrary.lockPlayer(playerId, isLock);
+                    this._arduinoLibrary.sendUpdateStatusButtons();
+
                 });
 
                 socket.on('selectPlayer', (playerId: number, isSelected: boolean = true) => {
-                    
-                    if (arduinoLibrary !== null) {
-                        arduinoLibrary.selectPlayer(playerId, isSelected);
-                        arduinoLibrary.sendUpdateStatusButtons();
-                    }
+
+                    this._arduinoLibrary.selectPlayer(playerId, isSelected);
+                    this._arduinoLibrary.sendUpdateStatusButtons();
+
                 });
 
                 socket.on('playerViewReady', () => {
@@ -215,6 +214,9 @@ export default class SocketIoLibrary {
                     if (this._clientIds.gameMasterScreenId !== null) {
                         this._io.sockets.connected[this._clientIds.gameMasterScreenId].emit('songEnded');
                     }
+                    
+                    // clear the array of players that can't play this round
+                    this._playersThatGuessedWrongThisRound = [];
 
                 });
 
@@ -255,6 +257,9 @@ export default class SocketIoLibrary {
                     if (this._clientIds.playerScreenId !== null) {
                         this._io.sockets.connected[this._clientIds.playerScreenId].emit('answerIsCorrect');
                     }
+                    
+                    // clear the array of players that can't play this round
+                    this._playersThatGuessedWrongThisRound = [];
 
                 });
 
@@ -263,6 +268,10 @@ export default class SocketIoLibrary {
                     if (this._clientIds.playerScreenId !== null) {
                         this._io.sockets.connected[this._clientIds.playerScreenId].emit('answerIsWrong');
                     }
+
+                    // add the player id to the list of players
+                    // that can't play this round
+                    this._playersThatGuessedWrongThisRound.push(this._latestPlayerId);
 
                 });
 
@@ -319,16 +328,37 @@ export default class SocketIoLibrary {
         });
     }
 
-    protected _parseArduinoData(data: string) {
+    protected _parseArduinoData(arduinoSequence: string) {
 
-        if (data.charAt(0) === '1' && data.charAt(1) === '1') {
-            this._io.to('quizRoom').emit('playerPressedButton', 0);
-        } else if (data.charAt(3) === '1' && data.charAt(4) === '1') {
-            this._io.to('quizRoom').emit('playerPressedButton', 1);
-        } else if (data.charAt(6) === '1' && data.charAt(7) === '1') {
-            this._io.to('quizRoom').emit('playerPressedButton', 2);
-        } else if (data.charAt(9) === '1' && data.charAt(10) === '1') {
-            this._io.to('quizRoom').emit('playerPressedButton', 3);
+        let playerId: number;
+
+        // find player id in arduino sequence
+        if (arduinoSequence.charAt(0) === '1' && arduinoSequence.charAt(1) === '1') {
+            playerId = 0;
+        } else if (arduinoSequence.charAt(3) === '1' && arduinoSequence.charAt(4) === '1') {
+            playerId =  1;
+        } else if (arduinoSequence.charAt(6) === '1' && arduinoSequence.charAt(7) === '1') {
+            playerId =  2;
+        } else if (arduinoSequence.charAt(9) === '1' && arduinoSequence.charAt(10) === '1') {
+            playerId =  3;
+        }
+        
+        // update last player id
+        this._latestPlayerId = playerId;
+
+        // send to socket io if player is allowed to press
+        // if he guessed wrong before he is not allowed to press until next song
+        let canStillPlayThisRound = true;
+
+        if (this._playersThatGuessedWrongThisRound.indexOf(playerId) > -1) {
+            canStillPlayThisRound = false;
+        }
+
+        if (canStillPlayThisRound) {
+
+            // socket io emit message to player and game master
+            this._io.to('quizRoom').emit('playerPressedButton', playerId);
+
         }
 
     }
