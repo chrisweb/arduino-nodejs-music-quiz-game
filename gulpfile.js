@@ -6,6 +6,7 @@ const tsProject = ts.createProject('tsconfig.json');
 const merge = require('merge2');
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
+const cleanCSS = require('gulp-clean-css');
 
 // documentation: https://github.com/gulpjs/gulp/blob/master/docs/API.md
 
@@ -75,6 +76,15 @@ gulp.task('build-docs-css', function () {
         .pipe(sourcemaps.init())  // Process the original sources
         .pipe(sass())
         .pipe(sourcemaps.write()) // Add the map to modified source.
+        .pipe(gulp.dest('docs/stylesheets'));
+});
+
+gulp.task('build-docs-css-prod', function () {
+    return gulp.src('docs/stylesheets/**/*.scss')
+        .pipe(sourcemaps.init())  // Process the original sources
+        .pipe(sass())
+        .pipe(sourcemaps.write()) // Add the map to modified source.
+        .pipe(cleanCSS({ compatibility: '*' }))
         .pipe(gulp.dest('docs/stylesheets'));
 });
 
@@ -149,3 +159,4 @@ gulp.task('watch', ['build'], function () {
 gulp.task('default', ['watch']);
 gulp.task('build', ['build-js', 'build-css']);
 gulp.task('build-docs', ['build-docs-css']);
+gulp.task('build-docs-prod', ['build-docs-css-prod']);
