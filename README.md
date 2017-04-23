@@ -1,5 +1,5 @@
-[![Dependencies](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game.png)](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game)
-[![Dependencies](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game/dev-status.png)](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game)
+[![Dependencies status](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game.png)](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game)
+[![DevDependencies status](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game/dev-status.png)](https://david-dm.org/chrisweb/arduino-nodejs-music-quiz-game)
 [![GitHub release](https://img.shields.io/github/release/chrisweb/arduino-nodejs-music-quiz-game.svg)](https://github.com/chrisweb/arduino-nodejs-music-quiz-game/releases)
 
 # Arduino NodeJS Music Quiz Game
