@@ -178,11 +178,10 @@ export default class SocketIoLibrary {
                 });
 
                 socket.on('resetAllPlayers', () => {
-                    
-                    if (arduinoLibrary !== null) {
-                        arduinoLibrary.resetAllPlayers();
-                        arduinoLibrary.sendUpdateStatusButtons();
-                    }
+
+                    this._arduinoLibrary.resetAllPlayers();
+                    this._arduinoLibrary.sendUpdateStatusButtons();
+
                 });
 
                 socket.on('playerViewReady', () => {
