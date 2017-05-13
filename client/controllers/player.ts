@@ -5,6 +5,7 @@
 import * as $ from 'jquery';
 import * as io from 'socket.io-client';
 import { PlayerCore, ICoreOptions, PlayerSound, ISoundAttributes } from 'web-audio-api-player';
+let ProgressBar = require('progressbar');
 
 // library
 import { PlayerVisualizer } from '../library/player/visualizer';
@@ -372,14 +373,18 @@ export class PlayerController {
             }
 
             // add song playing counter
-            let $songPlayingCounter = $('<div class="js-playing-countdown hidden countdown playingCountdown">');
+            let $songPlayingCounter = $('<div class="js-countdown-playing-container hidden playingCountdownContainer">');
 
             this._$container.append($songPlayingCounter);
 
+            this._buildCountdown('playing');
+
             // add answer counter
-            let $songAnswerCounter = $('<div class="js-answer-countdown hidden countdown answerCountdown">');
+            let $songAnswerCounter = $('<div class="js-countdown-answer-container hidden countdown answerCountdownContainer">');
 
             this._$container.append($songAnswerCounter);
+
+            this._buildCountdown('answer');
 
             // add message container
             let $messageContainer = $('<div class="js-message-container hidden messageContainer">');
@@ -729,11 +734,11 @@ export class PlayerController {
 
     protected _startSongPlayingCountdown() {
 
-        let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
+        let $songPlayingCountdown = this._$container.find('.js-countdown-playing-container');
 
         $songPlayingCountdown.removeClass('hidden');
 
-        const onSongPlayingInterval = () => {
+        /*const onSongPlayingInterval = () => {
 
             if (this._songPlayingProgress !== null) {
 
@@ -753,12 +758,15 @@ export class PlayerController {
         }
 
         this._songPlayingIntervalId = window.setInterval(onSongPlayingInterval, 300);
+        */
+
+        this._runCountdown('playing');
 
     }
 
     protected _stopSongPlayingCountdown() {
 
-        let $songPlayingCountdown = this._$container.find('.js-playing-countdown');
+        let $songPlayingCountdown = this._$container.find('.js-countdown-playing-container');
 
         $songPlayingCountdown.addClass('hidden');
         $songPlayingCountdown.text('');
@@ -771,7 +779,7 @@ export class PlayerController {
 
     protected _startAnswerCountdown() {
 
-        let $answerCountdown = this._$container.find('.js-answer-countdown');
+        let $answerCountdown = this._$container.find('.js-countdown-answer-container');
         
         $answerCountdown.removeClass('hidden');
 
@@ -799,7 +807,7 @@ export class PlayerController {
 
     protected _stopAnswerCountdown() {
 
-        let $answerCountdown = this._$container.find('.js-answer-countdown');
+        let $answerCountdown = this._$container.find('.js-countdown-answer-container');
 
         $answerCountdown.addClass('hidden');
         $answerCountdown.text('');
@@ -980,6 +988,129 @@ export class PlayerController {
 
         $messageContainer.addClass('hidden');
         
+    }
+
+    protected _buildCountdown(prefix: string) {
+
+        let $countdownContainer = this._$container.find('.js-countdown-' + prefix + '-container');
+
+        let $centerBlock = $('<div class="center">');
+        let $allBlock = $('<div class="all">');
+        let $lineOne = $('<div id="line1"></div>');
+        let $lineTwo = $('<div id="line2"></div>');
+        let $lineThree = $('<div id="line3"></div>');
+
+        $countdownContainer.append($centerBlock);
+        $countdownContainer.append($allBlock);
+        $countdownContainer.append($lineOne);
+        $countdownContainer.append($lineTwo);
+        $countdownContainer.append($lineThree);
+
+        let $firstLoad = $('<div id="firstLoad">');
+        let $secondLoad = $('<div id="secondLoad">');
+
+        $centerBlock.append($secondLoad);
+        $allBlock.append($firstLoad);
+
+    }
+
+    protected _runCountdown(prefix: string) {
+
+        let firstLoad = '.js-countdown-' + prefix + '-container #firstLoad';
+        let secondLoad = '.js-countdown-' + prefix + '-container #secondLoad';
+
+        var load = new ProgressBar.Circle(secondLoad, {
+            strokeWidth: 5,
+            duration: 25000,
+            color: '#0880f9',
+            trailColor: '#cefaef',
+            trailWidth: 5,
+            trigger1: false,
+            svgStyle: {
+                width: '90%',
+                position: 'relative',
+                left: '5%',
+                top: '8px'
+            },
+            step: function (state: any, circle: any) {
+                var value = Math.round(circle.value() * 25);
+
+                switch (value) {
+                    case 0:
+                        $('#container .center svg path:nth-child(2)').css('stroke', '#05afda');
+                        break;
+                    case 7:
+                        if (this.trigger1 === false) {
+                            $("#container .center svg path:nth-child(2)").css({ 'stroke': '#7affae', transition: '0.5s' });
+                            this.trigger1 = true;
+                        }
+
+                        break;
+                    case 14:
+                        $("#container .center svg path:nth-child(2)").css({ 'stroke': '#fffcb2' });
+                        break;
+                    case 21:
+                        $("#container .center svg path:nth-child(2)").css({ 'stroke': '#ffa5e9' });
+                        break;
+                }
+            }
+        });
+
+        var bar = new ProgressBar.Circle(firstLoad, {
+            color: '#006dec',
+            //            fill: 'rgba(255, 255, 255, 1)',
+            // This has to be the same size as the maximum width to
+            // prevent clipping
+            strokeWidth: 4,
+            trailWidth: 0,
+            duration: 25000,
+            trigger1: false,
+            text: {
+                autoStyleContainer: false
+            },
+            from: { color: '#aaa', width: 34 },
+            to: { color: '#333', width: 34 },
+            // Set default step function for all animate calls
+            step: function (state: any, circle: any) {
+                //              circle.path.setAttribute('stroke', state.color);
+                circle.path.setAttribute('stroke-width', state.width);
+
+                var time = 25;
+
+
+                var value = Math.round(circle.value() * 25);
+                if (value === 0) {
+                    circle.setText('');
+                } else {
+                    circle.setText(time - value + '<br><p>sec</p>');
+                }
+                switch (value) {
+                    case 0:
+                        $('#container .all svg path').css('stroke', '#05afda');
+                        break;
+                    case 7:
+                        if (this.trigger1 === false) {
+                            $("#container .all svg path").css({ 'stroke': '#7affae', transition: '0.5s' });
+                            this.trigger1 = true;
+                        }
+                        break;
+                    case 14:
+                        $("#container .all svg path").css({ 'stroke': '#fffcb2' });
+                        break;
+                    case 21:
+                        $("#container .all svg path").css({ 'stroke': '#ffa5e9' });
+                        break;
+                }
+            }
+        });
+
+
+        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+        bar.text.style.fontSize = '2rem';
+
+        bar.animate(1.0);  // Number from 0.0 to 1.0
+        load.animate(1.0);
+
     }
 
 }

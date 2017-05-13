@@ -8,79 +8,130 @@
 /* material design icons */
 
 @font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.eot); /* For IE6-8 */
-  src: local('Material Icons'),
-       local('MaterialIcons-Regular'),
-       url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.woff2) format('woff2'),
-       url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.woff) format('woff'),
-       url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.ttf) format('truetype');
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.eot); /* For IE6-8 */
+    src: local('Material Icons'), local('MaterialIcons-Regular'), url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.woff2) format('woff2'), url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.woff) format('woff'), url(/static/fonts/vendor/material-design-icons/MaterialIcons-Regular.ttf) format('truetype');
 }
 
 .material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
-
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
-
-  /* Support for IE. */
-  font-feature-settings: 'liga';
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px; /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+    /* Support for IE. */
+    font-feature-settings: 'liga';
 }
 
-.material-icons.orange600 { color: #FB8C00; }
+.material-icons.orange600 {
+    color: #FB8C00;
+}
 
 /* Rules for sizing the icon. */
-.material-icons.md-18 { font-size: 18px; }
-.material-icons.md-24 { font-size: 24px; }
-.material-icons.md-36 { font-size: 36px; }
-.material-icons.md-48 { font-size: 48px; }
+.material-icons.md-18 {
+    font-size: 18px;
+}
+
+.material-icons.md-24 {
+    font-size: 24px;
+}
+
+.material-icons.md-36 {
+    font-size: 36px;
+}
+
+.material-icons.md-48 {
+    font-size: 48px;
+}
 
 /* Rules for using icons as black on a light background. */
-.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
-.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+.material-icons.md-dark {
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.material-icons.md-dark.md-inactive {
+    color: rgba(0, 0, 0, 0.26);
+}
 
 /* Rules for using icons as white on a dark background. */
-.material-icons.md-light { color: rgba(255, 255, 255, 1); }
-.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+.material-icons.md-light {
+    color: rgba(255, 255, 255, 1);
+}
+
+.material-icons.md-light.md-inactive {
+    color: rgba(255, 255, 255, 0.3);
+}
 
 /* m-progress button loading animation */
 
 @-webkit-keyframes ld {
-  0%   { transform: rotate(0deg) scale(1); }
-  50%  { transform: rotate(180deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
 }
+
 @-moz-keyframes ld {
-  0%   { transform: rotate(0deg) scale(1); }
-  50%  { transform: rotate(180deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
 }
+
 @-o-keyframes ld {
-  0%   { transform: rotate(0deg) scale(1); }
-  50%  { transform: rotate(180deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
 }
+
 @keyframes ld {
-  0%   { transform: rotate(0deg) scale(1); }
-  50%  { transform: rotate(180deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
 }
 
 .m-progress {
@@ -101,30 +152,24 @@
 
 .m-progress:before {
     content: '';
-    
     display: inline-block;
-    
     position: absolute;
     background: transparent;
     border: 1px solid #fff;
     border-top-color: transparent;
     border-bottom-color: transparent;
     border-radius: 50%;
-    
     box-sizing: border-box;
-    
     top: 50%;
     left: 50%;
     margin-top: -12px;
     margin-left: -12px;
-    
     width: 24px;
     height: 24px;
-    
     -webkit-animation: ld 1s ease-in-out infinite;
-    -moz-animation:    ld 1s ease-in-out infinite;
-    -o-animation:      ld 1s ease-in-out infinite;
-    animation:         ld 1s ease-in-out infinite;
+    -moz-animation: ld 1s ease-in-out infinite;
+    -o-animation: ld 1s ease-in-out infinite;
+    animation: ld 1s ease-in-out infinite;
 }
 
 .btn-default.m-progress:before {
@@ -135,7 +180,6 @@
 .btn-lg.m-progress:before {
     margin-top: -16px;
     margin-left: -16px;
-    
     width: 32px;
     height: 32px;
 }
@@ -143,7 +187,6 @@
 .btn-sm.m-progress:before {
     margin-top: -9px;
     margin-left: -9px;
-    
     width: 18px;
     height: 18px;
 }
@@ -151,7 +194,6 @@
 .btn-xs.m-progress:before {
     margin-top: -7px;
     margin-left: -7px;
-    
     width: 14px;
     height: 14px;
 }
@@ -193,7 +235,7 @@ body {
     // rainbow font firefox > 49 and webkit only
     background-image: -webkit-gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
     background-image: gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
-    color:transparent;
+    color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
 }
@@ -204,54 +246,45 @@ body {
 
 .playerColumn {
     height: 100%;
-
     // overwrite twbs
     padding-right: 0px !important;
     padding-left: 0px !important;
 }
 
 .playerColumnRed {
-
     background-color: #ffa3b6;
     @include gradient-y(#ffa3b6, #ff4a4b);
 
-    .playerTopContainer{
+    .playerTopContainer {
         background-color: #ff5c7f;
     }
-
 }
 
 .playerColumnBlue {
-
     background-color: #54e0fb;
     @include gradient-y(#54e0fb, #2189de);
 
-    .playerTopContainer{
+    .playerTopContainer {
         background-color: #00c5f1;
     }
-
 }
 
 .playerColumnGreen {
-
     background-color: #35edc1;
     @include gradient-y(#35edc1, #01a86b);
 
-    .playerTopContainer{
+    .playerTopContainer {
         background-color: #09d191;
     }
-
 }
 
 .playerColumnYellow {
-
     background-color: #fdd676;
     @include gradient-y(#fdd676, #f2a127);
 
-    .playerTopContainer{
+    .playerTopContainer {
         background-color: #f7c21f;
     }
-
 }
 
 .playerColumnClickZone {
@@ -280,31 +313,10 @@ body {
         font-weight: 600;
         font-size: 1.5rem;
     }
-
 }
 
 .hidden {
     display: none;
-}
-
-.countdown {
-    position: absolute;
-    bottom: 0;
-    z-index: 100;
-    color: white;
-    font-size: 10rem;
-}
-
-.mastercountdown {
-    color: red;
-}
-
-.playingCountdown {
-    left: 0;
-}
-
-.answerCountdown {
-    right: 0;
 }
 
 .messageContainer {
@@ -312,7 +324,6 @@ body {
     background-color: rgba(255,255,255,0.3);
     padding: 20px;
     @include border-radius(60px);
-
     // http://stackoverflow.com/a/23384995/656689
     position: absolute;
     left: 50%;
@@ -347,9 +358,7 @@ body {
 }
 
 .playerPodiumColumn {
-
     height: 100%; // will be overwritten by js
-
     .podiumPlayerName {
         text-align: center;
         font-weight: 800;
@@ -363,7 +372,6 @@ body {
         color: white;
         font-size: 1.5rem;
     }
-
 }
 
 .gameOver {
@@ -373,7 +381,7 @@ body {
     // rainbow font firefox > 49 and webkit only
     background-image: -webkit-gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
     background-image: gradient( linear, left top, right top, color-stop(0, #ff5c7f), color-stop(0.33, #00c5f1), color-stop(0.66, #09d191), color-stop(1, #f7c21f) );
-    color:transparent;
+    color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
 }
@@ -391,7 +399,6 @@ body {
 }
 
 .visualizerCanvas {
-
 }
 
 .playlistInformation {
@@ -424,7 +431,6 @@ body {
         padding-right: 5px;
         padding-left: 5px;
     }
-
 }
 
 .playerBottomContainer {
@@ -447,4 +453,287 @@ body {
     height: 90px;
     @include border-radius(45px);
     margin: 0 auto;
+}
+
+.countdown {
+    position: absolute;
+    bottom: 0;
+    z-index: 100;
+    color: white;
+    font-size: 10rem;
+}
+
+.mastercountdown {
+    color: red;
+}
+
+.playingCountdown {
+    left: 0;
+}
+
+.answerCountdown {
+    right: 0;
+}
+
+.playingCountdownContainer {
+    position: absolute;
+    bottom: 0;
+    z-index: 100;
+    color: white;
+    font-size: 10rem;
+    left: 0;
+}
+
+.answerCountdownContainer {
+    position: absolute;
+    bottom: 0;
+    z-index: 100;
+    color: white;
+    font-size: 10rem;
+    right: 0;
+}
+
+.anim-parent {
+    width: 250px;
+    height: 250px;
+    position: relative;
+    background-color: black;
+    top: 400px;
+    left: 400px;
+    border-radius: 50%;
+
+    .center {
+        position: absolute;
+        background-color: white;
+        width: 50%;
+        height: 50%;
+        left: 25%;
+        top: 25%;
+        border-radius: 50%;
+    }
+
+    .gradient {
+    }
+
+    .mask {
+    }
+}
+
+#container {
+    position: relative;
+    margin: 20px;
+    width: 200px;
+    height: 200px;
+    left: 50%;
+    top: 200px;
+    margin-left: -100px;
+
+    .center {
+        position: absolute;
+        width: 80%;
+        height: 80%;
+        background-color: #fff;
+        top: 10%;
+        left: 10%;
+        border-radius: 50%;
+        box-shadow: 0px 0px 48px -9px #23201E;
+    }
+
+    .center:before {
+        content: '';
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        top: -50px;
+        left: -50px;
+        background-color: #fff;
+        opacity: 0.15;
+        border-radius: 50%;
+    }
+
+    p {
+        margin: 0px;
+    }
+
+    .progressbar-text {
+        text-align: center !important;
+    }
+
+    svg {
+        overflow: visible !important;
+        //background: linear-gradient(to left, #077ef9, #51dcf9);
+        path {
+            //transition: 0.5s;
+            //stroke: linear-gradient(to left, #077ef9, #51dcf9) !important;
+            //background: linear-gradient(to left, #077ef9, #51dcf9) !important;
+        }
+    }
+
+    &:before {
+        content: '';
+        position: absolute;
+        width: 96%;
+        height: 96%;
+        top: 2%;
+        left: 2%;
+        background-color: #fff;
+        opacity: 0.3;
+        border-radius: 50%;
+    }
+
+    &:after {
+        content: '';
+        position: absolute;
+        width: 110%;
+        height: 110%;
+        top: -5%;
+        left: -5%;
+        background-color: #fff;
+        opacity: 0.15;
+        border-radius: 50%;
+    }
+}
+
+.all {
+}
+
+#second-load {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#line1 {
+    animation: animate1 4s linear infinite;
+    clip: rect(0, 80px, 80px, 40px);
+    height: 220px;
+    width: 220px;
+    position: absolute;
+    left: calc(50% - 110px);
+    top: calc(50% - 110px);
+}
+
+#line2 {
+    animation: animate2 4s linear infinite;
+    clip: rect(0, 80px, 80px, 40px);
+    height: 220px;
+    width: 220px;
+    position: absolute;
+    left: calc(50% - 110px);
+    top: calc(50% - 110px);
+}
+
+#line3 {
+    animation: animate3 5s linear infinite;
+    clip: rect(0, 80px, 80px, 40px);
+    height: 190px;
+    width: 190px;
+    position: absolute;
+    left: calc(50% - 95px);
+    top: calc(50% - 95px);
+}
+
+@keyframes animate1 {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes animate2 {
+    0% {
+        transform: rotate(-180deg);
+    }
+
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes animate3 {
+    0% {
+        transform: rotate(-90deg);
+    }
+
+    100% {
+        transform: rotate(270deg);
+    }
+}
+
+#line1:after {
+    animation: animate_1 4s ease-in-out infinite;
+    //clip: rect(0, 200px, 200px, 100px);
+    content: '';
+    border-radius: 50%;
+    height: 220px;
+    width: 220px;
+    position: absolute;
+}
+
+#line2:after {
+    animation: animate_1 4s ease-in-out infinite;
+    //clip: rect(0, 200px, 200px, 100px);
+    content: '';
+    border-radius: 50%;
+    height: 220px;
+    width: 220px;
+    position: absolute;
+}
+
+#line3:after {
+    animation: animate_1 4s ease-in-out infinite;
+    //clip: rect(0, 200px, 200px, 100px);
+    content: '';
+    border-radius: 50%;
+    height: 190px;
+    width: 190px;
+    position: absolute;
+}
+
+@keyframes animate_1 {
+    0% {
+        box-shadow: inset #fff 0 0 0 2px;
+        transform: rotate(-180deg);
+    }
+    //50% {
+    //  box-shadow: inset #fff 0 0 0 2px;
+    //  transform: rotate(-100deg);
+    //}
+    100% {
+        box-shadow: inset #fff 0 0 0 2px;
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes animate_2 {
+    0% {
+        box-shadow: inset #fff 0 0 0 2px;
+        transform: rotate(-140deg);
+    }
+    //50% {
+    //  box-shadow: inset #fff 0 0 0 2px;
+    //  transform: rotate(-100deg);
+    //}
+    100% {
+        box-shadow: inset #fff 0 0 0 2px;
+        transform: rotate(140deg);
+    }
+}
+
+@keyframes animate_3 {
+    0% {
+        box-shadow: inset #fff 0 0 0 2px;
+        transform: rotate(-140deg);
+    }
+    //50% {
+    //  box-shadow: inset #fff 0 0 0 2px;
+    //  transform: rotate(-100deg);
+    //}
+    100% {
+        box-shadow: inset #fff 0 0 0 2px;
+        transform: rotate(140deg);
+    }
 }

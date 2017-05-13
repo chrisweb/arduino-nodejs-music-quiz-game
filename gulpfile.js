@@ -43,7 +43,8 @@ gulp.task('build-js', [
     'copy:socketio-client',
     'copy:isomorphix-router',
     'copy:web-audio-api-player',
-    'copy:systemjs'
+    'copy:systemjs',
+    'copy:progressbarjs'
 ], () => {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
@@ -135,6 +136,13 @@ gulp.task('copy:systemjs', () => {
     return gulp
         .src(['node_modules/systemjs/dist/system.js', 'node_modules/systemjs/dist/system.js.map'])
         .pipe(gulp.dest('build/assets/javascripts/vendor/systemjs/'));
+});
+
+// copy progressbar.js from node modules into the assets build directory
+gulp.task('copy:progressbarjs', () => {
+    return gulp
+        .src('node_modules/progressbar.js/dist/progressbar.js')
+        .pipe(gulp.dest('build/assets/javascripts/vendor/progressbarjs/'));
 });
 
 // copy material design icons
