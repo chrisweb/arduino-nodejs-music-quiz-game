@@ -204,6 +204,8 @@ body {
     position: absolute;
     height: 100%;
     width: 100%;
+
+    overflow: hidden;
 }
 
 .screen {
@@ -476,21 +478,21 @@ body {
 }
 
 .playingCountdownContainer {
-    position: absolute;
-    bottom: 0;
-    z-index: 100;
-    color: white;
-    font-size: 10rem;
-    left: 0;
+    //position: absolute;
+    //bottom: 0;
+    //z-index: 100;
+    //color: white;
+    //font-size: 10rem;
+    //left: 0;
 }
 
 .answerCountdownContainer {
-    position: absolute;
-    bottom: 0;
-    z-index: 100;
-    color: white;
-    font-size: 10rem;
-    right: 0;
+    //position: absolute;
+    //bottom: 0;
+    //z-index: 100;
+    //color: white;
+    //font-size: 10rem;
+    //right: 0;
 }
 
 .anim-parent {
@@ -519,14 +521,28 @@ body {
     }
 }
 
-#container {
+.playingCountdownContainer, .answerCountdownContainer {
+/*#container {*/
     position: relative;
-    margin: 20px;
+    //margin: 20px;
     width: 200px;
     height: 200px;
     left: 50%;
-    top: 200px;
+    top: -240px;
     margin-left: -100px;
+
+    z-index: 200;
+
+    /*position: absolute;
+    bottom: 0;
+    z-index: 100;
+    color: white;
+    font-size: 10rem;*/
+    //left: 0;
+
+    /*margin: 20px;
+    width: 200px;
+    height: 200px;*/
 
     .center {
         position: absolute;

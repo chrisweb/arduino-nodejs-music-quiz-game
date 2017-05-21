@@ -34,8 +34,6 @@ export class PlayerController {
 
     protected _playersData: IPlayersDataSource;
     protected _playlistSongs: any;
-    protected _songPlayingIntervalId: number;
-    protected _answerIntervalId: number;
     protected _socket: SocketIOClient.Socket;
     protected _$container: JQuery;
     protected _songsAudioPlayer: PlayerCore;
@@ -50,6 +48,9 @@ export class PlayerController {
     protected _answerTimeDuration: number;
     protected _answerTimeSelect: number = 15;
     protected _audioPlayerVisualizer: PlayerVisualizer;
+    protected _countdownAnimationLoad: any;
+    protected _countdownAnimationBar: any;
+    protected _countdownAnimationProgress: number = 0;
 
     public constructor() {
 
@@ -377,14 +378,14 @@ export class PlayerController {
 
             this._$container.append($songPlayingCounter);
 
-            this._buildCountdown('playing');
+            //this._buildCountdown('playing');
 
             // add answer counter
             let $songAnswerCounter = $('<div class="js-countdown-answer-container hidden countdown answerCountdownContainer">');
 
             this._$container.append($songAnswerCounter);
 
-            this._buildCountdown('answer');
+            //this._buildCountdown('answer');
 
             // add message container
             let $messageContainer = $('<div class="js-message-container hidden messageContainer">');
@@ -469,14 +470,14 @@ export class PlayerController {
 
                         // hide any previous messages
                         this._hideMessage();
-
-                        // start countdown
-                        this._startSongPlayingCountdown();
-
+                        
                         // visualizer
                         this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
 
                         this._audioPlayerVisualizer.looper();
+                        
+                        // start countdown animation
+                        this._startSongPlayingCountdown();
 
                     },
                     onPaused: (playTimeOffset) => {
@@ -491,6 +492,9 @@ export class PlayerController {
 
                         // visualizer
                         this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
+
+                        // pause countdown animation
+                        this._pauseSongPlayingCountdown();
 
                     },
                     onResumed: (playTimeOffset) => {
@@ -511,6 +515,9 @@ export class PlayerController {
 
                         this._audioPlayerVisualizer.looper();
 
+                        // resume countdown animation
+                        this._resumeSongPlayingCountdown();
+
                     },
                     onStopped: (playTimeOffset) => {
 
@@ -522,6 +529,9 @@ export class PlayerController {
                         // visualizer
                         this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
 
+                        // stop countdown animation
+                        this._stopSongPlayingCountdown();
+
                     },
                     onEnded: (willPlayNext) => {
 
@@ -531,15 +541,15 @@ export class PlayerController {
 
                         // update the playing status
                         this._isSongPlaying = false;
-
-                        // stop countdown 
-                        this._stopSongPlayingCountdown();
-
+                        
                         // show message time run out but no answer was given
                         this._showMessage('noAnswer');
 
                         // visualizer
                         this._audioPlayerVisualizer.setIsPlaying(this._isSongPlaying);
+
+                        // stop countdown animation
+                        this._stopSongPlayingCountdown();
 
                     }
                 };
@@ -732,90 +742,6 @@ export class PlayerController {
 
     }
 
-    protected _startSongPlayingCountdown() {
-
-        let $songPlayingCountdown = this._$container.find('.js-countdown-playing-container');
-
-        $songPlayingCountdown.removeClass('hidden');
-
-        /*const onSongPlayingInterval = () => {
-
-            if (this._songPlayingProgress !== null) {
-
-                let count = 30 - Math.round(this._songPlayingProgress);
-
-                // deezer songs seem to be a little bit over 30 seconds
-                // as we substract the playtime from 30 seconds we need to
-                // exclude some potential negative values
-                if (count < 0) {
-                    return;
-                }
-
-                $songPlayingCountdown.text(count);
-
-            }
-
-        }
-
-        this._songPlayingIntervalId = window.setInterval(onSongPlayingInterval, 300);
-        */
-
-        this._runCountdown('playing');
-
-    }
-
-    protected _stopSongPlayingCountdown() {
-
-        let $songPlayingCountdown = this._$container.find('.js-countdown-playing-container');
-
-        $songPlayingCountdown.addClass('hidden');
-        $songPlayingCountdown.text('');
-
-        this._songPlayingProgress = null;
-
-        clearInterval(this._songPlayingIntervalId);
-
-    }
-
-    protected _startAnswerCountdown() {
-
-        let $answerCountdown = this._$container.find('.js-countdown-answer-container');
-        
-        $answerCountdown.removeClass('hidden');
-
-        this._answerTimeDuration = this._answerTimeSelect;
-
-        const onAnswerInterval = () => {
-
-            if (this._answerTimeDuration > 0) {
-
-                $answerCountdown.text(this._answerTimeDuration);
-
-                this._answerTimeDuration--;
-
-            } else {
-
-                // we will get a socket.io message from game master screen
-
-            }
-
-        }
-
-        this._answerIntervalId = window.setInterval(onAnswerInterval, 1000);
-
-    }
-
-    protected _stopAnswerCountdown() {
-
-        let $answerCountdown = this._$container.find('.js-countdown-answer-container');
-
-        $answerCountdown.addClass('hidden');
-        $answerCountdown.text('');
-
-        clearInterval(this._answerIntervalId);
-
-    }
-
     protected _onPlaySong() {
 
         let songData = this._getSongData(this._currentPlaylistSongIndex);
@@ -990,6 +916,74 @@ export class PlayerController {
         
     }
 
+    protected _startSongPlayingCountdown() {
+
+        let prefix = 'playing';
+
+        let $songPlayingCountdown = this._$container.find('.js-countdown-' + prefix + '-container');
+
+        $songPlayingCountdown.removeClass('hidden');
+
+        this._buildCountdown(prefix);
+
+        this._startCountdown();
+
+    }
+
+    protected _pauseSongPlayingCountdown() {
+
+        this._pauseCountdown();
+
+    }
+
+    protected _resumeSongPlayingCountdown() {
+
+        this._resumeCountdown();
+
+    }
+
+    protected _stopSongPlayingCountdown() {
+
+        let $songPlayingCountdown = this._$container.find('.js-countdown-playing-container');
+
+        $songPlayingCountdown.addClass('hidden');
+        $songPlayingCountdown.text('');
+
+        this._songPlayingProgress = null;
+
+        this._pauseCountdown();
+
+        this._destroyCountdown();
+
+    }
+
+    protected _startAnswerCountdown() {
+
+        //let prefix = 'answer';
+
+        //let $answerCountdown = this._$container.find('.js-countdown-' + prefix + '-container');
+
+        //$answerCountdown.removeClass('hidden');
+
+        //this._buildCountdown(prefix);
+
+        //this._startCountdown();
+
+    }
+
+    protected _stopAnswerCountdown() {
+
+        //let $answerCountdown = this._$container.find('.js-countdown-answer-container');
+
+        //$answerCountdown.addClass('hidden');
+        //$answerCountdown.text('');
+
+        //this._pauseCountdown();
+
+        //this._destroyCountdown();
+
+    }
+
     protected _buildCountdown(prefix: string) {
 
         let $countdownContainer = this._$container.find('.js-countdown-' + prefix + '-container');
@@ -1012,16 +1006,15 @@ export class PlayerController {
         $centerBlock.append($secondLoad);
         $allBlock.append($firstLoad);
 
-    }
-
-    protected _runCountdown(prefix: string) {
-
         let firstLoad = '.js-countdown-' + prefix + '-container #firstLoad';
         let secondLoad = '.js-countdown-' + prefix + '-container #secondLoad';
 
-        var load = new ProgressBar.Circle(secondLoad, {
+        let that = this;
+
+        let countdownAnimationLoad = new ProgressBar.Circle(secondLoad, {
             strokeWidth: 5,
-            duration: 25000,
+            // duration for animation in milliseconds
+            duration: 30000,
             color: '#0880f9',
             trailColor: '#cefaef',
             trailWidth: 5,
@@ -1033,83 +1026,133 @@ export class PlayerController {
                 top: '8px'
             },
             step: function (state: any, circle: any) {
-                var value = Math.round(circle.value() * 25);
+
+                let value = Math.round(circle.value() * 30);
+
+                let $countdownContainer = that._$container.find('.js-countdown-' + prefix + '-container');
 
                 switch (value) {
                     case 0:
-                        $('#container .center svg path:nth-child(2)').css('stroke', '#05afda');
+                        $countdownContainer.find('.center').find('svg path:nth-child(2)').css('stroke', '#05afda');
                         break;
                     case 7:
                         if (this.trigger1 === false) {
-                            $("#container .center svg path:nth-child(2)").css({ 'stroke': '#7affae', transition: '0.5s' });
+                            $countdownContainer.find('.center').find('svg path:nth-child(2)').css({ 'stroke': '#7affae', transition: '0.5s' });
                             this.trigger1 = true;
                         }
-
                         break;
                     case 14:
-                        $("#container .center svg path:nth-child(2)").css({ 'stroke': '#fffcb2' });
+                        $countdownContainer.find('.center').find('svg path:nth-child(2)').css({ 'stroke': '#fffcb2' });
                         break;
                     case 21:
-                        $("#container .center svg path:nth-child(2)").css({ 'stroke': '#ffa5e9' });
+                        $countdownContainer.find('.center').find('svg path:nth-child(2)').css({ 'stroke': '#ffa5e9' });
                         break;
                 }
+
+                that._countdownAnimationProgress = circle.value();
+
             }
+
         });
 
-        var bar = new ProgressBar.Circle(firstLoad, {
+        let countdownAnimationBar = new ProgressBar.Circle(firstLoad, {
             color: '#006dec',
-            //            fill: 'rgba(255, 255, 255, 1)',
-            // This has to be the same size as the maximum width to
+            // fill: 'rgba(255, 255, 255, 1)',
+            // this has to be the same size as the maximum width to
             // prevent clipping
             strokeWidth: 4,
             trailWidth: 0,
-            duration: 25000,
+            // duration for animation in milliseconds
+            duration: 30000,
             trigger1: false,
             text: {
                 autoStyleContainer: false
             },
-            from: { color: '#aaa', width: 34 },
-            to: { color: '#333', width: 34 },
-            // Set default step function for all animate calls
+            from: {
+                color: '#aaa',
+                width: 34
+            },
+            to: {
+                color: '#333',
+                width: 34
+            },
+            // set default step function for all animate calls
             step: function (state: any, circle: any) {
-                //              circle.path.setAttribute('stroke', state.color);
+
+                // circle.path.setAttribute('stroke', state.color);
                 circle.path.setAttribute('stroke-width', state.width);
 
-                var time = 25;
+                let time = 30;
 
+                let value = Math.round(circle.value() * 30);
 
-                var value = Math.round(circle.value() * 25);
                 if (value === 0) {
                     circle.setText('');
                 } else {
                     circle.setText(time - value + '<br><p>sec</p>');
                 }
+
+                let $countdownContainer = that._$container.find('.js-countdown-' + prefix + '-container');
+
                 switch (value) {
                     case 0:
-                        $('#container .all svg path').css('stroke', '#05afda');
+                        $countdownContainer.find('.all').find('svg path').css('stroke', '#05afda');
                         break;
                     case 7:
                         if (this.trigger1 === false) {
-                            $("#container .all svg path").css({ 'stroke': '#7affae', transition: '0.5s' });
+                            $countdownContainer.find('.all').find('svg path').css({ 'stroke': '#7affae', transition: '0.5s' });
                             this.trigger1 = true;
                         }
                         break;
                     case 14:
-                        $("#container .all svg path").css({ 'stroke': '#fffcb2' });
+                        $countdownContainer.find('.all').find('svg path').css({ 'stroke': '#fffcb2' });
                         break;
                     case 21:
-                        $("#container .all svg path").css({ 'stroke': '#ffa5e9' });
+                        $countdownContainer.find('.all').find('svg path').css({ 'stroke': '#ffa5e9' });
                         break;
                 }
+
             }
+
         });
 
+        countdownAnimationBar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+        countdownAnimationBar.text.style.fontSize = '2rem';
+        
+        this._countdownAnimationLoad = countdownAnimationLoad;
+        this._countdownAnimationBar = countdownAnimationBar;
 
-        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-        bar.text.style.fontSize = '2rem';
+    }
 
-        bar.animate(1.0);  // Number from 0.0 to 1.0
-        load.animate(1.0);
+    protected _startCountdown() {
+
+        this._countdownAnimationLoad.animate(1.0); // number from 0.0 to 1.0, the progress at which animation should stop
+        this._countdownAnimationBar.animate(1.0); // number from 0.0 to 1.0, the progress at which animation should stop
+        
+    }
+
+    protected _pauseCountdown() {
+
+        this._countdownAnimationLoad.stop();
+        this._countdownAnimationBar.stop();
+        
+    }
+
+    protected _resumeCountdown() {
+
+        this._countdownAnimationLoad.set(this._countdownAnimationProgress);
+        this._countdownAnimationBar.set(this._countdownAnimationProgress);
+        
+        this._startCountdown();
+
+    }
+
+    protected _destroyCountdown() {
+
+        this._countdownAnimationLoad.destroy();
+        this._countdownAnimationBar.destroy();
+        
+        this._countdownAnimationProgress = 0;
 
     }
 
