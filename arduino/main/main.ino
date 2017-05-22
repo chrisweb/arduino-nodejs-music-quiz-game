@@ -1,13 +1,13 @@
 // set pin numbers:
-const int button1Pin = 2;     // the number of the pushbutton pin
-const int button2Pin = 7;
-const int button3Pin = 12;
-const int button4Pin = 13;
+const int button1Pin = 0;//2;     // the number of the pushbutton pin
+const int button2Pin = 2;//7;
+const int button3Pin = 7;//12;
+const int button4Pin = 12;//13;
 
-const int led1Pin =  4;       // the number of the LED pin
-const int led2Pin =  8;
-const int led3Pin =  10;
-const int led4Pin =  11;
+const int led1Pin =  1;//4;       // the number of the LED pin
+const int led2Pin =  4;//8;
+const int led3Pin =  8;//10;
+const int led4Pin =  13;//11;
 
 bool button1Active = true;
 bool button1Selected = false;
@@ -32,9 +32,13 @@ void setup() {
   // initialize the LED pin as an output:
   pinMode(led1Pin, OUTPUT);
   pinMode(led2Pin, OUTPUT);
+  pinMode(led3Pin, OUTPUT);
+  pinMode(led4Pin, OUTPUT);
   // initialize the pushbutton pin as an input:
   pinMode(button1Pin, INPUT);
   pinMode(button2Pin, INPUT);
+  pinMode(button3Pin, INPUT);
+  pinMode(button4Pin, INPUT);
   // initialize serial communication:
   Serial.begin(9600);
 }
