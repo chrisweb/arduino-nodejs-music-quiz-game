@@ -47,6 +47,8 @@ export class GameMasterController {
 
         let $body = $('body');
 
+        $body.addClass('gamemasterScreen');
+
         this._$container = $body.find('.js-container');
 
         this._$container.addClass('container');

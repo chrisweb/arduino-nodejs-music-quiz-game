@@ -205,8 +205,17 @@ body {
     height: 100%;
     width: 100%;
 
-    overflow: hidden;
+    &.playerScreen {
+        overflow: hidden;
+    }
+
+    &.gamemasterScreen {
+        
+    }
+
 }
+
+
 
 .screen {
     height: 100%;

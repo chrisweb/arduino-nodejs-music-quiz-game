@@ -111,6 +111,8 @@ export class PlayerController {
 
         let $body = $('body');
 
+        $body.addClass('playerScreen');
+
         this._$container = $body.find('.js-container');
 
         // open socket.io connection
