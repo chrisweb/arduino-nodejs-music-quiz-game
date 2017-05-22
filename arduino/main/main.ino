@@ -10,15 +10,19 @@ const int led3Pin =  10;
 const int led4Pin =  11;
 
 bool button1Active = true;
+bool button1Selected = false;
 int button1State = 0;         // variable for reading the pushbutton status
 
 bool button2Active = true;
+bool button2Selected = false;
 int button2State = 0;
 
 bool button3Active = true;
+bool button3Selected = false;
 int button3State = 0;
 
 bool button4Active = true;
+bool button4Selected = false;
 int button4State = 0;
 
 String writeBuffer;
@@ -37,15 +41,19 @@ void setup() {
 
 void serialEvent() {
   readBuffer = Serial.readString();
-  Serial.println("------------");
-  Serial.println(readBuffer);
-  Serial.println("------------");
-  if (readBuffer.length() == 4) {
-    button1Active = readBuffer.charAt(0) == '0' ? false : true;
-    button2Active = readBuffer.charAt(1) == '0' ? false : true;
-    button3Active = readBuffer.charAt(2) == '0' ? false : true;
-    button4Active = readBuffer.charAt(3) == '0' ? false : true;
-  }
+  Serial.println("-" + readBuffer);
+  
+  button1Active = readBuffer.charAt(0) == '0' ? false : true;
+  button1Selected = readBuffer.charAt(2) == '0' ? false : true;
+  
+  button2Active = readBuffer.charAt(3) == '0' ? false : true;
+  button2Selected = readBuffer.charAt(5) == '0' ? false : true;
+  
+  button3Active = readBuffer.charAt(6) == '0' ? false : true;
+  button3Selected = readBuffer.charAt(8) == '0' ? false : true;
+  
+  button4Active = readBuffer.charAt(9) == '0' ? false : true;
+  button4Selected = readBuffer.charAt(11) == '0' ? false : true;
 }
 
 void loop() {
@@ -55,36 +63,55 @@ void loop() {
   button3State = digitalRead(button3Pin);
   button4State = digitalRead(button4Pin);
 
-  if (button1Active == HIGH) {
-    // turn LED on:
-    digitalWrite(led1Pin, HIGH);
+
+  if (button1Active == true) {
+    // check if the pushbutton is pressed.
+    // if it is, the buttonState is HIGH:
+    if (button1State == HIGH || button1Selected == true) {
+      // turn LED on:
+      digitalWrite(led1Pin, HIGH);
+    } else {
+      // turn LED off:
+      digitalWrite(led1Pin, LOW);
+    }
   } else {
-    // turn LED off:
     digitalWrite(led1Pin, LOW);
   }
 
-  if (button2Active == HIGH) {
-    digitalWrite(led2Pin, HIGH);
+  if (button2Active == true) {
+    if (button2State == HIGH || button2Selected == true) {
+      digitalWrite(led2Pin, HIGH);
+    } else {
+      digitalWrite(led2Pin, LOW);
+    }
   } else {
     digitalWrite(led2Pin, LOW);
   }
 
-  if (button3Active == HIGH) {
-    digitalWrite(led3Pin, HIGH);
+  if (button3Active == true) {
+    if (button3State == HIGH || button3Selected == true) {
+      digitalWrite(led3Pin, HIGH);
+    } else {
+      digitalWrite(led3Pin, LOW);
+    }
   } else {
     digitalWrite(led3Pin, LOW);
   }
 
-  if (button4Active == HIGH) {
-    digitalWrite(led4Pin, HIGH);
+  if (button4Active == true) {
+    if (button4State == HIGH || button4Selected == true) {
+      digitalWrite(led4Pin, HIGH);
+    } else {
+      digitalWrite(led4Pin, LOW);
+    }
   } else {
     digitalWrite(led4Pin, LOW);
   }
   
   // send button status
-  writeBuffer = String(button1Active) + String(button1State) 
-                + String(button2Active) + String(button2State) 
-                + String(button3Active) + String(button3State) 
-                + String(button4Active) + String(button4State);
+  writeBuffer = String(button1Active) + String(button1State) + String(button1Selected)
+                + String(button2Active) + String(button2State) + String(button2Selected)
+                + String(button3Active) + String(button3State) + String(button3Selected)
+                + String(button4Active) + String(button4State) + String(button4Selected);
   Serial.println(writeBuffer);
 }
