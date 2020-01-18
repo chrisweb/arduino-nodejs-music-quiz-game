@@ -1,7 +1,4 @@
-﻿
-'use strict';
-
-// nodejs
+﻿// nodejs
 import * as SerialPort from 'serialport';
 const parsers = SerialPort.parsers;
 

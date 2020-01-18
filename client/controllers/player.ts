@@ -1,8 +1,4 @@
-﻿
-'use strict';
-
-// vendor (node_modules)
-import * as $ from 'jquery';
+﻿// vendor (node_modules)
 import * as io from 'socket.io-client';
 import { PlayerCore, ICoreOptions, PlayerSound, ISoundAttributes } from 'web-audio-api-player';
 let ProgressBar = require('progressbar');

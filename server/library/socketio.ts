@@ -1,7 +1,4 @@
-﻿
-'use strict';
-
-// node
+﻿// node
 import * as http from 'http';
 
 // vendor (node_modules)
@@ -37,7 +34,7 @@ export interface IClientIds {
     gameMasterScreenId: string | null;
 }
 
-export default class SocketIoLibrary {
+export class SocketIoLibrary {
 
     protected _io: SocketIO.Server;
     protected _configuration: IConfiguration;

@@ -1,7 +1,4 @@
-﻿
-'use strict';
-
-// library
+﻿// library
 import { IRequest, IRouteConfiguration, IRouteLoadHandler, IRouteUnLoadHandler } from 'isomorphix-router';
 import { GameMasterController } from 'client/controllers/gameMaster';
 import { PlayerController } from 'client/controllers/player';

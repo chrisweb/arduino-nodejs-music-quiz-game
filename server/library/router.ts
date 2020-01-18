@@ -1,11 +1,8 @@
-﻿
-'use strict';
-
-// vendor (node_modules)
+﻿// vendor (node_modules)
 import * as express from 'express';
 import * as path from 'path';
 
-export default class Router {
+export class Router {
 
     private application: express.Application;
 

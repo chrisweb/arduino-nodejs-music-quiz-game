@@ -8,6 +8,8 @@
 ###############################################################################
 *.js eol=lf
 *.ts eol=lf
+*.mjs eol=lf
+*.tsx eol=lf
 
 ###############################################################################
 # Set the merge driver for project and solution files
@@ -40,6 +42,16 @@
 *.jpg   binary
 *.png   binary
 *.gif   binary
+*.ai    binary
+
+###############################################################################
+# behavior for font files
+###############################################################################
+*.otf   binary
+*.eot   binary
+*.ttf   binary
+*.woff  binary
+*.woff2 binary
 
 ###############################################################################
 # diff behavior for common document formats
@@ -57,11 +69,3 @@
 *.PDF   diff=astextplain
 *.rtf   diff=astextplain
 *.RTF   diff=astextplain
-
-###############################################################################
-# behavior for font files
-###############################################################################
-*.ttf     -text diff
-*.eot     -text diff
-*.woff    -text diff
-*.woff2   -text diff

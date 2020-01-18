@@ -1,7 +1,4 @@
-﻿
-'use strict';
-
-// node
+﻿// node
 import * as path from 'path';
 
 // vendor (node_modules)
@@ -9,13 +6,13 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 
 // library
-import Router from './library/router';
-import SocketIoLibrary from './library/socketio';
+import { Router } from './library/router';
+import { SocketIoLibrary } from './library/socketio';
 
 // configuration
 import { Configuration, IConfiguration } from './configuration';
 
-export default class Bootsrtrap {
+export class Bootstrap {
 
     private _application: express.Application;
     private _configuration: IConfiguration;
