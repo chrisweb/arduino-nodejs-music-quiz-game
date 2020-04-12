@@ -1,4 +1,4 @@
-﻿import { Bootstrap } from './server/bootstrap';
+import { Bootstrap } from './library/bootstrap';
 
 const bootstrap = new Bootstrap();
 

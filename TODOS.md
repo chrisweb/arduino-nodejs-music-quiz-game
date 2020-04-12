@@ -4,6 +4,15 @@
 
 ### important (for MVP) TODOS
 
+* on GM screen, set user score by default to zero
+* on GM screen, add sentence that score input is only needed if you want to start with a score from previous games (from previous sessions) that is not zero
+* on GM screen, is score automatically set if previous game happend during same session?
+* [BUG] the game master screen doesn't respond if player screen is not open yet
+* on GM screen, validator for scores, must be numeric, must be integer not float
+* on GM screen, show error if playlist can't get fetched because of missing music service setup
+* on the game master screen, use words "teams / players" instead of just team / player
+* in the configuration rename deezerProfileID to profileID
+
 * during game make arduino light up the button that got pressed (first)
 * add the arduino source code to the repository (latest updated version with light management and 4 button support) ???
 * finish the button basis painting
@@ -18,6 +27,8 @@
 * let the game master add team 3 and 4 only if needed, form (+) button adds one more team
 * let the gamemaster choose a color per team, by default attribute a color to each team (alert if two teams have same color)
 * add other services / APIs like spotify or youtube as sources for music
+* extend the configuration file to allow multiple parallel configurations for multiple music services at once
+* in the playlists list display the playlists by alphabetical order, grouped by music service
 * build a landing page (musicquizgame.com), using github pages
 * add a button tester to the first game master screen to be able to connect the colored button to the correct arduino input
 * add a current song index x of y total songs info to the game master screen

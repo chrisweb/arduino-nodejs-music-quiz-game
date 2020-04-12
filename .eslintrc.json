@@ -1,0 +1,68 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "airbnb",
+        "airbnb/hooks",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react",
+        "@typescript-eslint"
+    ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+            }
+        },
+    "rules": {
+        // allow also tsx, as we use typescript this is also a valid extension for JSX
+        "react/jsx-filename-extension": [1, {
+            "extensions": [".jsx", ".tsx"]
+        }],
+        // allow an <a> tag to be inside of nextjs link and not have an href (the href is part of <link> not <a>)
+        "jsx-a11y/anchor-is-valid": ["error", {
+            "components": ["Link"],
+            "specialLink": ["hrefLeft", "hrefRight"],
+            "aspects": ["invalidHref", "preferButton"]
+        }],
+        // we use nextjs so no need to import react manually
+        "react/react-in-jsx-scope": "off",
+        // type are defined by typescript, so removed the need to use the props types dependency
+        "react/prop-types": "off",
+        // prefer the airbnb rule / 4 spaces
+        "react/jsx-indent": "off",
+        // add tsx to extensions that can be omitted
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+            "js": "never",
+            "mjs": "never",
+            "jsx": "never",
+            "ts": "never",
+            "tsx": "never"
+            }
+        ],
+        "object-curly-newline": ["error", {
+            "ImportDeclaration": "never"
+        }]
+    }
+}

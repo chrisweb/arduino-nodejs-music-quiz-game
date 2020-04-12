@@ -4,6 +4,8 @@
 
 # Arduino NodeJS Music Quiz Game
 
+🚨⚠️ project is being re-written lot of things might currently be broken
+
 ![music quiz game logo](./docs/images/music_quiz_game-logo.png)
 
 A music quiz game using an arduino to record buttons input and nodejs as gameserver  
@@ -86,6 +88,26 @@ go into the project directoy if you haven't already and then into the quizz-game
 ```
 cd /PROJECT_DIRECTORY_PATH/quizz-game
 ```  
+
+### ⚠️ Serialport and node-gyp troubleshooting
+
+!!! if you need to compile node-gyp, it is probably because you use the latest nodejs version, if you use the LTS version of nodejs the chance is high you won't have any trouble with node-gyp, so if troubleshooting still fails or takes too much time you might consider just switching to the nodejs LTS version and you will be able to instsall Serialport using a pre built node-gyp without trouble
+
+Serialport is a nodejs addon that needs to get compiled
+
+For the compilation node-gyp is being used
+
+ON WINDOWS: If you don't have Python and Visual Studio installed on windows, node-gyp will fail and hence you won't be able to install the Serialport addon
+
+The [node-gyp README](https://github.com/nodejs/node-gyp#installation) recommends to run the following command in a Powershell instance that you have to run as an Administrator to install the required tools
+
+```
+npm install --global --production windows-build-tools
+```  
+
+After this installing the dependencies should work, if it doesn't please check out the [nodejs documentation about compiling addons](https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#compiling-native-addon-modules) and if it still doen't work open a ticket
+
+ON LINUX & MAC: For other operating systems check out the [node-gyp README](https://github.com/nodejs/node-gyp#installation)
 
 ### ~~install the development dependencies using yarn~~  
 
@@ -199,6 +221,10 @@ to build the project website (on github pages), type
 ```
 gulp build-docs
 ```  
+
+# Initial project setup
+
+check out the [PROJECT_SETUP.md](./PROJECT_SETUP.md) file
 
 # Licenses
 
